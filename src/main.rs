@@ -9,18 +9,24 @@ use log::{debug, error, info};
 
 // GUI
 use eframe::egui;
-use egui::Image;
 
-use image::ImageReader;
-
-mod meta;
-use meta::{Meta, MetaYamlAnnotated};
+use rosmaps::app::RosMapsApp;
+use rosmaps::meta::{Meta, MetaYamlAnnotated};
 
 #[derive(Parser, Debug)]
 #[command(name = "rosmaps", version, author = "Michael Grupp")]
 struct Args {
     #[clap(name = "yaml_files", help = "ROS map yaml files", required = true)]
     yaml_files: Vec<String>,
+    #[clap(
+        short,
+        long,
+        num_args = 2,
+        value_names = &["width", "height"],
+        default_values_t = Vec::from(&[500.0, 500.0]),
+        help = "Initial window width and height in pixels."
+    )]
+    window_size: Vec<f32>,
 }
 
 fn main() -> eframe::Result {
@@ -57,41 +63,19 @@ fn main() -> eframe::Result {
         }
     }
 
+    let size = [args.window_size[0], args.window_size[1]];
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([1000.0, 1000.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size(size),
         ..Default::default()
     };
+
     eframe::run_native(
         "rosmaps",
         options,
         Box::new(|cc| {
             // This gives us image support:
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Ok(Box::<RosMapsApp>::from(RosMapsApp::from(metas)))
+            Ok(Box::<RosMapsApp>::from(RosMapsApp::init(metas, size)))
         }),
     )
-}
-
-#[derive(Default)]
-struct RosMapsApp {
-    metas: Vec<Meta>,
-}
-
-impl RosMapsApp {
-    fn from(metas: Vec<Meta>) -> RosMapsApp {
-        RosMapsApp { metas }
-    }
-}
-
-impl eframe::App for RosMapsApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            egui::ScrollArea::both().show(ui, |ui| {
-                ui.add(egui::Image::new(format!(
-                    "file://{0}",
-                    self.metas[0].image_path.to_str().unwrap()
-                )));
-            });
-        });
-    }
 }
