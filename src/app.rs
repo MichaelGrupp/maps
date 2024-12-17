@@ -1,18 +1,103 @@
+use std::option::Option;
+use std::path::PathBuf;
 use std::vec::Vec;
 
 use eframe::egui;
+use image::{GenericImageView, ImageReader};
+use log::debug;
 
 use crate::meta::Meta;
+
+fn load_image(path: &PathBuf) -> image::DynamicImage {
+    // TODO: hardcoded resize
+    debug!("Loading image: {:?}", path);
+    ImageReader::open(path).unwrap().decode().unwrap()
+}
+
+fn load_images(metas: &Vec<Meta>) -> Vec<image::DynamicImage> {
+    metas
+        .iter()
+        .map(|meta| load_image(&meta.image_path))
+        .collect()
+}
+
+fn fit_image(img: image::DynamicImage, desired_size: egui::Vec2) -> egui::ColorImage {
+    let (original_width, original_height) = img.dimensions();
+    let aspect_ratio = original_width as f32 / original_height as f32;
+    let (new_width, new_height) = if desired_size.x / desired_size.y > aspect_ratio {
+        (
+            (desired_size.y * aspect_ratio) as u32,
+            desired_size.y as u32,
+        )
+    } else {
+        (
+            desired_size.x as u32,
+            (desired_size.x / aspect_ratio) as u32,
+        )
+    };
+    let img = img.resize(new_width, new_height, image::imageops::FilterType::Nearest);
+    let size = [img.width() as usize, img.height() as usize];
+    let pixels = img.to_rgba8().into_raw();
+    egui::ColorImage::from_rgba_unmultiplied(size, &pixels)
+}
 
 #[derive(Default)]
 pub struct RosMapsApp {
     metas: Vec<Meta>,
-    size: [f32; 2],
+    full_images: Vec<image::DynamicImage>,
+    texture_handles: Vec<Option<egui::TextureHandle>>,
+    desired_size: egui::Vec2,
 }
 
 impl RosMapsApp {
-    pub fn init(metas: Vec<Meta>, size: [f32; 2]) -> RosMapsApp {
-        RosMapsApp { metas, size }
+    pub fn init(metas: Vec<Meta>) -> RosMapsApp {
+        RosMapsApp {
+            // TODO: probably makes more sense to work with maps here.
+            texture_handles: vec![None; metas.len()],
+            full_images: load_images(&metas),
+            metas: metas,
+            desired_size: egui::Vec2::default(), // Set in show_images.
+        }
+    }
+
+    fn update_desired_size(&mut self, ui: &egui::Ui) {
+        let pixels_per_point = ui.ctx().zoom_factor() * ui.ctx().pixels_per_point();
+        // TODO: this is probably not the exact size we want.
+        let viewport_info = ui.ctx().screen_rect();
+        let desired_size = egui::vec2(
+            viewport_info.width() * pixels_per_point,
+            viewport_info.height() * pixels_per_point,
+        );
+        let threshold = 50.;
+        if (desired_size.x - self.desired_size.x).abs() > threshold
+            || (desired_size.y - self.desired_size.y).abs() > threshold
+        {
+            // Clear the texture handles if the size changes "significantly".
+            // Note that in egui dropping the last handle of a texture will free it.
+            debug!(
+                "Desired size changed to {:?}, clearing textures.",
+                desired_size
+            );
+            self.texture_handles = vec![None; self.metas.len()];
+        }
+        self.desired_size = desired_size;
+    }
+
+    fn show_images(&mut self, ui: &mut egui::Ui) {
+        self.update_desired_size(ui);
+        for (i, texture_handle) in self.texture_handles.iter_mut().enumerate() {
+            let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
+                // Load the texture only if needed.
+                let name: &str = self.metas[i].image_path.to_str().unwrap();
+                debug!("Loading texture for: {}", name);
+                ui.ctx().load_texture(
+                    name,
+                    fit_image(self.full_images[i].clone(), self.desired_size),
+                    Default::default(),
+                )
+            });
+            ui.image(texture);
+        }
     }
 }
 
@@ -20,16 +105,7 @@ impl eframe::App for RosMapsApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::both().show(ui, |ui| {
-                let size_per_image = [
-                    self.size[0] / self.metas.len() as f32,
-                    self.size[1] / self.metas.len() as f32,
-                ];
-                for meta in &self.metas {
-                    let image =
-                        egui::Image::new(format!("file://{0}", meta.image_path.to_str().unwrap()));
-                    // TODO: Use a better way to scale images.
-                    ui.add_sized(size_per_image, image);
-                }
+                self.show_images(ui);
             });
         });
     }

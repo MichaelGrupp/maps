@@ -63,9 +63,10 @@ fn main() -> eframe::Result {
         }
     }
 
-    let size = [args.window_size[0], args.window_size[1]];
+    let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size(size),
+        renderer: eframe::Renderer::Wgpu,
         ..Default::default()
     };
 
@@ -74,8 +75,9 @@ fn main() -> eframe::Result {
         options,
         Box::new(|cc| {
             // This gives us image support:
+            // TODO: still needed?
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Ok(Box::<RosMapsApp>::from(RosMapsApp::init(metas, size)))
+            Ok(Box::<RosMapsApp>::from(RosMapsApp::init(metas)))
         }),
     )
 }
