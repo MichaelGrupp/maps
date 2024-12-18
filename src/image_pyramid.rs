@@ -1,0 +1,67 @@
+use std::cmp::max;
+use std::collections::HashMap;
+
+use eframe::egui;
+use log::debug;
+
+use crate::image::fit_image;
+
+// Side lengths used for the image pyramid levels.
+const SIZES: [u32; 6] = [8000, 4000, 2000, 1000, 500, 250];
+
+// Stores downscaled versions of an image for discrete sizes.
+// Intended for efficient on-screen rendering of images at different zoom levels.
+pub struct ImagePyramid {
+    original: image::DynamicImage,
+    levels_by_size: HashMap<u32, image::DynamicImage>,
+}
+
+impl ImagePyramid {
+    pub fn new(original: image::DynamicImage) -> ImagePyramid {
+        let original_size = egui::Vec2::new(original.width() as f32, original.height() as f32);
+        ImagePyramid {
+            // TODO: avoid cloning the image?
+            original: fit_image(original.clone(), original_size),
+            levels_by_size: |original: &image::DynamicImage| -> HashMap<u32, image::DynamicImage> {
+                let mut levels: HashMap<u32, image::DynamicImage> = HashMap::new();
+                for size in SIZES {
+                    let image_to_downscale = match levels.get(&(size / 2)) {
+                        Some(parent_level) => parent_level,
+                        None => original,
+                    };
+                    if max(original.width(), original.height()) < size {
+                        continue;
+                    }
+                    let level = fit_image(
+                        image_to_downscale.clone(),
+                        egui::Vec2::new(size as f32, size as f32),
+                    );
+                    levels.insert(size, level);
+                }
+                levels
+            }(&original),
+        }
+    }
+
+    pub fn get_level(&self, size: u32) -> &image::DynamicImage {
+        // Get the closest size that is larger or equal to the requested size.
+        // TODO: this is a bit dumb, it does not respect aspect ratio.
+        match SIZES.iter().rev().find(|&&s| s >= size) {
+            Some(closest) => {
+                debug!("Returning pyramid level for size: {}", closest);
+                self.levels_by_size.get(&closest).unwrap()
+            }
+            None => {
+                debug!(
+                    "No pyramid level larger or equal {} found, returning original.",
+                    size
+                );
+                &self.original
+            }
+        }
+    }
+
+    pub fn num_levels(&self) -> usize {
+        self.levels_by_size.len()
+    }
+}

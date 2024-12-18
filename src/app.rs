@@ -1,92 +1,24 @@
-use std::cmp::max;
-use std::collections::HashMap;
 use std::option::Option;
-use std::path::PathBuf;
 use std::vec::Vec;
 
 use eframe::egui;
-use image::{GenericImageView, ImageReader};
 use log::debug;
 
+use crate::image::{fit_image, load_image, to_egui_image};
+use crate::image_pyramid::ImagePyramid;
 use crate::meta::Meta;
 
-// Side lengths used for the image pyramid levels.
-const SIZES: [u32; 5] = [500, 1000, 2000, 4000, 8000];
-
-struct Pyramid {
-    original: egui::ColorImage,
-    levels_by_size: HashMap<u32, egui::ColorImage>,
-}
-
-impl Pyramid {
-    fn new(original: image::DynamicImage) -> Pyramid {
-        let original_size = egui::Vec2::new(original.width() as f32, original.height() as f32);
-        Pyramid {
-            // TODO: avoid cloning the image?
-            original: fit_image(original.clone(), original_size),
-            levels_by_size: |original: &image::DynamicImage| -> HashMap<u32, egui::ColorImage> {
-                let mut levels: HashMap<u32, egui::ColorImage> = HashMap::new();
-                for size in SIZES {
-                    if max(original.width(), original.height()) < size {
-                        // Small enough, no need to create more levels.
-                        break;
-                    }
-                    let level =
-                        fit_image(original.clone(), egui::Vec2::new(size as f32, size as f32));
-                    levels.insert(size, level);
-                }
-                levels
-            }(&original),
-        }
-    }
-
-    fn get_level(&self, size: u32) -> &egui::ColorImage {
-        // Get the closest size that is larger or equal to the requested size.
-        let size = SIZES.iter().find(|&&s| s >= size);
-        if size.is_some() {
-            return self.levels_by_size.get(&size.unwrap()).unwrap();
-        }
-        return &self.original;
-    }
-}
-
-fn load_image(path: &PathBuf) -> image::DynamicImage {
-    debug!("Loading image: {:?}", path);
-    ImageReader::open(path).unwrap().decode().unwrap()
-}
-
-fn load_image_pyramids(metas: &Vec<Meta>) -> Vec<Pyramid> {
+fn load_image_pyramids(metas: &Vec<Meta>) -> Vec<ImagePyramid> {
     metas
         .iter()
-        .map(|meta| Pyramid::new(load_image(&meta.image_path)))
+        .map(|meta| ImagePyramid::new(load_image(&meta.image_path)))
         .collect()
-}
-
-fn fit_image(img: image::DynamicImage, desired_size: egui::Vec2) -> egui::ColorImage {
-    let (original_width, original_height) = img.dimensions();
-    let aspect_ratio = original_width as f32 / original_height as f32;
-    let (new_width, new_height) = if desired_size.x / desired_size.y > aspect_ratio {
-        (
-            (desired_size.y * aspect_ratio) as u32,
-            desired_size.y as u32,
-        )
-    } else {
-        (
-            desired_size.x as u32,
-            (desired_size.x / aspect_ratio) as u32,
-        )
-    };
-    let img = img.resize(new_width, new_height, image::imageops::FilterType::Nearest);
-    let size = [img.width() as usize, img.height() as usize];
-    // TODO: rgba might make sense here if we want to use alpha later?
-    let pixels = img.to_rgba8().into_raw();
-    egui::ColorImage::from_rgba_unmultiplied(size, &pixels)
 }
 
 #[derive(Default)]
 pub struct RosMapsApp {
     metas: Vec<Meta>,
-    image_pyramids: Vec<Pyramid>,
+    image_pyramids: Vec<ImagePyramid>,
     texture_handles: Vec<Option<egui::TextureHandle>>,
     desired_size: egui::Vec2,
 }
@@ -132,16 +64,15 @@ impl RosMapsApp {
                 // Load the texture only if needed.
                 let name: &str = self.metas[i].image_path.to_str().unwrap();
                 debug!("Loading texture for: {}", name);
-                debug!(
-                    "Image pyramid levels: {}",
-                    self.image_pyramids[i].levels_by_size.len()
-                );
                 let image_pyramid = &self.image_pyramids[i];
                 ui.ctx().load_texture(
                     name,
-                    image_pyramid
-                        .get_level(self.desired_size.max_elem() as u32)
-                        .clone(),
+                    to_egui_image(fit_image(
+                        image_pyramid
+                            .get_level(self.desired_size.max_elem() as u32)
+                            .clone(),
+                        self.desired_size,
+                    )),
                     Default::default(),
                 )
             });
