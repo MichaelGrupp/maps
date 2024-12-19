@@ -83,27 +83,29 @@ impl RosMapsApp {
 
             if response.hovered() {
                 if let Some(pointer_pos) = response.hover_pos() {
-                    let texture_size = self.desired_size;
+                    ui.label(format!("Pointer position (window): {:?}", pointer_pos));
+                    let texture_size = texture.size_vec2();
                     let uv = pointer_pos - response.rect.min;
                     let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
                     let pixel_pos = egui::vec2(uv.x * texture_size.x, uv.y * texture_size.y);
                     ui.label(format!("Pixel position: {:?}", pixel_pos));
 
                     // Calculate the region of the original image to display.
-                    let region_size = 300.;
+                    let region_size = 250.;
                     let half_region_size = region_size / 2.;
                     let original_image = &self.image_pyramids[i].original;
                     let (original_width, original_height) = original_image.dimensions();
-                    let original_uv =
+                    let original_pos =
                         egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
-                    let x = original_uv.x.max(0.) as u32;
-                    let y = original_uv.y.max(0.) as u32;
-                    let min_x = (original_uv.x - half_region_size).max(0.) as u32;
-                    let min_y = (original_uv.y - half_region_size).max(0.) as u32;
+                    ui.label(format!("Original pixel position: {:?}", original_pos));
+                    let x = original_pos.x.max(0.) as u32;
+                    let y = original_pos.y.max(0.) as u32;
+                    let min_x = (original_pos.x - half_region_size).max(0.) as u32;
+                    let min_y = (original_pos.y - half_region_size).max(0.) as u32;
                     let max_x =
-                        (original_uv.x + half_region_size).min(original_width as f32) as u32;
+                        (original_pos.x + half_region_size).min(original_width as f32) as u32;
                     let max_y =
-                        (original_uv.y + half_region_size).min(original_height as f32) as u32;
+                        (original_pos.y + half_region_size).min(original_height as f32) as u32;
 
                     // Get crop for the overlay.
                     let cropped_image =
@@ -114,7 +116,7 @@ impl RosMapsApp {
                         Default::default(),
                     );
 
-                    // Display the overlay next to the mouse pointer.
+                    // Display the overlay centered at the mouse pointer.
                     let overlay_pos = pointer_pos + egui::vec2(10., 10.);
                     ui.put(
                         egui::Rect::from_min_size(
