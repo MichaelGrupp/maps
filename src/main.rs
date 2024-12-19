@@ -23,7 +23,7 @@ struct Args {
         long,
         num_args = 2,
         value_names = &["width", "height"],
-        default_values_t = Vec::from(&[500.0, 500.0]),
+        default_values_t = Vec::from(&[750.0, 750.0]),
         help = "Initial window width and height in pixels."
     )]
     window_size: Vec<f32>,
