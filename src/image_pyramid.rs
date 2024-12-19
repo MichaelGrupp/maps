@@ -12,7 +12,7 @@ const SIZES: [u32; 6] = [8000, 4000, 2000, 1000, 500, 250];
 // Stores downscaled versions of an image for discrete sizes.
 // Intended for efficient on-screen rendering of images at different zoom levels.
 pub struct ImagePyramid {
-    original: image::DynamicImage,
+    pub original: image::DynamicImage,
     levels_by_size: HashMap<u32, image::DynamicImage>,
 }
 
