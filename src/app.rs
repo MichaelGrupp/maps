@@ -41,11 +41,9 @@ impl RosMapsApp {
 
     fn update_desired_size(&mut self, ui: &egui::Ui) {
         let pixels_per_point = ui.ctx().zoom_factor() * ui.ctx().pixels_per_point();
-        // TODO: this is probably not the exact size we want.
-        let viewport_info = ui.ctx().screen_rect();
         let desired_size = egui::vec2(
-            viewport_info.width() * pixels_per_point,
-            viewport_info.height() * pixels_per_point,
+            ui.available_width() * pixels_per_point,
+            ui.available_height() * pixels_per_point,
         );
         // TODO: does threshold even make sense?
         let threshold = 0.;
