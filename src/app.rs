@@ -47,7 +47,8 @@ impl RosMapsApp {
             viewport_info.width() * pixels_per_point,
             viewport_info.height() * pixels_per_point,
         );
-        let threshold = 5.;
+        // TODO: does threshold even make sense?
+        let threshold = 0.;
         if (desired_size.x - self.desired_size.x).abs() > threshold
             || (desired_size.y - self.desired_size.y).abs() > threshold
         {
@@ -83,59 +84,64 @@ impl RosMapsApp {
             });
             let response = ui.image(texture);
 
-            ui.add(egui::Slider::new(
-                &mut self.hover_region_size,
-                100.0..=1000.0,
-            ));
-            ui.separator();
-
-            if response.hovered() {
-                if let Some(pointer_pos) = response.hover_pos() {
-                    ui.label(format!("Pointer position (window): {:?}", pointer_pos));
-                    let texture_size = texture.size_vec2();
-                    let uv = pointer_pos - response.rect.min;
-                    let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
-                    let pixel_pos = egui::vec2(uv.x * texture_size.x, uv.y * texture_size.y);
-                    ui.label(format!("Pixel position: {:?}", pixel_pos));
-
-                    // Calculate the region of the original image to display.
-                    let half_region_size = self.hover_region_size / 2.;
-                    let original_image = &self.image_pyramids[i].original;
-                    let (original_width, original_height) = original_image.dimensions();
-                    let original_pos =
-                        egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
-                    ui.label(format!("Original pixel position: {:?}", original_pos));
-                    let min_x = (original_pos.x - half_region_size).max(0.) as u32;
-                    let min_y = (original_pos.y - half_region_size).max(0.) as u32;
-                    let max_x =
-                        (original_pos.x + half_region_size).min(original_width as f32) as u32;
-                    let max_y =
-                        (original_pos.y + half_region_size).min(original_height as f32) as u32;
-
-                    // Get crop for the overlay.
-                    let cropped_image =
-                        original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
-                    let overlay_texture_handle = ui.ctx().load_texture(
-                        "overlay_".to_owned() + &texture_name,
-                        to_egui_image(cropped_image),
-                        Default::default(),
-                    );
-
-                    // Display the overlay centered at the mouse pointer.
-                    let overlay_pos = pointer_pos + egui::vec2(10., 10.);
-                    ui.put(
-                        egui::Rect::from_min_size(
-                            overlay_pos,
-                            egui::vec2(self.hover_region_size, self.hover_region_size),
-                        ),
-                        egui::Image::new(&overlay_texture_handle),
-                    );
-                    self.overlay_texture_handles[i] = Some(overlay_texture_handle);
-                }
-            } else {
+            let Some(pointer_pos) = response.hover_pos() else {
                 // Clear the overlay texture if the mouse is not hovering over the image.
                 self.overlay_texture_handles[i] = None;
-            }
+                continue;
+            };
+
+            // Show an overlay with a crop region of the original size image.
+            // For this, the pointer position in the rendered texture needs to be converted
+            // to corresponding coordinates in the unscaled original image.
+            let texture_size = &texture.size_vec2();
+            let uv = pointer_pos - response.rect.min;
+            let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
+            let pixel_pos = egui::vec2(uv.x * texture_size.x, uv.y * texture_size.y);
+            ui.label(format!("Pointer position (window): {:?}", pointer_pos));
+            ui.label(format!("Texture pixel position: {:?}", pixel_pos));
+
+            let original_image = &self.image_pyramids[i].original;
+            let (original_width, original_height) = original_image.dimensions();
+
+            let original_pos =
+                egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
+            ui.label(format!("Original image pixel position: {:?}", original_pos));
+
+            // Get crop for the overlay.
+            let half_region_size = self.hover_region_size / 2.;
+            let min_x = (original_pos.x - half_region_size).max(0.) as u32;
+            let min_y = (original_pos.y - half_region_size).max(0.) as u32;
+            let max_x = (original_pos.x + half_region_size).min(original_width as f32) as u32;
+            let max_y = (original_pos.y + half_region_size).min(original_height as f32) as u32;
+            let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+            let overlay_texture_handle = ui.ctx().load_texture(
+                "overlay_".to_owned() + &texture_name,
+                to_egui_image(cropped_image),
+                Default::default(),
+            );
+
+            // Display the overlay centered at the mouse pointer.
+            let overlay_pos = pointer_pos + egui::vec2(10., 10.);
+            ui.put(
+                egui::Rect::from_min_size(
+                    overlay_pos,
+                    egui::vec2(self.hover_region_size, self.hover_region_size),
+                ),
+                egui::Image::new(&overlay_texture_handle),
+            );
+            self.overlay_texture_handles[i] = Some(overlay_texture_handle);
+
+            // Show the crop area also in the scaled texture coordinates as a small rectangle.
+            let small_rect_ratio = original_width as f32 / texture_size.x as f32;
+            let small_rect = egui::Rect::from_min_size(
+                pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
+                egui::vec2(self.hover_region_size, self.hover_region_size) / small_rect_ratio,
+            );
+            ui.painter().add(egui::Shape::rect_stroke(
+                small_rect,
+                0.,
+                egui::Stroke::new(2., egui::Rgba::from_rgb(1., 0., 0.)),
+            ));
         }
     }
 }
@@ -143,12 +149,23 @@ impl RosMapsApp {
 impl eframe::App for RosMapsApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
+            let space = 10.;
             ui.heading("ROS Maps");
-            egui::ScrollArea::both().show(ui, |ui| {
-                self.show_images(ui);
+            ui.add_space(space);
+
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                ui.label("ROI size (pixels):");
+                ui.add(egui::Slider::new(
+                    &mut self.hover_region_size,
+                    100.0..=1000.0,
+                ));
             });
-            ctx.pointer_hover_pos().map(|pos| {
-                ui.label(format!("Mouse position: {:?}", pos));
+
+            egui::ScrollArea::both().show(ui, |ui| {
+                ui.add_space(space);
+                self.show_images(ui);
+                // Fill the remaining vertical space, otherwise the scroll bar can jump around.
+                ui.add_space(ui.available_height());
             });
         });
     }
