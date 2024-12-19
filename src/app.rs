@@ -23,6 +23,7 @@ pub struct RosMapsApp {
     texture_handles: Vec<Option<egui::TextureHandle>>,
     overlay_texture_handle: Option<egui::TextureHandle>,
     desired_size: egui::Vec2,
+    hover_region_size: f32,
 }
 
 impl RosMapsApp {
@@ -34,6 +35,7 @@ impl RosMapsApp {
             image_pyramids: load_image_pyramids(&metas),
             metas: metas,
             desired_size: egui::Vec2::default(), // Set in show_images.
+            hover_region_size: 250.,
         }
     }
 
@@ -81,6 +83,12 @@ impl RosMapsApp {
             });
             let response = ui.image(texture);
 
+            ui.add(egui::Slider::new(
+                &mut self.hover_region_size,
+                100.0..=1000.0,
+            ));
+            ui.separator();
+
             if response.hovered() {
                 if let Some(pointer_pos) = response.hover_pos() {
                     ui.label(format!("Pointer position (window): {:?}", pointer_pos));
@@ -91,15 +99,12 @@ impl RosMapsApp {
                     ui.label(format!("Pixel position: {:?}", pixel_pos));
 
                     // Calculate the region of the original image to display.
-                    let region_size = 250.;
-                    let half_region_size = region_size / 2.;
+                    let half_region_size = self.hover_region_size / 2.;
                     let original_image = &self.image_pyramids[i].original;
                     let (original_width, original_height) = original_image.dimensions();
                     let original_pos =
                         egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
                     ui.label(format!("Original pixel position: {:?}", original_pos));
-                    let x = original_pos.x.max(0.) as u32;
-                    let y = original_pos.y.max(0.) as u32;
                     let min_x = (original_pos.x - half_region_size).max(0.) as u32;
                     let min_y = (original_pos.y - half_region_size).max(0.) as u32;
                     let max_x =
@@ -109,7 +114,7 @@ impl RosMapsApp {
 
                     // Get crop for the overlay.
                     let cropped_image =
-                        original_image.crop_imm(min_x, y, max_x - min_x, max_y - min_y);
+                        original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
                     let overlay_texture_handle = ui.ctx().load_texture(
                         "overlay",
                         to_egui_image(cropped_image),
@@ -121,7 +126,7 @@ impl RosMapsApp {
                     ui.put(
                         egui::Rect::from_min_size(
                             overlay_pos,
-                            egui::vec2(region_size, region_size),
+                            egui::vec2(self.hover_region_size, self.hover_region_size),
                         ),
                         egui::Image::new(&overlay_texture_handle),
                     );
