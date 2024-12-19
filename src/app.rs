@@ -21,7 +21,7 @@ pub struct RosMapsApp {
     metas: Vec<Meta>,
     image_pyramids: Vec<ImagePyramid>,
     texture_handles: Vec<Option<egui::TextureHandle>>,
-    overlay_texture_handle: Option<egui::TextureHandle>,
+    overlay_texture_handles: Vec<Option<egui::TextureHandle>>,
     desired_size: egui::Vec2,
     hover_region_size: f32,
 }
@@ -31,7 +31,7 @@ impl RosMapsApp {
         RosMapsApp {
             // TODO: probably makes more sense to work with maps here.
             texture_handles: vec![None; metas.len()],
-            overlay_texture_handle: None,
+            overlay_texture_handles: vec![None; metas.len()],
             image_pyramids: load_image_pyramids(&metas),
             metas: metas,
             desired_size: egui::Vec2::default(), // Set in show_images.
@@ -130,11 +130,11 @@ impl RosMapsApp {
                         ),
                         egui::Image::new(&overlay_texture_handle),
                     );
-                    self.overlay_texture_handle = Some(overlay_texture_handle);
+                    self.overlay_texture_handles[i] = Some(overlay_texture_handle);
                 }
             } else {
                 // Clear the overlay texture if the mouse is not hovering over the image.
-                self.overlay_texture_handle = None;
+                self.overlay_texture_handles[i] = None;
             }
         }
     }
