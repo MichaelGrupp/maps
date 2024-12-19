@@ -65,13 +65,13 @@ impl RosMapsApp {
     fn show_images(&mut self, ui: &mut egui::Ui) {
         self.update_desired_size(ui);
         for (i, texture_handle) in self.texture_handles.iter_mut().enumerate() {
+            let texture_name: &str = self.metas[i].image_path.to_str().unwrap();
             let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
                 // Load the texture only if needed.
-                let name: &str = self.metas[i].image_path.to_str().unwrap();
-                debug!("Loading texture for: {}", name);
+                debug!("Loading texture for: {}", texture_name);
                 let image_pyramid = &self.image_pyramids[i];
                 ui.ctx().load_texture(
-                    name,
+                    texture_name,
                     to_egui_image(fit_image(
                         image_pyramid
                             .get_level(self.desired_size.max_elem() as u32)
@@ -116,7 +116,7 @@ impl RosMapsApp {
                     let cropped_image =
                         original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
                     let overlay_texture_handle = ui.ctx().load_texture(
-                        "overlay",
+                        "overlay_".to_owned() + &texture_name,
                         to_egui_image(cropped_image),
                         Default::default(),
                     );
