@@ -23,7 +23,7 @@ pub struct RosMapsApp {
     texture_handles: Vec<Option<egui::TextureHandle>>,
     overlay_texture_handles: Vec<Option<egui::TextureHandle>>,
     desired_size: egui::Vec2,
-    hover_region_size: f32,
+    hover_region_size_meters: f32,
 }
 
 impl RosMapsApp {
@@ -35,7 +35,7 @@ impl RosMapsApp {
             image_pyramids: load_image_pyramids(&metas),
             metas: metas,
             desired_size: egui::Vec2::default(), // Set in show_images.
-            hover_region_size: 250.,
+            hover_region_size_meters: 250.,
         }
     }
 
@@ -106,7 +106,9 @@ impl RosMapsApp {
             ui.label(format!("Original image pixel position: {:?}", original_pos));
 
             // Get crop for the overlay.
-            let half_region_size = self.hover_region_size / 2.;
+            let hover_region_size_pixels =
+                self.hover_region_size_meters / self.metas[i].resolution as f32;
+            let half_region_size = hover_region_size_pixels / 2.;
             let min_x = (original_pos.x - half_region_size).max(0.) as u32;
             let min_y = (original_pos.y - half_region_size).max(0.) as u32;
             let max_x = (original_pos.x + half_region_size).min(original_width as f32) as u32;
@@ -123,7 +125,7 @@ impl RosMapsApp {
             let small_rect_ratio = original_width as f32 / texture_size.x as f32;
             let small_rect = egui::Rect::from_min_size(
                 pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
-                egui::vec2(self.hover_region_size, self.hover_region_size) / small_rect_ratio,
+                egui::vec2(hover_region_size_pixels, hover_region_size_pixels) / small_rect_ratio,
             );
             ui.painter()
                 .add(egui::Shape::rect_stroke(small_rect, 0., stroke));
@@ -132,11 +134,11 @@ impl RosMapsApp {
             // Make sure it stays within the window and does not overlap with the small rectangle.
             let pointer_offset = egui::vec2(20., 20.);
             let overlay_pos = (pointer_pos + pointer_offset).min(
-                response.rect.max - egui::vec2(self.hover_region_size, self.hover_region_size),
+                response.rect.max - egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
             );
             let mut overlay_rect = egui::Rect::from_min_size(
                 overlay_pos,
-                egui::vec2(self.hover_region_size, self.hover_region_size),
+                egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
             );
             if overlay_rect.intersects(small_rect) {
                 overlay_rect = overlay_rect.translate(egui::vec2(
@@ -165,10 +167,10 @@ impl eframe::App for RosMapsApp {
             ui.add_space(space);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                ui.label("ROI size (pixels):");
+                ui.label("ROI size (meters):");
                 ui.add(egui::Slider::new(
-                    &mut self.hover_region_size,
-                    100.0..=1000.0,
+                    &mut self.hover_region_size_meters,
+                    2.5..=25.0,
                 ));
             });
 
