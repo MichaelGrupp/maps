@@ -7,7 +7,8 @@ use log::debug;
 use crate::image::fit_image;
 
 // Side lengths used for the image pyramid levels.
-const SIZES: [u32; 6] = [8000, 4000, 2000, 1000, 500, 250];
+// These shall correspond roughly to realistic screen resolutions.
+const SIZES: [u32; 5] = [4000, 2000, 1000, 500, 250];
 
 // Stores downscaled versions of an image for discrete sizes.
 // Intended for efficient on-screen rendering of images at different zoom levels.
@@ -32,6 +33,7 @@ impl ImagePyramid {
                     if max(original.width(), original.height()) < size {
                         continue;
                     }
+                    debug!("Creating pyramid level for size: {}", size);
                     let level = fit_image(
                         image_to_downscale.clone(),
                         egui::Vec2::new(size as f32, size as f32),
