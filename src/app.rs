@@ -24,6 +24,7 @@ pub struct RosMapsApp {
     overlay_texture_handles: Vec<Option<egui::TextureHandle>>,
     desired_size: egui::Vec2,
     hover_region_size_meters: f32,
+    hover_region_enabled: bool,
 }
 
 impl RosMapsApp {
@@ -35,7 +36,8 @@ impl RosMapsApp {
             image_pyramids: load_image_pyramids(&metas),
             metas: metas,
             desired_size: egui::Vec2::default(), // Set in show_images.
-            hover_region_size_meters: 250.,
+            hover_region_size_meters: 5.,
+            hover_region_enabled: true,
         }
     }
 
@@ -87,6 +89,10 @@ impl RosMapsApp {
                 self.overlay_texture_handles[i] = None;
                 continue;
             };
+
+            if !self.hover_region_enabled {
+                continue;
+            }
 
             // Show an overlay with a crop region of the original size image.
             // For this, the pointer position in the rendered texture needs to be converted
@@ -172,6 +178,7 @@ impl eframe::App for RosMapsApp {
                     &mut self.hover_region_size_meters,
                     2.5..=25.0,
                 ));
+                ui.checkbox(&mut self.hover_region_enabled, "Show ROI.");
             });
 
             egui::ScrollArea::both().show(ui, |ui| {
