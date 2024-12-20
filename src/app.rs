@@ -3,7 +3,7 @@ use std::vec::Vec;
 
 use eframe::egui;
 use image::GenericImageView;
-use log::debug;
+use log::{debug, error};
 
 use crate::image::{fit_image, load_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
@@ -63,11 +63,11 @@ impl RosMapsApp {
         self.desired_size = desired_size;
     }
 
-    fn show_images(&mut self, ui: &mut egui::Ui) {
+    fn update_texture_handles(&mut self, ui: &egui::Ui) {
         self.update_desired_size(ui);
         for (i, texture_handle) in self.texture_handles.iter_mut().enumerate() {
             let texture_name: &str = self.metas[i].image_path.to_str().unwrap();
-            let texture: &egui::TextureHandle = texture_handle.get_or_insert_with(|| {
+            texture_handle.get_or_insert_with(|| {
                 // Load the texture only if needed.
                 debug!("Loading texture for: {}", texture_name);
                 let image_pyramid = &self.image_pyramids[i];
@@ -82,86 +82,101 @@ impl RosMapsApp {
                     Default::default(),
                 )
             });
-            let response = ui.image(texture);
+        }
+    }
 
-            let Some(pointer_pos) = response.hover_pos() else {
-                // Clear the overlay texture if the mouse is not hovering over the image.
-                self.overlay_texture_handles[i] = None;
-                continue;
-            };
+    fn show_images(&mut self, ui: &mut egui::Ui) {
+        self.update_desired_size(ui);
+        self.update_texture_handles(ui);
 
-            if !self.hover_region_enabled {
-                continue;
+        for i in 0..self.texture_handles.len() {
+            ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
+                self.show_image(ui, i)
+            });
+        }
+    }
+
+    fn show_image(&mut self, ui: &mut egui::Ui, i: usize) {
+        let texture = match &self.texture_handles[i] {
+            Some(texture) => texture,
+            None => {
+                error!("Missing texture handle for image index: {}", i);
+                return;
             }
+        };
+        let response = ui.image(texture);
 
-            // Show an overlay with a crop region of the original size image.
-            // For this, the pointer position in the rendered texture needs to be converted
-            // to corresponding coordinates in the unscaled original image.
-            let texture_size = &texture.size_vec2();
-            let uv = pointer_pos - response.rect.min;
-            let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
-            let pixel_pos = egui::vec2(uv.x * texture_size.x, uv.y * texture_size.y);
-            ui.label(format!("Pointer position (window): {:?}", pointer_pos));
-            ui.label(format!("Texture pixel position: {:?}", pixel_pos));
+        let Some(pointer_pos) = response.hover_pos() else {
+            // Clear the overlay texture if the mouse is not hovering over the image.
+            self.overlay_texture_handles[i] = None;
+            return;
+        };
 
-            let original_image = &self.image_pyramids[i].original;
-            let (original_width, original_height) = original_image.dimensions();
+        if !self.hover_region_enabled {
+            return;
+        }
 
-            let original_pos =
-                egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
-            ui.label(format!("Original image pixel position: {:?}", original_pos));
+        // Show an overlay with a crop region of the original size image.
+        // For this, the pointer position in the rendered texture needs to be converted
+        // to corresponding coordinates in the unscaled original image.
+        let texture_size = &texture.size_vec2();
+        let uv = pointer_pos - response.rect.min;
+        let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
 
-            // Get crop for the overlay.
-            let hover_region_size_pixels =
-                self.hover_region_size_meters / self.metas[i].resolution as f32;
-            let half_region_size = hover_region_size_pixels / 2.;
-            let min_x = (original_pos.x - half_region_size).max(0.) as u32;
-            let min_y = (original_pos.y - half_region_size).max(0.) as u32;
-            let max_x = (original_pos.x + half_region_size).min(original_width as f32) as u32;
-            let max_y = (original_pos.y + half_region_size).min(original_height as f32) as u32;
-            let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
-            let overlay_texture_handle = ui.ctx().load_texture(
-                "overlay_".to_owned() + &texture_name,
-                to_egui_image(cropped_image),
-                Default::default(),
-            );
+        let original_image = &self.image_pyramids[i].original;
+        let (original_width, original_height) = original_image.dimensions();
+        let original_pos = egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
 
-            // Show the crop area also in the scaled texture coordinates as a small rectangle.
-            let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0.5, 0.5, 0.));
-            let small_rect_ratio = original_width as f32 / texture_size.x as f32;
-            let small_rect = egui::Rect::from_min_size(
-                pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
-                egui::vec2(hover_region_size_pixels, hover_region_size_pixels) / small_rect_ratio,
-            );
-            ui.painter()
-                .add(egui::Shape::rect_stroke(small_rect, 0., stroke));
+        // Get crop for the overlay.
+        let hover_region_size_pixels =
+            self.hover_region_size_meters / self.metas[i].resolution as f32;
+        let half_region_size = hover_region_size_pixels / 2.;
+        let min_x = (original_pos.x - half_region_size).max(0.) as u32;
+        let min_y = (original_pos.y - half_region_size).max(0.) as u32;
+        let max_x = (original_pos.x + half_region_size).min(original_width as f32) as u32;
+        let max_y = (original_pos.y + half_region_size).min(original_height as f32) as u32;
+        let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        let overlay_texture_handle = ui.ctx().load_texture(
+            "overlay_".to_owned() + &texture.name(),
+            to_egui_image(cropped_image),
+            Default::default(),
+        );
 
-            // Display the overlay next to the mouse pointer.
-            // Make sure it stays within the window and does not overlap with the small rectangle.
-            let pointer_offset = egui::vec2(20., 20.);
-            let overlay_pos = (pointer_pos + pointer_offset).min(
-                response.rect.max - egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
-            );
-            let mut overlay_rect = egui::Rect::from_min_size(
-                overlay_pos,
-                egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
-            );
-            if overlay_rect.intersects(small_rect) {
-                overlay_rect = overlay_rect.translate(egui::vec2(
-                    -(response.rect.max.x - small_rect.min.x + pointer_offset.x),
-                    0.,
-                ));
-            }
-            ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
-            self.overlay_texture_handles[i] = Some(overlay_texture_handle);
+        // Show the crop area also in the scaled texture coordinates as a small rectangle.
+        let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0.5, 0.5, 0.));
+        let small_rect_ratio = original_width as f32 / texture_size.x as f32;
+        let small_rect = egui::Rect::from_min_size(
+            pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
+            egui::vec2(hover_region_size_pixels, hover_region_size_pixels) / small_rect_ratio,
+        );
+        ui.painter()
+            .add(egui::Shape::rect_stroke(small_rect, 0., stroke));
 
-            // Draw border around overlay.
-            ui.painter().add(egui::Shape::rect_stroke(
-                overlay_rect.expand(stroke.width / 2.),
+        // Display the overlay next to the mouse pointer.
+        // Make sure it stays within the window and does not overlap with the small rectangle.
+        let pointer_offset = egui::vec2(20., 20.);
+        let overlay_pos = (pointer_pos + pointer_offset).min(
+            response.rect.max - egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
+        );
+        let mut overlay_rect = egui::Rect::from_min_size(
+            overlay_pos,
+            egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
+        );
+        if overlay_rect.intersects(small_rect) {
+            overlay_rect = overlay_rect.translate(egui::vec2(
+                -(response.rect.max.x - small_rect.min.x + pointer_offset.x),
                 0.,
-                stroke,
             ));
         }
+        ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
+        self.overlay_texture_handles[i] = Some(overlay_texture_handle);
+
+        // Draw border around overlay.
+        ui.painter().add(egui::Shape::rect_stroke(
+            overlay_rect.expand(stroke.width / 2.),
+            0.,
+            stroke,
+        ));
     }
 }
 
