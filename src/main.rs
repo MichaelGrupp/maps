@@ -10,7 +10,7 @@ use log::{debug, error, info};
 // GUI
 use eframe::egui;
 
-use rosmaps::app::RosMapsApp;
+use rosmaps::app::AppState;
 use rosmaps::meta::{Meta, MetaYamlAnnotated};
 
 #[derive(Parser, Debug)]
@@ -77,7 +77,7 @@ fn main() -> eframe::Result {
             // This gives us image support:
             // TODO: still needed?
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Ok(Box::<RosMapsApp>::from(RosMapsApp::init(metas)))
+            Ok(Box::<AppState>::from(AppState::init(metas)))
         }),
     )
 }

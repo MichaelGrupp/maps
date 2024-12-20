@@ -1,83 +1,94 @@
+use std::collections::HashMap;
 use std::option::Option;
 use std::vec::Vec;
 
 use eframe::egui;
 use image::GenericImageView;
-use log::{debug, error};
+use log::debug;
 
 use crate::image::{fit_image, load_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::meta::Meta;
 
-fn load_image_pyramids(metas: &Vec<Meta>) -> Vec<ImagePyramid> {
-    metas
-        .iter()
-        .map(|meta| ImagePyramid::new(load_image(&meta.image_path)))
-        .collect()
-}
-
-#[derive(Default)]
-pub struct RosMapsApp {
-    metas: Vec<Meta>,
-    image_pyramids: Vec<ImagePyramid>,
-    texture_handles: Vec<Option<egui::TextureHandle>>,
-    overlay_texture_handles: Vec<Option<egui::TextureHandle>>,
+#[derive(Default, Debug)]
+struct AppOptions {
     desired_size: egui::Vec2,
     hover_region_size_meters: f32,
     hover_region_enabled: bool,
 }
 
-impl RosMapsApp {
-    pub fn init(metas: Vec<Meta>) -> RosMapsApp {
-        RosMapsApp {
-            // TODO: probably makes more sense to work with maps here.
-            texture_handles: vec![None; metas.len()],
-            overlay_texture_handles: vec![None; metas.len()],
-            image_pyramids: load_image_pyramids(&metas),
-            metas: metas,
-            desired_size: egui::Vec2::default(), // Set in show_images.
-            hover_region_size_meters: 5.,
-            hover_region_enabled: true,
+#[derive(Default)]
+struct TextureState {
+    image_response: Option<egui::Response>,
+    texture_handle: Option<egui::TextureHandle>,
+}
+
+struct MapState {
+    meta: Meta,
+    image_pyramid: ImagePyramid,
+    texture_state: TextureState,
+    overlay_texture: Option<egui::TextureHandle>,
+}
+
+#[derive(Default)]
+pub struct AppState {
+    options: AppOptions,
+    maps: HashMap<String, MapState>,
+}
+
+impl AppState {
+    pub fn init(metas: Vec<Meta>) -> AppState {
+        let mut state = AppState::default();
+        for meta in metas {
+            let image_pyramid = ImagePyramid::new(load_image(&meta.image_path));
+            state.maps.insert(
+                meta.image_path.to_str().unwrap().to_owned(),
+                MapState {
+                    meta,
+                    image_pyramid,
+                    texture_state: TextureState::default(),
+                    overlay_texture: None,
+                },
+            );
         }
+        state
     }
 
     fn update_desired_size(&mut self, ui: &egui::Ui) {
+        let old_size = self.options.desired_size;
         let pixels_per_point = ui.ctx().zoom_factor() * ui.ctx().pixels_per_point();
         let desired_size = egui::vec2(
             ui.available_width() * pixels_per_point,
             ui.available_height() * pixels_per_point,
         );
-        // TODO: does threshold even make sense?
-        let threshold = 0.;
-        if (desired_size.x - self.desired_size.x).abs() > threshold
-            || (desired_size.y - self.desired_size.y).abs() > threshold
-        {
-            // Clear the texture handles if the size changes "significantly".
+        if desired_size != old_size {
             // Note that in egui dropping the last handle of a texture will free it.
             debug!(
                 "Desired size changed to {:?}, clearing textures.",
                 desired_size
             );
-            self.texture_handles = vec![None; self.metas.len()];
+            for map in self.maps.values_mut() {
+                map.texture_state.texture_handle = None;
+            }
         }
-        self.desired_size = desired_size;
+        self.options.desired_size = desired_size;
     }
 
     fn update_texture_handles(&mut self, ui: &egui::Ui) {
         self.update_desired_size(ui);
-        for (i, texture_handle) in self.texture_handles.iter_mut().enumerate() {
-            let texture_name: &str = self.metas[i].image_path.to_str().unwrap();
-            texture_handle.get_or_insert_with(|| {
+
+        for (name, map) in &mut self.maps {
+            map.texture_state.texture_handle.get_or_insert_with(|| {
                 // Load the texture only if needed.
-                debug!("Loading texture for: {}", texture_name);
-                let image_pyramid = &self.image_pyramids[i];
+                debug!("Fitting and reloading texture for: {}", name);
+                let image_pyramid = &map.image_pyramid;
                 ui.ctx().load_texture(
-                    texture_name,
+                    name,
                     to_egui_image(fit_image(
                         image_pyramid
-                            .get_level(self.desired_size.max_elem() as u32)
+                            .get_level(self.options.desired_size.max_elem() as u32)
                             .clone(),
-                        self.desired_size,
+                        self.options.desired_size,
                     )),
                     Default::default(),
                 )
@@ -86,50 +97,65 @@ impl RosMapsApp {
     }
 
     fn show_images(&mut self, ui: &mut egui::Ui) {
-        self.update_desired_size(ui);
         self.update_texture_handles(ui);
 
-        for i in 0..self.texture_handles.len() {
+        let options = &self.options;
+        for (name, map) in self.maps.iter_mut() {
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                self.show_image(ui, i)
+                Self::show_image(ui, name, map);
+                Self::show_overlay(ui, name, map, options);
             });
         }
     }
 
-    fn show_image(&mut self, ui: &mut egui::Ui, i: usize) {
-        let texture = match &self.texture_handles[i] {
+    fn show_image(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
+        let texture = match &map.texture_state.texture_handle {
             Some(texture) => texture,
             None => {
-                error!("Missing texture handle for image index: {}", i);
-                return;
+                panic!("Missing texture handle for image {}", name);
             }
         };
-        let response = ui.image(texture);
+        map.texture_state.image_response = Some(ui.image(texture));
+    }
+
+    fn show_overlay(ui: &mut egui::Ui, name: &str, map: &mut MapState, options: &AppOptions) {
+        if !options.hover_region_enabled {
+            return;
+        }
+
+        let response = match &map.texture_state.image_response {
+            Some(response) => response,
+            None => {
+                panic!("Missing image response for image {}", name);
+            }
+        };
 
         let Some(pointer_pos) = response.hover_pos() else {
             // Clear the overlay texture if the mouse is not hovering over the image.
-            self.overlay_texture_handles[i] = None;
+            map.overlay_texture = None;
             return;
         };
-
-        if !self.hover_region_enabled {
-            return;
-        }
 
         // Show an overlay with a crop region of the original size image.
         // For this, the pointer position in the rendered texture needs to be converted
         // to corresponding coordinates in the unscaled original image.
+        let texture = match &map.texture_state.texture_handle {
+            Some(texture) => texture,
+            None => {
+                panic!("Missing texture handle for image {}", name);
+            }
+        };
         let texture_size = &texture.size_vec2();
         let uv = pointer_pos - response.rect.min;
         let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
 
-        let original_image = &self.image_pyramids[i].original;
+        let original_image = &map.image_pyramid.original;
         let (original_width, original_height) = original_image.dimensions();
         let original_pos = egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
 
         // Get crop for the overlay.
         let hover_region_size_pixels =
-            self.hover_region_size_meters / self.metas[i].resolution as f32;
+            options.hover_region_size_meters / map.meta.resolution as f32;
         let half_region_size = hover_region_size_pixels / 2.;
         let min_x = (original_pos.x - half_region_size).max(0.) as u32;
         let min_y = (original_pos.y - half_region_size).max(0.) as u32;
@@ -137,7 +163,7 @@ impl RosMapsApp {
         let max_y = (original_pos.y + half_region_size).min(original_height as f32) as u32;
         let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
         let overlay_texture_handle = ui.ctx().load_texture(
-            "overlay_".to_owned() + &texture.name(),
+            "overlay_".to_owned() + name,
             to_egui_image(cropped_image),
             Default::default(),
         );
@@ -169,7 +195,7 @@ impl RosMapsApp {
             ));
         }
         ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
-        self.overlay_texture_handles[i] = Some(overlay_texture_handle);
+        map.overlay_texture = Some(overlay_texture_handle);
 
         // Draw border around overlay.
         ui.painter().add(egui::Shape::rect_stroke(
@@ -180,7 +206,7 @@ impl RosMapsApp {
     }
 }
 
-impl eframe::App for RosMapsApp {
+impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             let space = 10.;
@@ -190,10 +216,10 @@ impl eframe::App for RosMapsApp {
             ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
                 ui.label("ROI size (meters):");
                 ui.add(egui::Slider::new(
-                    &mut self.hover_region_size_meters,
+                    &mut self.options.hover_region_size_meters,
                     2.5..=25.0,
                 ));
-                ui.checkbox(&mut self.hover_region_enabled, "Show ROI.");
+                ui.checkbox(&mut self.options.hover_region_enabled, "Show ROI");
             });
 
             egui::ScrollArea::both().show(ui, |ui| {
