@@ -119,15 +119,21 @@ impl RosMapsApp {
             );
 
             // Display the overlay centered at the mouse pointer.
-            let overlay_pos = pointer_pos + egui::vec2(10., 10.);
-            ui.put(
-                egui::Rect::from_min_size(
-                    overlay_pos,
-                    egui::vec2(self.hover_region_size, self.hover_region_size),
-                ),
-                egui::Image::new(&overlay_texture_handle),
+            let overlay_pos = pointer_pos + egui::vec2(20., 20.);
+            let overlay_rect = egui::Rect::from_min_size(
+                overlay_pos,
+                egui::vec2(self.hover_region_size, self.hover_region_size),
             );
+            ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
             self.overlay_texture_handles[i] = Some(overlay_texture_handle);
+
+            // Draw border around overlay.
+            let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0.5, 0.5, 0.));
+            ui.painter().add(egui::Shape::rect_stroke(
+                overlay_rect.expand(stroke.width),
+                0.,
+                stroke,
+            ));
 
             // Show the crop area also in the scaled texture coordinates as a small rectangle.
             let small_rect_ratio = original_width as f32 / texture_size.x as f32;
@@ -135,11 +141,8 @@ impl RosMapsApp {
                 pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
                 egui::vec2(self.hover_region_size, self.hover_region_size) / small_rect_ratio,
             );
-            ui.painter().add(egui::Shape::rect_stroke(
-                small_rect,
-                0.,
-                egui::Stroke::new(2., egui::Rgba::from_rgb(1., 0., 0.)),
-            ));
+            ui.painter()
+                .add(egui::Shape::rect_stroke(small_rect, 0., stroke));
         }
     }
 }
