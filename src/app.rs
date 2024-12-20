@@ -118,24 +118,8 @@ impl RosMapsApp {
                 Default::default(),
             );
 
-            // Display the overlay centered at the mouse pointer.
-            let overlay_pos = pointer_pos + egui::vec2(20., 20.);
-            let overlay_rect = egui::Rect::from_min_size(
-                overlay_pos,
-                egui::vec2(self.hover_region_size, self.hover_region_size),
-            );
-            ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
-            self.overlay_texture_handles[i] = Some(overlay_texture_handle);
-
-            // Draw border around overlay.
-            let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0.5, 0.5, 0.));
-            ui.painter().add(egui::Shape::rect_stroke(
-                overlay_rect.expand(stroke.width),
-                0.,
-                stroke,
-            ));
-
             // Show the crop area also in the scaled texture coordinates as a small rectangle.
+            let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0.5, 0.5, 0.));
             let small_rect_ratio = original_width as f32 / texture_size.x as f32;
             let small_rect = egui::Rect::from_min_size(
                 pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
@@ -143,6 +127,32 @@ impl RosMapsApp {
             );
             ui.painter()
                 .add(egui::Shape::rect_stroke(small_rect, 0., stroke));
+
+            // Display the overlay next to the mouse pointer.
+            // Make sure it stays within the window and does not overlap with the small rectangle.
+            let pointer_offset = egui::vec2(20., 20.);
+            let overlay_pos = (pointer_pos + pointer_offset).min(
+                response.rect.max - egui::vec2(self.hover_region_size, self.hover_region_size),
+            );
+            let mut overlay_rect = egui::Rect::from_min_size(
+                overlay_pos,
+                egui::vec2(self.hover_region_size, self.hover_region_size),
+            );
+            if overlay_rect.intersects(small_rect) {
+                overlay_rect = overlay_rect.translate(egui::vec2(
+                    -(response.rect.max.x - small_rect.min.x + pointer_offset.x),
+                    0.,
+                ));
+            }
+            ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
+            self.overlay_texture_handles[i] = Some(overlay_texture_handle);
+
+            // Draw border around overlay.
+            ui.painter().add(egui::Shape::rect_stroke(
+                overlay_rect.expand(stroke.width / 2.),
+                0.,
+                stroke,
+            ));
         }
     }
 }
