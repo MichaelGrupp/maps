@@ -36,22 +36,36 @@ pub struct AppState {
     maps: HashMap<String, MapState>,
 }
 
+#[derive(Debug)]
+pub struct Error {
+    pub message: String,
+}
+
 impl AppState {
-    pub fn init(metas: Vec<Meta>) -> AppState {
+    pub fn init(metas: Vec<Meta>) -> Result<AppState, Error> {
         let mut state = AppState::default();
         for meta in metas {
-            let image_pyramid = ImagePyramid::new(load_image(&meta.image_path));
-            state.maps.insert(
-                meta.image_path.to_str().unwrap().to_owned(),
-                MapState {
-                    meta,
-                    image_pyramid,
-                    texture_state: TextureState::default(),
-                    overlay_texture: None,
-                },
-            );
+            match load_image(&meta.image_path) {
+                Ok(image) => {
+                    let image_pyramid = ImagePyramid::new(image);
+                    state.maps.insert(
+                        meta.image_path.to_str().unwrap().to_owned(),
+                        MapState {
+                            meta,
+                            image_pyramid,
+                            texture_state: TextureState::default(),
+                            overlay_texture: None,
+                        },
+                    );
+                }
+                Err(e) => {
+                    return Err(Error {
+                        message: format!("Error loading image: {:?}", e),
+                    });
+                }
+            }
         }
-        state
+        Ok(state)
     }
 
     fn update_desired_size(&mut self, ui: &egui::Ui) {

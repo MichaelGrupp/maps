@@ -63,6 +63,14 @@ fn main() -> eframe::Result {
         }
     }
 
+    let app_state = match AppState::init(metas) {
+        Ok(state) => Box::new(state),
+        Err(e) => {
+            error!("Fatal error during initialization. {}", e.message);
+            exit(1);
+        }
+    };
+
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size(size),
@@ -77,7 +85,7 @@ fn main() -> eframe::Result {
             // This gives us image support:
             // TODO: still needed?
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Ok(Box::<AppState>::from(AppState::init(metas)))
+            Ok(app_state)
         }),
     )
 }

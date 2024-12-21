@@ -2,11 +2,26 @@ use std::path::PathBuf;
 
 use eframe::egui;
 use image::{GenericImageView, ImageReader};
-use log::debug;
+use log::{debug, error, info};
 
-pub fn load_image(path: &PathBuf) -> image::DynamicImage {
-    debug!("Loading image: {:?}", path);
-    ImageReader::open(path).unwrap().decode().unwrap()
+pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageError> {
+    info!("Loading image: {:?}", path);
+    match ImageReader::open(path) {
+        Ok(reader) => match reader.decode() {
+            Ok(img) => {
+                debug!("Loaded image: {:?} {:?}", path, img.dimensions());
+                Ok(img)
+            }
+            Err(e) => {
+                error!("Error decoding image: {:?}", e);
+                Err(e)
+            }
+        },
+        Err(e) => {
+            error!("Error loading image: {:?}", e);
+            Err(image::ImageError::IoError(e))
+        }
+    }
 }
 
 pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
