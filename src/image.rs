@@ -32,8 +32,12 @@ pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
 }
 
 // Fit the image into the desired size while keeping the aspect ratio.
+// Does nothing if the desired size is larger than the original image.
 pub fn fit_image(img: image::DynamicImage, desired_size: egui::Vec2) -> image::DynamicImage {
     let (original_width, original_height) = img.dimensions();
+    if (desired_size.x as u32) >= original_width && (desired_size.y as u32) >= original_height {
+        return img;
+    }
     let aspect_ratio = original_width as f32 / original_height as f32;
     let (new_width, new_height) = if desired_size.x / desired_size.y > aspect_ratio {
         (

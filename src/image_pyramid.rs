@@ -48,7 +48,11 @@ impl ImagePyramid {
     pub fn get_level(&self, size: u32) -> &image::DynamicImage {
         // Get the closest size that is larger or equal to the requested size.
         // TODO: this is a bit dumb, it does not respect aspect ratio.
-        match SIZES.iter().rev().find(|&&s| s >= size) {
+        match SIZES
+            .iter()
+            .rev()
+            .find(|&&s| s >= size && self.levels_by_size.contains_key(&s))
+        {
             Some(closest) => {
                 debug!("Returning pyramid level for size: {}", closest);
                 self.levels_by_size.get(&closest).unwrap()
