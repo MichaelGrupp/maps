@@ -10,8 +10,13 @@ use crate::image::{fit_image, load_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::meta::Meta;
 
+const SPACE: f32 = 10.;
+const ICON_SIZE: f32 = 20.;
+
 #[derive(Default, Debug)]
 struct AppOptions {
+    menu_visible: bool,
+    settings_visible: bool,
     desired_size: egui::Vec2,
     hover_region_size_meters: f32,
     hover_region_size_meters_min: f32,
@@ -28,6 +33,7 @@ struct TextureState {
 
 struct MapState {
     meta: Meta,
+    visible: bool,
     image_pyramid: ImagePyramid,
     texture_state: TextureState,
     overlay_texture: Option<egui::TextureHandle>,
@@ -55,6 +61,7 @@ impl AppState {
                         meta.image_path.to_str().unwrap().to_owned(),
                         MapState {
                             meta,
+                            visible: true,
                             image_pyramid,
                             texture_state: TextureState::default(),
                             overlay_texture: None,
@@ -68,12 +75,32 @@ impl AppState {
                 }
             }
         }
+        state.options.settings_visible = false;
+        state.options.menu_visible = false;
         state.options.hover_region_size_meters_min = 2.5;
         state.options.hover_region_size_meters_max = 25.0;
         state.options.hover_region_size_meters = 5.0;
         state.options.hover_region_enabled = true;
         state.options.scroll_speed_factor = 0.2;
         Ok(state)
+    }
+
+    fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
+        ui.input(|i| {
+            if i.key_released(egui::Key::Escape) {
+                self.options.menu_visible = false;
+                self.options.settings_visible = false;
+                self.options.hover_region_enabled = false;
+            } else if i.key_released(egui::Key::R) {
+                self.options.hover_region_enabled = !self.options.hover_region_enabled;
+            }
+            if i.key_released(egui::Key::M) {
+                self.options.menu_visible = !self.options.menu_visible;
+            }
+            if i.key_released(egui::Key::S) {
+                self.options.settings_visible = !self.options.settings_visible;
+            }
+        });
     }
 
     fn update_desired_size(&mut self, ui: &egui::Ui) {
@@ -123,6 +150,9 @@ impl AppState {
 
         let options = &mut self.options;
         for (name, map) in self.maps.iter_mut() {
+            if !map.visible {
+                continue;
+            }
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
                 Self::show_image(ui, name, map);
                 Self::show_overlay(ui, name, map, options);
@@ -240,39 +270,115 @@ impl AppState {
 
         map.overlay_texture = Some(overlay_texture_handle);
     }
+
+    fn header_panel(&mut self, ui: &mut egui::Ui) {
+        let add_toggle_button = |ui: &mut egui::Ui,
+                                 icon: &str,
+                                 tooltip: &str,
+                                 switch: &mut bool| {
+            if ui
+                .add_sized(
+                    egui::vec2(ICON_SIZE, ICON_SIZE),
+                    egui::SelectableLabel::new(*switch, egui::RichText::new(icon).size(ICON_SIZE)),
+                )
+                .on_hover_text(tooltip)
+                .clicked()
+            {
+                *switch = !*switch;
+            }
+        };
+
+        egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Top, "header").show(
+            ui.ctx(),
+            |ui| {
+                ui.horizontal(|ui| {
+                    ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                        add_toggle_button(ui, "☰", "Show Menu", &mut self.options.menu_visible);
+                    });
+
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+                        add_toggle_button(
+                            ui,
+                            "⚙",
+                            "Show Settings",
+                            &mut self.options.settings_visible,
+                        );
+                    });
+                });
+            },
+        );
+    }
+
+    fn menu_panel(&mut self, ui: &mut egui::Ui) {
+        if !self.options.menu_visible {
+            return;
+        }
+        egui::SidePanel::left("menu").show(ui.ctx(), |ui| {
+            ui.heading("Maps");
+            ui.add_space(SPACE);
+            for (name, map) in &mut self.maps {
+                ui.checkbox(&mut map.visible, name);
+            }
+        });
+    }
+
+    fn settings_panel(&mut self, ui: &mut egui::Ui) {
+        if !self.options.settings_visible {
+            return;
+        }
+        egui::SidePanel::right("settings").show(ui.ctx(), |ui| {
+            ui.heading("Settings");
+            ui.add_space(SPACE);
+            ui.checkbox(&mut self.options.hover_region_enabled, "Show ROI");
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                ui.label("ROI size (meters):");
+                ui.add(egui::Slider::new(
+                    &mut self.options.hover_region_size_meters,
+                    self.options.hover_region_size_meters_min
+                        ..=self.options.hover_region_size_meters_max,
+                ));
+            });
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                ui.label("Scroll speed factor:");
+                ui.add(egui::Slider::new(
+                    &mut self.options.scroll_speed_factor,
+                    0.0..=1.0,
+                ));
+            });
+        });
+    }
+
+    fn footer_panel(&mut self, ui: &mut egui::Ui) {
+        egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Bottom, "footer").show(
+            ui.ctx(),
+            |ui| {
+                ui.horizontal(|ui| ui.label("status"));
+            },
+        );
+    }
+
+    fn central_panel(&mut self, ui: &mut egui::Ui) {
+        egui::CentralPanel::default().show(ui.ctx(), |ui| {
+            egui::ScrollArea::both().show(ui, |ui| {
+                ui.add_space(SPACE);
+                self.show_images(ui);
+                // Fill the remaining vertical space, otherwise the scroll bar can jump around.
+                ui.add_space(ui.available_height());
+            });
+        });
+    }
 }
 
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            let space = 10.;
-            ui.heading("ROS Maps");
-            ui.add_space(space);
+            self.handle_key_shortcuts(ui);
 
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                ui.label("ROI size (meters):");
-                ui.add(egui::Slider::new(
-                    &mut self.options.hover_region_size_meters,
-                    2.5..=25.0,
-                ));
-                ui.checkbox(&mut self.options.hover_region_enabled, "Show ROI");
-            });
-
-            // Keyboard shortcuts for closing and toggling the hover region.
-            ui.input(|i| {
-                if i.key_released(egui::Key::Escape) {
-                    self.options.hover_region_enabled = false;
-                } else if i.key_released(egui::Key::R) {
-                    self.options.hover_region_enabled = !self.options.hover_region_enabled;
-                }
-            });
-
-            egui::ScrollArea::both().show(ui, |ui| {
-                ui.add_space(space);
-                self.show_images(ui);
-                // Fill the remaining vertical space, otherwise the scroll bar can jump around.
-                ui.add_space(ui.available_height());
-            });
+            self.header_panel(ui);
+            self.menu_panel(ui);
+            self.settings_panel(ui);
+            self.central_panel(ui);
+            self.footer_panel(ui);
         });
     }
 }
