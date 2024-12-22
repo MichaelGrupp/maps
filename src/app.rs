@@ -14,7 +14,10 @@ use crate::meta::Meta;
 struct AppOptions {
     desired_size: egui::Vec2,
     hover_region_size_meters: f32,
+    hover_region_size_meters_min: f32,
+    hover_region_size_meters_max: f32,
     hover_region_enabled: bool,
+    scroll_speed_factor: f32,
 }
 
 #[derive(Default)]
@@ -65,6 +68,11 @@ impl AppState {
                 }
             }
         }
+        state.options.hover_region_size_meters_min = 2.5;
+        state.options.hover_region_size_meters_max = 25.0;
+        state.options.hover_region_size_meters = 5.0;
+        state.options.hover_region_enabled = true;
+        state.options.scroll_speed_factor = 0.2;
         Ok(state)
     }
 
@@ -113,7 +121,7 @@ impl AppState {
     fn show_images(&mut self, ui: &mut egui::Ui) {
         self.update_texture_handles(ui);
 
-        let options = &self.options;
+        let options = &mut self.options;
         for (name, map) in self.maps.iter_mut() {
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
                 Self::show_image(ui, name, map);
@@ -132,7 +140,7 @@ impl AppState {
         map.texture_state.image_response = Some(ui.image(texture));
     }
 
-    fn show_overlay(ui: &mut egui::Ui, name: &str, map: &mut MapState, options: &AppOptions) {
+    fn show_overlay(ui: &mut egui::Ui, name: &str, map: &mut MapState, options: &mut AppOptions) {
         if !options.hover_region_enabled {
             return;
         }
@@ -149,6 +157,16 @@ impl AppState {
             map.overlay_texture = None;
             return;
         };
+
+        ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+
+        // Change the hover region size when scrolling.
+        options.hover_region_size_meters = (options.hover_region_size_meters
+            + ui.input(|i| i.smooth_scroll_delta).y * options.scroll_speed_factor)
+            .clamp(
+                options.hover_region_size_meters_min,
+                options.hover_region_size_meters_max,
+            );
 
         // Show an overlay with a crop region of the original size image.
         // For this, the pointer position in the rendered texture needs to be converted
@@ -183,7 +201,7 @@ impl AppState {
         );
 
         // Show the crop area also in the scaled texture coordinates as a small rectangle.
-        let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0.5, 0.5, 0.));
+        let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0., 0., 0.));
         let small_rect_ratio = original_width as f32 / texture_size.x as f32;
         let small_rect = egui::Rect::from_min_size(
             pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
@@ -194,7 +212,7 @@ impl AppState {
 
         // Display the overlay next to the mouse pointer.
         // Make sure it stays within the window and does not overlap with the small rectangle.
-        let pointer_offset = egui::vec2(20., 20.);
+        let pointer_offset = egui::vec2(small_rect.width(), small_rect.width());
         let overlay_pos = (pointer_pos + pointer_offset).min(
             response.rect.max - egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
         );
@@ -203,20 +221,24 @@ impl AppState {
             egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
         );
         if overlay_rect.intersects(small_rect) {
+            let distance_to_right = response.rect.max.x - small_rect.max.x;
             overlay_rect = overlay_rect.translate(egui::vec2(
-                -(response.rect.max.x - small_rect.min.x + pointer_offset.x),
+                -(distance_to_right + small_rect.width() + pointer_offset.x),
                 0.,
             ));
         }
-        ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
-        map.overlay_texture = Some(overlay_texture_handle);
 
-        // Draw border around overlay.
-        ui.painter().add(egui::Shape::rect_stroke(
-            overlay_rect.expand(stroke.width / 2.),
-            0.,
-            stroke,
-        ));
+        egui::Window::new("overlay_window")
+            .title_bar(false)
+            .auto_sized()
+            .current_pos(overlay_rect.min)
+            .resizable(false)
+            .collapsible(false)
+            .show(ui.ctx(), |ui| {
+                ui.image(&overlay_texture_handle);
+            });
+
+        map.overlay_texture = Some(overlay_texture_handle);
     }
 }
 
@@ -234,6 +256,15 @@ impl eframe::App for AppState {
                     2.5..=25.0,
                 ));
                 ui.checkbox(&mut self.options.hover_region_enabled, "Show ROI");
+            });
+
+            // Keyboard shortcuts for closing and toggling the hover region.
+            ui.input(|i| {
+                if i.key_released(egui::Key::Escape) {
+                    self.options.hover_region_enabled = false;
+                } else if i.key_released(egui::Key::R) {
+                    self.options.hover_region_enabled = !self.options.hover_region_enabled;
+                }
             });
 
             egui::ScrollArea::both().show(ui, |ui| {
