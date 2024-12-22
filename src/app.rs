@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::default;
 use std::path::PathBuf;
 use std::vec::Vec;
 
@@ -17,23 +16,11 @@ use crate::texture_state::TextureState;
 const SPACE: f32 = 10.;
 const ICON_SIZE: f32 = 20.;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct AppOptions {
     menu_visible: bool,
     settings_visible: bool,
     desired_size: egui::Vec2,
-    scroll_speed_factor: f32,
-}
-
-impl default::Default for AppOptions {
-    fn default() -> Self {
-        AppOptions {
-            menu_visible: false,
-            settings_visible: false,
-            desired_size: egui::vec2(0., 0.),
-            scroll_speed_factor: 0.2,
-        }
-    }
 }
 
 #[derive(Default)]
@@ -267,7 +254,7 @@ impl AppState {
             ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
                 ui.label("Scroll speed factor:");
                 ui.add(egui::Slider::new(
-                    &mut self.options.scroll_speed_factor,
+                    &mut self.lens.scroll_speed_factor,
                     0.0..=1.0,
                 ));
             });
