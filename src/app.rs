@@ -230,8 +230,21 @@ impl AppState {
             ui.add_space(SPACE);
             self.load_meta_button(ui);
             ui.separator();
-            for (name, map) in &mut self.maps {
-                ui.checkbox(&mut map.visible, name);
+            let mut to_delete: Vec<String> = Vec::new();
+            egui::Grid::new("maps_list")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    for (name, map) in &mut self.maps {
+                        ui.checkbox(&mut map.visible, name);
+                        if ui.button("🗑").on_hover_text("Delete Map").clicked() {
+                            to_delete.push(name.clone());
+                        }
+                        ui.end_row();
+                    }
+                });
+            for name in to_delete {
+                self.maps.remove(&name);
             }
         });
     }
@@ -243,21 +256,25 @@ impl AppState {
         egui::SidePanel::right("settings").show(ui.ctx(), |ui| {
             ui.heading("Settings");
             ui.add_space(SPACE);
-            ui.checkbox(&mut self.lens.enabled, "Show Lens");
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                ui.label("Lens size (meters):");
-                ui.add(egui::Slider::new(
-                    &mut self.lens.size_meters,
-                    self.lens.size_meters_min..=self.lens.size_meters_max,
-                ));
-            });
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                ui.label("Scroll speed factor:");
-                ui.add(egui::Slider::new(
-                    &mut self.lens.scroll_speed_factor,
-                    0.0..=1.0,
-                ));
-            });
+            egui::Grid::new("lens_settings")
+                .num_columns(2)
+                .striped(true)
+                .show(ui, |ui| {
+                    ui.checkbox(&mut self.lens.enabled, "Show Lens");
+                    ui.end_row();
+                    ui.label("Lens size (meters)");
+                    ui.add(egui::Slider::new(
+                        &mut self.lens.size_meters,
+                        self.lens.size_meters_min..=self.lens.size_meters_max,
+                    ));
+                    ui.end_row();
+                    ui.label("Scroll speed factor");
+                    ui.add(egui::Slider::new(
+                        &mut self.lens.scroll_speed_factor,
+                        0.0..=1.0,
+                    ));
+                    ui.end_row();
+                });
         });
     }
 
