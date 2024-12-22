@@ -14,7 +14,7 @@ pub struct MetaYaml {
 }
 
 // Annotated yaml meta to keep track of the yaml file path.
-pub struct MetaYamlAnnotated {
+struct MetaYamlAnnotated {
     pub meta_yaml: MetaYaml,
     pub yaml_path: PathBuf,
 }
@@ -25,7 +25,7 @@ pub struct Error {
 }
 
 impl MetaYamlAnnotated {
-    pub fn from(yaml_path: PathBuf) -> Result<MetaYamlAnnotated, Error> {
+    fn from(yaml_path: PathBuf) -> Result<MetaYamlAnnotated, Error> {
         match std::fs::read_to_string(&yaml_path) {
             Ok(buffer) => match serde_yml::from_str::<MetaYaml>(&buffer) {
                 Ok(meta_yaml) => Ok(MetaYamlAnnotated {

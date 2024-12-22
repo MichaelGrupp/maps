@@ -11,7 +11,7 @@ use log::{debug, error, info};
 use eframe::egui;
 
 use rosmaps::app::AppState;
-use rosmaps::meta::{Meta, MetaYamlAnnotated};
+use rosmaps::meta::Meta;
 
 #[derive(Parser, Debug)]
 #[command(name = "rosmaps", version, author = "Michael Grupp")]
@@ -45,8 +45,7 @@ fn main() -> eframe::Result {
             exit(1);
         }
         info!("Loading {}", yaml_path.to_str().unwrap());
-        if let Ok(meta_yaml_annotated) = MetaYamlAnnotated::from(yaml_path.to_path_buf()) {
-            let meta = Meta::from(meta_yaml_annotated);
+        if let Ok(meta) = Meta::load_from_file(yaml_path.to_path_buf()) {
             debug!("Parsed metadata: {:?}", meta);
             if !meta.image_path.exists() {
                 error!(
