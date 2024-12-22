@@ -16,7 +16,7 @@ use rosmaps::meta::{Meta, MetaYamlAnnotated};
 #[derive(Parser, Debug)]
 #[command(name = "rosmaps", version, author = "Michael Grupp")]
 struct Args {
-    #[clap(name = "yaml_files", help = "ROS map yaml files", required = true)]
+    #[clap(name = "yaml_files", help = "ROS map yaml files", required = false)]
     yaml_files: Vec<String>,
     #[clap(
         short,

@@ -19,15 +19,26 @@ pub struct MetaYamlAnnotated {
     pub yaml_path: PathBuf,
 }
 
+#[derive(Debug)]
+pub struct Error {
+    pub message: String,
+}
+
 impl MetaYamlAnnotated {
-    pub fn from(yaml_path: PathBuf) -> Result<MetaYamlAnnotated, serde_yml::Error> {
-        {
-            let meta_yaml =
-                serde_yml::from_str::<MetaYaml>(&std::fs::read_to_string(&yaml_path).unwrap())?;
-            Ok(MetaYamlAnnotated {
-                meta_yaml,
-                yaml_path,
-            })
+    pub fn from(yaml_path: PathBuf) -> Result<MetaYamlAnnotated, Error> {
+        match std::fs::read_to_string(&yaml_path) {
+            Ok(buffer) => match serde_yml::from_str::<MetaYaml>(&buffer) {
+                Ok(meta_yaml) => Ok(MetaYamlAnnotated {
+                    meta_yaml,
+                    yaml_path,
+                }),
+                Err(e) => Err(Error {
+                    message: format!("Failed to parse yaml: {}", e),
+                }),
+            },
+            Err(e) => Err(Error {
+                message: format!("Failed to read yaml file: {}", e),
+            }),
         }
     }
 }
@@ -62,6 +73,15 @@ impl From<MetaYamlAnnotated> for Meta {
                 nalgebra::Vector2::new(meta_yaml.origin[0], meta_yaml.origin[1]),
                 meta_yaml.origin[2],
             ),
+        }
+    }
+}
+
+impl Meta {
+    pub fn load_from_file(yaml_path: PathBuf) -> Result<Meta, Error> {
+        match MetaYamlAnnotated::from(yaml_path) {
+            Ok(meta_yaml_annotated) => Ok(Meta::from(meta_yaml_annotated)),
+            Err(e) => Err(e),
         }
     }
 }

@@ -1,8 +1,11 @@
 use std::collections::HashMap;
+use std::default;
 use std::option::Option;
+use std::path::PathBuf;
 use std::vec::Vec;
 
 use eframe::egui;
+use egui_file_dialog::FileDialog;
 use image::GenericImageView;
 use log::debug;
 
@@ -13,7 +16,7 @@ use crate::meta::Meta;
 const SPACE: f32 = 10.;
 const ICON_SIZE: f32 = 20.;
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 struct AppOptions {
     menu_visible: bool,
     settings_visible: bool,
@@ -23,6 +26,21 @@ struct AppOptions {
     hover_region_size_meters_max: f32,
     hover_region_enabled: bool,
     scroll_speed_factor: f32,
+}
+
+impl default::Default for AppOptions {
+    fn default() -> Self {
+        AppOptions {
+            menu_visible: false,
+            settings_visible: false,
+            desired_size: egui::vec2(0., 0.),
+            hover_region_size_meters: 5.,
+            hover_region_size_meters_min: 2.5,
+            hover_region_size_meters_max: 25.,
+            hover_region_enabled: true,
+            scroll_speed_factor: 0.2,
+        }
+    }
 }
 
 #[derive(Default)]
@@ -43,6 +61,8 @@ struct MapState {
 pub struct AppState {
     options: AppOptions,
     maps: HashMap<String, MapState>,
+    status_message: String,
+    file_dialog: FileDialog,
 }
 
 #[derive(Debug)]
@@ -54,35 +74,62 @@ impl AppState {
     pub fn init(metas: Vec<Meta>) -> Result<AppState, Error> {
         let mut state = AppState::default();
         for meta in metas {
-            match load_image(&meta.image_path) {
-                Ok(image) => {
-                    let image_pyramid = ImagePyramid::new(image);
-                    state.maps.insert(
-                        meta.image_path.to_str().unwrap().to_owned(),
-                        MapState {
-                            meta,
-                            visible: true,
-                            image_pyramid,
-                            texture_state: TextureState::default(),
-                            overlay_texture: None,
-                        },
-                    );
+            state.load_image(meta)?;
+        }
+        Ok(state)
+    }
+
+    fn load_meta(&mut self, yaml_path: PathBuf) -> Result<bool, Error> {
+        match Meta::load_from_file(yaml_path) {
+            Ok(meta) => match self.load_image(meta) {
+                Ok(_) => Ok(true),
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(Error {
+                message: format!("Error loading metadata file: {:?}", e),
+            }),
+        }
+    }
+
+    fn load_meta_button(&mut self, ui: &mut egui::Ui) {
+        if ui.button("📂 Load Map").clicked() {
+            self.file_dialog.pick_file();
+        }
+        self.file_dialog.update(ui.ctx());
+
+        if let Some(path) = self.file_dialog.take_picked() {
+            match self.load_meta(path.clone()) {
+                Ok(_) => {
+                    self.status_message = format!("Loaded metadata file: {:?}", path);
                 }
                 Err(e) => {
-                    return Err(Error {
-                        message: format!("Error loading image: {:?}", e),
-                    });
+                    self.status_message = format!("Error loading metadata file: {:?}", e.message);
                 }
             }
         }
-        state.options.settings_visible = false;
-        state.options.menu_visible = false;
-        state.options.hover_region_size_meters_min = 2.5;
-        state.options.hover_region_size_meters_max = 25.0;
-        state.options.hover_region_size_meters = 5.0;
-        state.options.hover_region_enabled = true;
-        state.options.scroll_speed_factor = 0.2;
-        Ok(state)
+    }
+
+    fn load_image(&mut self, meta: Meta) -> Result<(), Error> {
+        self.status_message = format!("Loading image: {:?}", meta.image_path);
+        match load_image(&meta.image_path) {
+            Ok(image) => {
+                let image_pyramid = ImagePyramid::new(image);
+                self.maps.insert(
+                    meta.image_path.to_str().unwrap().to_owned(),
+                    MapState {
+                        meta,
+                        visible: true,
+                        image_pyramid,
+                        texture_state: TextureState::default(),
+                        overlay_texture: None,
+                    },
+                );
+                Ok(())
+            }
+            Err(e) => Err(Error {
+                message: format!("Error loading image: {:?}", e),
+            }),
+        }
     }
 
     fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
@@ -316,6 +363,8 @@ impl AppState {
         egui::SidePanel::left("menu").show(ui.ctx(), |ui| {
             ui.heading("Maps");
             ui.add_space(SPACE);
+            self.load_meta_button(ui);
+            ui.separator();
             for (name, map) in &mut self.maps {
                 ui.checkbox(&mut map.visible, name);
             }
@@ -352,15 +401,28 @@ impl AppState {
         egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Bottom, "footer").show(
             ui.ctx(),
             |ui| {
-                ui.horizontal(|ui| ui.label("status"));
+                ui.horizontal(|ui| ui.label(self.status_message.clone()));
             },
         );
     }
 
     fn central_panel(&mut self, ui: &mut egui::Ui) {
         egui::CentralPanel::default().show(ui.ctx(), |ui| {
+            if self.maps.is_empty() {
+                ui.with_layout(
+                    egui::Layout::centered_and_justified(egui::Direction::TopDown),
+                    |ui| {
+                        ui.vertical_centered(|ui| {
+                            ui.heading("No maps loaded.");
+                            ui.add_space(SPACE);
+                            self.load_meta_button(ui);
+                        });
+                    },
+                );
+                return;
+            }
+
             egui::ScrollArea::both().show(ui, |ui| {
-                ui.add_space(SPACE);
                 self.show_images(ui);
                 // Fill the remaining vertical space, otherwise the scroll bar can jump around.
                 ui.add_space(ui.available_height());
