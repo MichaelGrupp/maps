@@ -270,6 +270,10 @@ impl AppState {
         let min_y = (original_pos.y - half_region_size).max(0.) as u32;
         let max_x = (original_pos.x + half_region_size).min(original_width as f32) as u32;
         let max_y = (original_pos.y + half_region_size).min(original_height as f32) as u32;
+        if min_x >= max_x || min_y >= max_y {
+            debug!("Ignoring hover because region would be empty.");
+            return;
+        }
         let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
         let overlay_texture_handle = ui.ctx().load_texture(
             "overlay_".to_owned() + name,
