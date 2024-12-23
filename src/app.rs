@@ -16,10 +16,18 @@ use crate::texture_state::TextureState;
 const SPACE: f32 = 10.;
 const ICON_SIZE: f32 = 20.;
 
+#[derive(Debug, Default, PartialEq)]
+enum ViewMode {
+    #[default]
+    Stacked,
+    Aligned,
+}
+
 #[derive(Debug, Default)]
 struct AppOptions {
     menu_visible: bool,
     settings_visible: bool,
+    view_mode: ViewMode,
     desired_size: egui::Vec2,
 }
 
@@ -258,8 +266,26 @@ impl AppState {
             ui.add_space(SPACE);
             egui::Grid::new("lens_settings")
                 .num_columns(2)
-                .striped(true)
+                .striped(false)
                 .show(ui, |ui| {
+                    ui.label("View Mode");
+                    ui.horizontal(|ui| {
+                        ui.selectable_value(
+                            &mut self.options.view_mode,
+                            ViewMode::Stacked,
+                            "Stacked",
+                        )
+                        .on_hover_text("Show the maps stacked on top of each other.");
+                        ui.selectable_value(
+                            &mut self.options.view_mode,
+                            ViewMode::Aligned,
+                            "Aligned",
+                        )
+                        .on_hover_text("Show the maps in a shared coordinate system.");
+                    });
+                    ui.end_row();
+                    ui.end_row();
+
                     ui.checkbox(&mut self.lens.enabled, "Show Lens");
                     ui.end_row();
                     ui.label("Lens size (meters)");
