@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::vec::Vec;
 
 use eframe::egui;
@@ -51,6 +52,20 @@ impl AppState {
         for meta in metas {
             state.load_image(meta)?;
         }
+        state.file_dialog = FileDialog::new()
+            .add_file_filter(
+                "yaml",
+                Arc::new(|path| {
+                    ["yml", "yaml"].contains(
+                        &path
+                            .extension()
+                            .unwrap_or_default()
+                            .to_str()
+                            .unwrap_or_default(),
+                    )
+                }),
+            )
+            .default_file_filter("yaml");
         Ok(state)
     }
 
@@ -67,18 +82,22 @@ impl AppState {
     }
 
     fn load_meta_button(&mut self, ui: &mut egui::Ui) {
-        if ui.button("📂 Load Map").clicked() {
-            self.file_dialog.pick_file();
+        if ui.button("📂 Load Maps").clicked() {
+            self.file_dialog.pick_multiple();
         }
         self.file_dialog.update(ui.ctx());
 
-        if let Some(path) = self.file_dialog.take_picked() {
-            match self.load_meta(path.clone()) {
-                Ok(_) => {
-                    self.status_message = format!("Loaded metadata file: {:?}", path);
-                }
-                Err(e) => {
-                    self.status_message = format!("Error loading metadata file: {:?}", e.message);
+        if let Some(paths) = self.file_dialog.take_picked_multiple() {
+            for path in paths {
+                ui.ctx().request_repaint();
+                match self.load_meta(path.clone()) {
+                    Ok(_) => {
+                        self.status_message = format!("Loaded metadata file: {:?}", path);
+                    }
+                    Err(e) => {
+                        self.status_message =
+                            format!("Error loading metadata file: {:?}", e.message);
+                    }
                 }
             }
         }
@@ -90,7 +109,7 @@ impl AppState {
             Ok(image) => {
                 let image_pyramid = ImagePyramid::new(image);
                 self.maps.insert(
-                    meta.image_path.to_str().unwrap().to_owned(),
+                    meta.yaml_path.to_str().unwrap().to_owned(),
                     MapState {
                         meta,
                         visible: true,
@@ -319,10 +338,13 @@ impl AppState {
                 ui.with_layout(
                     egui::Layout::centered_and_justified(egui::Direction::TopDown),
                     |ui| {
-                        ui.vertical_centered(|ui| {
-                            ui.heading("No maps loaded.");
-                            ui.add_space(SPACE);
-                            self.load_meta_button(ui);
+                        ui.horizontal_centered(|ui| {
+                            ui.vertical_centered(|ui| {
+                                ui.add_space((ui.available_height() / 2. - 100.).max(SPACE));
+                                ui.heading("No maps loaded.");
+                                ui.add_space(SPACE);
+                                self.load_meta_button(ui);
+                            });
                         });
                     },
                 );
