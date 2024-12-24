@@ -9,9 +9,11 @@ clap = { version = "4.5.23", features = ["derive"] }
 eframe = {version = "0.30.0", features = ["wgpu"]}
 egui_extras = { version = "0.30.0", features = ["all_loaders"] }
 egui-file-dialog = "0.8.0"
+egui_tiles = "0.11.0"
 env_logger = "0.11.5"
 image = { version = "0.25.5", features = ["jpeg", "png", "pnm"] }
 log = "0.4.22 "
 nalgebra = "0.33.2"
 serde = "1.0"
 serde_yml = "0.0.12"
+uuid = { version = "1.11.0", features = ["v4"] }

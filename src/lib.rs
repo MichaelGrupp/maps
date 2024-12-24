@@ -5,3 +5,5 @@ pub mod lens;
 pub mod map_state;
 pub mod meta;
 pub mod texture_state;
+pub mod tiles;
+pub mod tiles_behavior;

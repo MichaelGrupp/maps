@@ -13,12 +13,15 @@ use crate::lens::Lens;
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::texture_state::TextureState;
+use crate::tiles::{Pane, Tiles};
+use crate::tiles_behavior::MapsTreeBehavior;
 
 const SPACE: f32 = 10.;
 const ICON_SIZE: f32 = 20.;
 
 #[derive(Debug, Default, PartialEq)]
 enum ViewMode {
+    Tabs,
     #[default]
     Stacked,
     Aligned,
@@ -39,6 +42,7 @@ pub struct AppState {
     lens: Lens,
     status_message: String,
     file_dialog: FileDialog,
+    tile_manager: Tiles,
 }
 
 #[derive(Debug)]
@@ -107,6 +111,9 @@ impl AppState {
         self.status_message = format!("Loading image: {:?}", meta.image_path);
         match load_image(&meta.image_path) {
             Ok(image) => {
+                self.tile_manager.add_pane(Pane {
+                    id: meta.yaml_path.to_str().unwrap().to_owned(),
+                });
                 let image_pyramid = ImagePyramid::new(image);
                 self.maps.insert(
                     meta.yaml_path.to_str().unwrap().to_owned(),
@@ -193,10 +200,23 @@ impl AppState {
             if !map.visible {
                 continue;
             }
-            ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                Self::show_image(ui, name, map);
-                self.lens.show_on_hover(ui, map, name);
-            });
+
+            match self.options.view_mode {
+                ViewMode::Tabs => {
+                    self.tile_manager.add_pane(Pane {
+                        id: name.to_string(),
+                    });
+                }
+                ViewMode::Stacked => {
+                    ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
+                        Self::show_image(ui, name, map);
+                        self.lens.show_on_hover(ui, map, name);
+                    });
+                }
+                ViewMode::Aligned => {
+                    todo!("not implemented");
+                }
+            }
         }
     }
 
@@ -272,6 +292,7 @@ impl AppState {
                 });
             for name in to_delete {
                 self.maps.remove(&name);
+                self.tile_manager.remove_pane(&name);
             }
         });
     }
@@ -289,6 +310,8 @@ impl AppState {
                 .show(ui, |ui| {
                     ui.label("View Mode");
                     ui.horizontal(|ui| {
+                        ui.selectable_value(&mut self.options.view_mode, ViewMode::Tabs, "Tabs")
+                            .on_hover_text("Show the maps in separate tabs.");
                         ui.selectable_value(
                             &mut self.options.view_mode,
                             ViewMode::Stacked,
@@ -351,11 +374,21 @@ impl AppState {
                 return;
             }
 
-            egui::ScrollArea::both().show(ui, |ui| {
-                self.show_images(ui);
-                // Fill the remaining vertical space, otherwise the scroll bar can jump around.
-                ui.add_space(ui.available_height());
-            });
+            match self.options.view_mode {
+                ViewMode::Tabs => {
+                    self.update_texture_handles(ui);
+                    // TODO: don't initialize the behavior every frame?
+                    let mut behavior = MapsTreeBehavior { maps: &self.maps };
+                    self.tile_manager.tree.ui(&mut behavior, ui);
+                }
+                _ => {
+                    egui::ScrollArea::both().show(ui, |ui| {
+                        self.show_images(ui);
+                        // Fill the remaining vertical space, otherwise the scroll bar can jump around.
+                        ui.add_space(ui.available_height());
+                    });
+                }
+            }
         });
     }
 }
