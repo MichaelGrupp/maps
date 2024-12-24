@@ -1,3 +1,4 @@
+use log::debug;
 use std::collections::HashMap;
 
 use eframe::egui;
@@ -8,7 +9,7 @@ use crate::tiles::Pane;
 
 // Behavior for the tiles tree that displays maps.
 pub struct MapsTreeBehavior<'a> {
-    pub maps: &'a HashMap<String, MapState>,
+    pub maps: &'a mut HashMap<String, MapState>,
 }
 
 impl<'a> egui_tiles::Behavior<Pane> for MapsTreeBehavior<'a> {
@@ -22,14 +23,27 @@ impl<'a> egui_tiles::Behavior<Pane> for MapsTreeBehavior<'a> {
         _tile_id: egui_tiles::TileId,
         pane: &mut Pane,
     ) -> egui_tiles::UiResponse {
-        if let Some(map) = self.maps.get(&pane.id) {
+        if let Some(map) = self.maps.get_mut(&pane.id) {
             let texture = match &map.texture_state.texture_handle {
                 Some(texture) => texture,
                 None => {
                     panic!("Missing texture handle for image {}", pane.id);
                 }
             };
-            ui.image(texture);
+            egui::ScrollArea::both().show(ui, |ui| {
+                map.texture_state.image_response =
+                    Some(ui.image(texture).interact(egui::Sense::drag()));
+            });
+            if map
+                .texture_state
+                .image_response
+                .as_ref()
+                .unwrap()
+                .drag_started()
+            {
+                debug!("Dragging image {}", pane.id);
+                return egui_tiles::UiResponse::DragStarted;
+            }
         }
         egui_tiles::UiResponse::None
     }

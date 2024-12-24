@@ -10,8 +10,9 @@ use log::{debug, error, info};
 // GUI
 use eframe::egui;
 
-use rosmaps::app::AppState;
+use rosmaps::app::{AppOptions, AppState, ViewMode};
 use rosmaps::meta::Meta;
+use strum::VariantNames;
 
 #[derive(Parser, Debug)]
 #[command(name = "rosmaps", version, author = "Michael Grupp")]
@@ -27,6 +28,13 @@ struct Args {
         help = "Initial window width and height in pixels."
     )]
     window_size: Vec<f32>,
+    #[clap(
+        short,
+        long,
+        default_value_t = ViewMode::Tabs,
+        help = format!("Initial view mode. Possible values: {}", ViewMode::VARIANTS.join(", ")),
+    )]
+    view_mode: ViewMode,
 }
 
 fn main() -> eframe::Result {
@@ -62,7 +70,12 @@ fn main() -> eframe::Result {
         }
     }
 
-    let app_state = match AppState::init(metas) {
+    let options = AppOptions {
+        view_mode: args.view_mode,
+        ..Default::default()
+    };
+
+    let app_state = match AppState::init(metas, options) {
         Ok(state) => Box::new(state),
         Err(e) => {
             error!("Fatal error during initialization. {}", e.message);

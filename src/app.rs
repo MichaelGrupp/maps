@@ -6,6 +6,7 @@ use std::vec::Vec;
 use eframe::egui;
 use egui_file_dialog::FileDialog;
 use log::debug;
+use strum_macros::{Display, EnumString, VariantNames};
 
 use crate::image::{fit_image, load_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
@@ -19,8 +20,8 @@ use crate::tiles_behavior::MapsTreeBehavior;
 const SPACE: f32 = 10.;
 const ICON_SIZE: f32 = 20.;
 
-#[derive(Debug, Default, PartialEq)]
-enum ViewMode {
+#[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
+pub enum ViewMode {
     Tabs,
     #[default]
     Stacked,
@@ -28,11 +29,12 @@ enum ViewMode {
 }
 
 #[derive(Debug, Default)]
-struct AppOptions {
-    menu_visible: bool,
-    settings_visible: bool,
-    view_mode: ViewMode,
-    desired_size: egui::Vec2,
+pub struct AppOptions {
+    pub menu_visible: bool,
+    pub settings_visible: bool,
+    pub view_mode: ViewMode,
+    // TODO: move out of here
+    pub desired_size: egui::Vec2,
 }
 
 #[derive(Default)]
@@ -51,8 +53,10 @@ pub struct Error {
 }
 
 impl AppState {
-    pub fn init(metas: Vec<Meta>) -> Result<AppState, Error> {
+    pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
         let mut state = AppState::default();
+        state.options = options;
+
         for meta in metas {
             state.load_image(meta)?;
         }
@@ -193,30 +197,14 @@ impl AppState {
         }
     }
 
-    fn show_images(&mut self, ui: &mut egui::Ui) {
-        self.update_texture_handles(ui);
-
+    fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
         for (name, map) in self.maps.iter_mut() {
             if !map.visible {
                 continue;
             }
-
-            match self.options.view_mode {
-                ViewMode::Tabs => {
-                    self.tile_manager.add_pane(Pane {
-                        id: name.to_string(),
-                    });
-                }
-                ViewMode::Stacked => {
-                    ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                        Self::show_image(ui, name, map);
-                        self.lens.show_on_hover(ui, map, name);
-                    });
-                }
-                ViewMode::Aligned => {
-                    todo!("not implemented");
-                }
-            }
+            ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
+                Self::show_image(ui, name, map);
+            });
         }
     }
 
@@ -374,20 +362,28 @@ impl AppState {
                 return;
             }
 
+            self.update_texture_handles(ui);
             match self.options.view_mode {
                 ViewMode::Tabs => {
-                    self.update_texture_handles(ui);
                     // TODO: don't initialize the behavior every frame?
-                    let mut behavior = MapsTreeBehavior { maps: &self.maps };
+                    let mut behavior = MapsTreeBehavior {
+                        maps: &mut self.maps,
+                    };
                     self.tile_manager.tree.ui(&mut behavior, ui);
                 }
-                _ => {
+                ViewMode::Stacked => {
                     egui::ScrollArea::both().show(ui, |ui| {
-                        self.show_images(ui);
+                        self.show_stacked_images(ui);
                         // Fill the remaining vertical space, otherwise the scroll bar can jump around.
                         ui.add_space(ui.available_height());
                     });
                 }
+                ViewMode::Aligned => {
+                    todo!("not implemented");
+                }
+            }
+            for (name, map) in &mut self.maps {
+                self.lens.show_on_hover(ui, map, name);
             }
         });
     }

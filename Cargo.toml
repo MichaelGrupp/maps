@@ -16,4 +16,6 @@ log = "0.4.22 "
 nalgebra = "0.33.2"
 serde = "1.0"
 serde_yml = "0.0.12"
+strum = "0.26.3"
+strum_macros = "0.26.3"
 uuid = { version = "1.11.0", features = ["v4"] }

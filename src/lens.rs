@@ -36,7 +36,8 @@ impl Lens {
         let response = match &map.texture_state.image_response {
             Some(response) => response,
             None => {
-                panic!("Missing image response for image {}", name);
+                // Can be missing e.g. if a tab is not visible yet.
+                return;
             }
         };
 
