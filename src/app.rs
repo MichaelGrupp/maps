@@ -271,7 +271,9 @@ impl AppState {
                 .striped(true)
                 .show(ui, |ui| {
                     for (name, map) in &mut self.maps {
-                        ui.checkbox(&mut map.visible, name);
+                        if ui.checkbox(&mut map.visible, name).changed() {
+                            self.tile_manager.set_visible(name, map.visible);
+                        }
                         if ui.button("🗑").on_hover_text("Delete Map").clicked() {
                             to_delete.push(name.clone());
                         }

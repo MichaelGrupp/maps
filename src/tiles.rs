@@ -71,4 +71,14 @@ impl Tiles {
             self.tile_ids_by_pane_id.remove(pane_id);
         }
     }
+
+    pub fn set_visible(&mut self, pane_id: &str, visible: bool) {
+        if let Some(tile_id) = self.tile_ids_by_pane_id.get(pane_id) {
+            debug!(
+                "Setting visibility of tile {:?} for {} to {}",
+                tile_id, pane_id, visible
+            );
+            self.tree.tiles.set_visible(*tile_id, visible);
+        }
+    }
 }
