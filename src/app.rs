@@ -22,7 +22,7 @@ const ICON_SIZE: f32 = 20.;
 
 #[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
 pub enum ViewMode {
-    Tabs,
+    Tiles,
     #[default]
     Stacked,
     Aligned,
@@ -300,8 +300,10 @@ impl AppState {
                 .show(ui, |ui| {
                     ui.label("View Mode");
                     ui.horizontal(|ui| {
-                        ui.selectable_value(&mut self.options.view_mode, ViewMode::Tabs, "Tabs")
-                            .on_hover_text("Show the maps in separate tabs.");
+                        ui.selectable_value(&mut self.options.view_mode, ViewMode::Tiles, "Tiles")
+                            .on_hover_text(
+                                "Show the maps in separate tab tiles that can be rearranged.",
+                            );
                         ui.selectable_value(
                             &mut self.options.view_mode,
                             ViewMode::Stacked,
@@ -366,7 +368,7 @@ impl AppState {
 
             self.update_texture_handles(ui);
             match self.options.view_mode {
-                ViewMode::Tabs => {
+                ViewMode::Tiles => {
                     // TODO: don't initialize the behavior every frame?
                     let mut behavior = MapsTreeBehavior {
                         maps: &mut self.maps,

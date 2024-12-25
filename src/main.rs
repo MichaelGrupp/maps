@@ -31,7 +31,7 @@ struct Args {
     #[clap(
         short,
         long,
-        default_value_t = ViewMode::Tabs,
+        default_value_t = ViewMode::Tiles,
         help = format!("Initial view mode. Possible values: {}", ViewMode::VARIANTS.join(", ")),
     )]
     view_mode: ViewMode,
