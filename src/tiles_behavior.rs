@@ -32,14 +32,14 @@ impl<'a> egui_tiles::Behavior<Pane> for MapsTreeBehavior<'a> {
             };
             egui::ScrollArea::both().show(ui, |ui| {
                 map.texture_state.image_response =
-                    Some(ui.image(texture).interact(egui::Sense::drag()));
+                    Some(ui.image(texture).interact(egui::Sense::click_and_drag()));
             });
             if map
                 .texture_state
                 .image_response
                 .as_ref()
                 .unwrap()
-                .drag_started()
+                .drag_started_by(egui::PointerButton::Primary)
             {
                 debug!("Dragging image {}", pane.id);
                 return egui_tiles::UiResponse::DragStarted;

@@ -143,7 +143,7 @@ impl AppState {
                 self.options.menu_visible = false;
                 self.options.settings_visible = false;
                 self.lens.enabled = false;
-            } else if i.key_released(egui::Key::L) {
+            } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
                 self.lens.enabled = !self.lens.enabled;
             }
             if i.key_released(egui::Key::M) {
