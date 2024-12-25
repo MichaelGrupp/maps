@@ -16,6 +16,8 @@ const SIZES: [u32; 5] = [4000, 2000, 1000, 500, 250];
 pub struct ImagePyramid {
     pub original: image::DynamicImage,
     levels_by_size: HashMap<u32, image::DynamicImage>,
+    aspect_ratio: f32,
+    original_size: egui::Vec2,
 }
 
 impl ImagePyramid {
@@ -43,16 +45,24 @@ impl ImagePyramid {
                 }
                 levels
             }(&original),
+            aspect_ratio: original_size.x / original_size.y,
+            original_size: original_size,
         }
     }
 
-    pub fn get_level(&self, size: u32) -> &image::DynamicImage {
-        // Get the closest size that is larger or equal to the requested size.
-        // TODO: this is a bit dumb, it does not respect aspect ratio.
+    pub fn get_level(&self, size: egui::Vec2) -> &image::DynamicImage {
+        // Get the closest size that is larger or equal to the requested size,
+        // considering the aspect ratio of the original image for the dimension.
+        let scale = (size.x / self.original_size.x).min(size.y / self.original_size.y);
+        let dim = if self.aspect_ratio >= 1. {
+            scale * self.original_size.x
+        } else {
+            scale * self.original_size.y
+        };
         match SIZES
             .iter()
             .rev()
-            .find(|&&s| s >= size && self.levels_by_size.contains_key(&s))
+            .find(|&&s| s >= dim as u32 && self.levels_by_size.contains_key(&s))
         {
             Some(closest) => {
                 debug!("Returning pyramid level for size: {}", closest);
