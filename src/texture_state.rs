@@ -48,7 +48,7 @@ impl TextureState {
             ui.ctx().load_texture(
                 name,
                 to_egui_image(fit_image(
-                    self.image_pyramid.get_level(self.desired_size).clone(),
+                    self.image_pyramid.get_level(self.desired_size),
                     self.desired_size,
                 )),
                 Default::default(),

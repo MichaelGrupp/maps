@@ -24,8 +24,6 @@ impl ImagePyramid {
     pub fn new(original: image::DynamicImage) -> ImagePyramid {
         let original_size = egui::Vec2::new(original.width() as f32, original.height() as f32);
         ImagePyramid {
-            // TODO: avoid cloning the image?
-            original: fit_image(original.clone(), original_size),
             levels_by_size: |original: &image::DynamicImage| -> HashMap<u32, image::DynamicImage> {
                 let mut levels: HashMap<u32, image::DynamicImage> = HashMap::new();
                 for size in SIZES {
@@ -38,13 +36,14 @@ impl ImagePyramid {
                     }
                     debug!("Creating pyramid level for size: {}", size);
                     let level = fit_image(
-                        image_to_downscale.clone(),
+                        image_to_downscale,
                         egui::Vec2::new(size as f32, size as f32),
                     );
                     levels.insert(size, level);
                 }
                 levels
             }(&original),
+            original: original,
             aspect_ratio: original_size.x / original_size.y,
             original_size: original_size,
         }
