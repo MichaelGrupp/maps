@@ -67,7 +67,7 @@ impl Lens {
         let uv = pointer_pos - response.rect.min;
         let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
 
-        let original_image = &map.image_pyramid.original;
+        let original_image = &map.texture_state.image_pyramid.original;
         let (original_width, original_height) = original_image.dimensions();
         let original_pos = egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
 

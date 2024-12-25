@@ -5,10 +5,9 @@ use std::vec::Vec;
 
 use eframe::egui;
 use egui_file_dialog::FileDialog;
-use log::debug;
 use strum_macros::{Display, EnumString, VariantNames};
 
-use crate::image::{fit_image, load_image, to_egui_image};
+use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
 use crate::lens::Lens;
 use crate::map_state::MapState;
@@ -33,8 +32,6 @@ pub struct AppOptions {
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,
-    // TODO: move out of here
-    pub desired_size: egui::Vec2,
 }
 
 #[derive(Default)]
@@ -124,8 +121,7 @@ impl AppState {
                     MapState {
                         meta,
                         visible: true,
-                        image_pyramid,
-                        texture_state: TextureState::default(),
+                        texture_state: TextureState::new(image_pyramid),
                         overlay_texture: None,
                     },
                 );
@@ -155,50 +151,9 @@ impl AppState {
         });
     }
 
-    fn update_desired_size(&mut self, ui: &egui::Ui) {
-        let old_size = self.options.desired_size;
-        let pixels_per_point = ui.ctx().zoom_factor() * ui.ctx().pixels_per_point();
-        let desired_size = egui::vec2(
-            ui.available_width() * pixels_per_point,
-            ui.available_height() * pixels_per_point,
-        );
-        if desired_size != old_size {
-            // Note that in egui dropping the last handle of a texture will free it.
-            debug!(
-                "Desired size changed to {:?}, clearing textures.",
-                desired_size
-            );
-            for map in self.maps.values_mut() {
-                map.texture_state.texture_handle = None;
-            }
-        }
-        self.options.desired_size = desired_size;
-    }
-
-    fn update_texture_handles(&mut self, ui: &egui::Ui) {
-        self.update_desired_size(ui);
-
-        for (name, map) in &mut self.maps {
-            map.texture_state.texture_handle.get_or_insert_with(|| {
-                // Load the texture only if needed.
-                debug!("Fitting and reloading texture for: {}", name);
-                let image_pyramid = &map.image_pyramid;
-                ui.ctx().load_texture(
-                    name,
-                    to_egui_image(fit_image(
-                        image_pyramid
-                            .get_level(self.options.desired_size.max_elem() as u32)
-                            .clone(),
-                        self.options.desired_size,
-                    )),
-                    Default::default(),
-                )
-            });
-        }
-    }
-
     fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
         for (name, map) in self.maps.iter_mut() {
+            map.texture_state.update(ui, name);
             if !map.visible {
                 continue;
             }
@@ -366,7 +321,6 @@ impl AppState {
                 return;
             }
 
-            self.update_texture_handles(ui);
             match self.options.view_mode {
                 ViewMode::Tiles => {
                     // TODO: don't initialize the behavior every frame?
