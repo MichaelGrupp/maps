@@ -80,7 +80,7 @@ impl Grid {
             relation.scaled_size,
         );
         let texture = map.texture_state.texture_handle.as_ref().unwrap();
-        ui.put(rect, egui::Image::new(texture));
+        map.texture_state.image_response = Some(ui.put(rect, egui::Image::new(texture)));
     }
 
     pub fn show_maps(&self, ui: &mut egui::Ui, maps: &mut HashMap<String, MapState>) {
