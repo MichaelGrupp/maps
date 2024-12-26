@@ -88,4 +88,56 @@ impl Grid {
             self.show_map(ui, map, name);
         }
     }
+
+    pub fn draw(&self, ui: &mut egui::Ui, spacing_meters: f32, stroke: egui::Stroke) {
+        // Draw grid lines in whole area, but always cross the origin.
+        // Start from the origin and go to left and right.
+        let spacing_points = spacing_meters * self.points_per_meter;
+        let mut x = self.origin_in_points.x;
+        while x > 0. {
+            ui.painter().line_segment(
+                [
+                    egui::Pos2::new(x, 0.),
+                    egui::Pos2::new(x, self.metric_extent.y),
+                ],
+                stroke,
+            );
+            x -= spacing_points;
+        }
+        x = self.origin_in_points.x + spacing_points;
+        while x < self.metric_extent.x {
+            ui.painter().line_segment(
+                [
+                    egui::Pos2::new(x, 0.),
+                    egui::Pos2::new(x, self.metric_extent.y),
+                ],
+                stroke,
+            );
+            x += spacing_points;
+        }
+
+        // Now for the vertical lines.
+        let mut y = self.origin_in_points.y;
+        while y > 0. {
+            ui.painter().line_segment(
+                [
+                    egui::Pos2::new(0., y),
+                    egui::Pos2::new(self.metric_extent.x, y),
+                ],
+                stroke,
+            );
+            y -= spacing_points;
+        }
+        y = self.origin_in_points.y + spacing_points;
+        while y < self.metric_extent.y {
+            ui.painter().line_segment(
+                [
+                    egui::Pos2::new(0., y),
+                    egui::Pos2::new(self.metric_extent.x, y),
+                ],
+                stroke,
+            );
+            y += spacing_points;
+        }
+    }
 }

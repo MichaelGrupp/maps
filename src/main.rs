@@ -72,6 +72,8 @@ fn main() -> eframe::Result {
 
     let options = AppOptions {
         view_mode: args.view_mode,
+        grid_scale: 5.,
+        grid_spacing: 1.,
         ..Default::default()
     };
 

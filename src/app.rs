@@ -33,7 +33,9 @@ pub struct AppOptions {
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,
-    pub grid_size: f32,
+    pub grid_scale: f32,
+    pub grid_lines_visible: bool,
+    pub grid_spacing: f32,
 }
 
 #[derive(Default)]
@@ -277,6 +279,8 @@ impl AppState {
                     ui.end_row();
                     ui.end_row();
 
+                    ui.heading("Lens");
+                    ui.end_row();
                     ui.checkbox(&mut self.lens.enabled, "Show Lens");
                     ui.end_row();
                     ui.label("Lens size (meters)");
@@ -292,8 +296,21 @@ impl AppState {
                     ));
                     ui.end_row();
                     ui.end_row();
-                    ui.label("Grid size (points per meter)");
-                    ui.add(egui::Slider::new(&mut self.options.grid_size, 0.1..=10.));
+
+                    if self.options.view_mode == ViewMode::Aligned {
+                        ui.heading("Grid");
+                        ui.end_row();
+                        ui.checkbox(&mut self.options.grid_lines_visible, "Show Grid Lines");
+                        ui.end_row();
+                        ui.label("Grid scale (points per meter)");
+                        ui.add(egui::Slider::new(&mut self.options.grid_scale, 1.0..=10.));
+                        ui.end_row();
+                        ui.label("Grid lines spacing (meters)");
+                        ui.add(egui::Slider::new(
+                            &mut self.options.grid_spacing,
+                            0.1..=100.,
+                        ));
+                    }
                 });
         });
     }
@@ -342,9 +359,15 @@ impl AppState {
                     });
                 }
                 ViewMode::Aligned => {
-                    let grid = Grid::new(ui, self.options.grid_size);
+                    let grid = Grid::new(ui, self.options.grid_scale);
                     grid.show_maps(ui, &mut self.maps);
-                    grid.draw(ui);
+                    if self.options.grid_lines_visible {
+                        grid.draw(
+                            ui,
+                            self.options.grid_spacing,
+                            egui::Stroke::new(1.0, egui::Color32::LIGHT_BLUE),
+                        );
+                    }
                 }
             }
             for (name, map) in &mut self.maps {
