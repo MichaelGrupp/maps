@@ -26,7 +26,7 @@ impl<'a> egui_tiles::Behavior<Pane> for MapsTreeBehavior<'a> {
         let mut tiles_response = egui_tiles::UiResponse::None;
         if let Some(map) = self.maps.get_mut(&pane.id) {
             egui::ScrollArea::both().show(ui, |ui| {
-                map.texture_state.update(ui, &pane.id);
+                map.texture_state.update_to_available_space(ui, &pane.id);
                 let texture = match &map.texture_state.texture_handle {
                     Some(texture) => texture,
                     None => {

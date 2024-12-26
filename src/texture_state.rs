@@ -40,8 +40,12 @@ impl TextureState {
         self.desired_size = desired_size;
     }
 
-    pub fn update(&mut self, ui: &egui::Ui, name: &str) {
+    pub fn update_to_available_space(&mut self, ui: &egui::Ui, name: &str) {
         self.update_desired_size(ui);
+        self.update(ui, name);
+    }
+
+    pub fn update(&mut self, ui: &egui::Ui, name: &str) {
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
             debug!("Fitting and reloading texture for {}", name);

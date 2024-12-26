@@ -7,6 +7,7 @@ use eframe::egui;
 use egui_file_dialog::FileDialog;
 use strum_macros::{Display, EnumString, VariantNames};
 
+use crate::grid::Grid;
 use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
 use crate::lens::Lens;
@@ -32,6 +33,7 @@ pub struct AppOptions {
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,
+    pub grid_size: f32,
 }
 
 #[derive(Default)]
@@ -153,7 +155,7 @@ impl AppState {
 
     fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
         for (name, map) in self.maps.iter_mut() {
-            map.texture_state.update(ui, name);
+            map.texture_state.update_to_available_space(ui, name);
             if !map.visible {
                 continue;
             }
@@ -249,7 +251,7 @@ impl AppState {
         egui::SidePanel::right("settings").show(ui.ctx(), |ui| {
             ui.heading("Settings");
             ui.add_space(SPACE);
-            egui::Grid::new("lens_settings")
+            egui::Grid::new("settings_grid")
                 .num_columns(2)
                 .striped(false)
                 .show(ui, |ui| {
@@ -289,6 +291,9 @@ impl AppState {
                         0.0..=1.0,
                     ));
                     ui.end_row();
+                    ui.end_row();
+                    ui.label("Grid size (points per meter)");
+                    ui.add(egui::Slider::new(&mut self.options.grid_size, 0.1..=10.));
                 });
         });
     }
@@ -337,7 +342,9 @@ impl AppState {
                     });
                 }
                 ViewMode::Aligned => {
-                    todo!("not implemented");
+                    let grid = Grid::new(ui, self.options.grid_size);
+                    grid.show_maps(ui, &mut self.maps);
+                    grid.draw(ui);
                 }
             }
             for (name, map) in &mut self.maps {
