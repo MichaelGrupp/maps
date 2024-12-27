@@ -24,8 +24,8 @@ const ICON_SIZE: f32 = 20.;
 #[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
 pub enum ViewMode {
     Tiles,
-    #[default]
     Stacked,
+    #[default]
     Aligned,
 }
 
@@ -211,6 +211,31 @@ impl AppState {
                             "Show Settings",
                             &mut self.options.settings_visible,
                         );
+                        ui.add_space(ICON_SIZE);
+                        ui.horizontal_centered(|ui| {
+                            ui.horizontal(|ui| {
+                                ui.selectable_value(
+                                    &mut self.options.view_mode,
+                                    ViewMode::Tiles,
+                                    "Tiles",
+                                )
+                                .on_hover_text(
+                                    "Show the maps in separate tab tiles that can be rearranged.",
+                                );
+                                ui.selectable_value(
+                                    &mut self.options.view_mode,
+                                    ViewMode::Stacked,
+                                    "Stacked",
+                                )
+                                .on_hover_text("Show the maps stacked on top of each other.");
+                                ui.selectable_value(
+                                    &mut self.options.view_mode,
+                                    ViewMode::Aligned,
+                                    "Aligned",
+                                )
+                                .on_hover_text("Show the maps in a shared coordinate system.");
+                            });
+                        });
                     });
                 });
             },
@@ -253,35 +278,12 @@ impl AppState {
             return;
         }
         egui::SidePanel::right("settings").show(ui.ctx(), |ui| {
-            ui.heading("Settings");
-            ui.add_space(SPACE);
             egui::Grid::new("settings_grid")
                 .num_columns(2)
                 .striped(false)
                 .show(ui, |ui| {
-                    ui.label("View Mode");
-                    ui.horizontal(|ui| {
-                        ui.selectable_value(&mut self.options.view_mode, ViewMode::Tiles, "Tiles")
-                            .on_hover_text(
-                                "Show the maps in separate tab tiles that can be rearranged.",
-                            );
-                        ui.selectable_value(
-                            &mut self.options.view_mode,
-                            ViewMode::Stacked,
-                            "Stacked",
-                        )
-                        .on_hover_text("Show the maps stacked on top of each other.");
-                        ui.selectable_value(
-                            &mut self.options.view_mode,
-                            ViewMode::Aligned,
-                            "Aligned",
-                        )
-                        .on_hover_text("Show the maps in a shared coordinate system.");
-                    });
-                    ui.end_row();
-                    ui.end_row();
-
                     ui.heading("Lens");
+                    ui.add_space(SPACE);
                     ui.end_row();
                     ui.checkbox(&mut self.lens.enabled, "Show Lens");
                     ui.end_row();
@@ -302,22 +304,26 @@ impl AppState {
 
                     if self.options.view_mode == ViewMode::Aligned {
                         ui.heading("Grid");
+                        ui.add_space(SPACE);
                         ui.end_row();
                         if ui.button("Reset Grid").clicked() {
                             self.options.grid = GridOptions::default();
                         }
                         ui.checkbox(&mut self.options.grid.lines_visible, "Show Grid Lines");
                         ui.end_row();
-                        ui.label("Grid scale (points per meter)");
-                        ui.add(egui::Slider::new(
-                            &mut self.options.grid.scale,
-                            self.options.grid.min_scale..=self.options.grid.max_scale,
-                        ));
+                        ui.label("Grid color");
+                        ui.color_edit_button_srgba(&mut self.options.grid.line_stroke.color);
                         ui.end_row();
                         ui.label("Grid lines spacing (meters)");
                         ui.add(egui::Slider::new(
                             &mut self.options.grid.line_spacing,
                             self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
+                        ));
+                        ui.end_row();
+                        ui.label("Grid scale (points per meter)");
+                        ui.add(egui::Slider::new(
+                            &mut self.options.grid.scale,
+                            self.options.grid.min_scale..=self.options.grid.max_scale,
                         ));
                         ui.end_row();
                         ui.label("Zoom speed")
@@ -394,11 +400,7 @@ impl AppState {
                     let grid = Grid::new(ui, options.scale).with_origin_offset(options.offset);
                     grid.show_maps(ui, &mut self.maps);
                     if options.lines_visible {
-                        grid.draw(
-                            ui,
-                            options.line_spacing,
-                            egui::Stroke::new(1.0, egui::Color32::LIGHT_BLUE),
-                        );
+                        grid.draw(ui, options.line_spacing, options.line_stroke);
                     }
                 }
             }
