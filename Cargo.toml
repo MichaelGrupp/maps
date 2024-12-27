@@ -1,10 +1,11 @@
 [package]
 name = "maps"
-description = "Inspect, compare and align multiple grid maps in an intuitive GUI"
+description = "Inspect, compare and align multiple grid maps in an intuitive & fast GUI"
 authors = ["Michael Grupp"]
 license = "Apache-2.0"
 version = "0.1.0"
 edition = "2021"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
