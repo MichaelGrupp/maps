@@ -10,12 +10,12 @@ use log::{debug, error, info};
 // GUI
 use eframe::egui;
 
-use rosmaps::app::{AppOptions, AppState, ViewMode};
-use rosmaps::meta::Meta;
+use maps::app::{AppOptions, AppState, ViewMode};
+use maps::meta::Meta;
 use strum::VariantNames;
 
 #[derive(Parser, Debug)]
-#[command(name = "rosmaps", version, author = "Michael Grupp")]
+#[command(name = "maps", version, author = "Michael Grupp")]
 struct Args {
     #[clap(name = "yaml_files", help = "ROS map yaml files", required = false)]
     yaml_files: Vec<String>,
@@ -40,8 +40,8 @@ struct Args {
 fn main() -> eframe::Result {
     let args = Args::parse();
 
-    // Use env_logger to log to stderr when executing: RUST_LOG=info rosmaps
-    // To show only logs of this app: RUST_LOG=rosmaps rosmaps
+    // Use env_logger to log to stderr when executing: RUST_LOG=debug maps
+    // To show only logs of this app: RUST_LOG=maps=debug maps
     env_logger::init();
 
     let mut metas: Vec<Meta> = Vec::new();
@@ -91,7 +91,7 @@ fn main() -> eframe::Result {
     };
 
     eframe::run_native(
-        "rosmaps",
+        "maps",
         options,
         Box::new(|cc| {
             // This gives us image support:
