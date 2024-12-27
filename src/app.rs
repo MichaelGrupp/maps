@@ -179,6 +179,74 @@ impl AppState {
         map.texture_state.image_response = Some(ui.image(texture));
     }
 
+    fn view_buttons(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal_centered(|ui| {
+            ui.selectable_value(&mut self.options.view_mode, ViewMode::Tiles, "Tiles")
+                .on_hover_text("Show the maps in separate tab tiles that can be rearranged.");
+            ui.selectable_value(&mut self.options.view_mode, ViewMode::Stacked, "Stacked")
+                .on_hover_text("Show the maps stacked on top of each other.");
+            ui.selectable_value(&mut self.options.view_mode, ViewMode::Aligned, "Aligned")
+                .on_hover_text("Show the maps in a shared coordinate system.");
+        });
+    }
+
+    fn lens_settings(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Lens");
+        if ui.button("Reset").clicked() {
+            self.lens = Lens::default();
+        }
+        ui.add_space(SPACE);
+        ui.end_row();
+        ui.label("Show Lens");
+        ui.checkbox(&mut self.lens.enabled, "");
+        ui.end_row();
+        ui.label("Lens size (meters)");
+        ui.add(egui::Slider::new(
+            &mut self.lens.size_meters,
+            self.lens.size_meters_min..=self.lens.size_meters_max,
+        ));
+        ui.end_row();
+        ui.label("Zoom speed")
+            .on_hover_text("How fast the lens zooms in/out when scrolling.");
+        ui.add(egui::Slider::new(
+            &mut self.lens.scroll_speed_factor,
+            0.0..=1.0,
+        ));
+    }
+
+    fn grid_settings(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Grid");
+        if ui.button("Reset").clicked() {
+            self.options.grid = GridOptions::default();
+        }
+        ui.add_space(SPACE);
+        ui.end_row();
+        ui.label("Show Grid Lines");
+        ui.checkbox(&mut self.options.grid.lines_visible, "");
+        ui.end_row();
+        ui.label("Grid color");
+        ui.color_edit_button_srgba(&mut self.options.grid.line_stroke.color);
+        ui.end_row();
+        ui.label("Grid lines spacing (meters)");
+        ui.add(egui::Slider::new(
+            &mut self.options.grid.line_spacing,
+            self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
+        ));
+        ui.end_row();
+        ui.label("Grid scale (points per meter)");
+        ui.add(egui::Slider::new(
+            &mut self.options.grid.scale,
+            self.options.grid.min_scale..=self.options.grid.max_scale,
+        ));
+        ui.end_row();
+        ui.label("Zoom speed")
+            .on_hover_text("How fast the grid zooms in/out when scrolling.");
+        ui.add(egui::Slider::new(
+            &mut self.options.grid.scroll_speed_factor,
+            0.0..=1.0,
+        ));
+    }
+
     fn header_panel(&mut self, ui: &mut egui::Ui) {
         let add_toggle_button = |ui: &mut egui::Ui,
                                  icon: &str,
@@ -212,30 +280,7 @@ impl AppState {
                             &mut self.options.settings_visible,
                         );
                         ui.add_space(ICON_SIZE);
-                        ui.horizontal_centered(|ui| {
-                            ui.horizontal(|ui| {
-                                ui.selectable_value(
-                                    &mut self.options.view_mode,
-                                    ViewMode::Tiles,
-                                    "Tiles",
-                                )
-                                .on_hover_text(
-                                    "Show the maps in separate tab tiles that can be rearranged.",
-                                );
-                                ui.selectable_value(
-                                    &mut self.options.view_mode,
-                                    ViewMode::Stacked,
-                                    "Stacked",
-                                )
-                                .on_hover_text("Show the maps stacked on top of each other.");
-                                ui.selectable_value(
-                                    &mut self.options.view_mode,
-                                    ViewMode::Aligned,
-                                    "Aligned",
-                                )
-                                .on_hover_text("Show the maps in a shared coordinate system.");
-                            });
-                        });
+                        self.view_buttons(ui);
                     });
                 });
             },
@@ -282,56 +327,12 @@ impl AppState {
                 .num_columns(2)
                 .striped(false)
                 .show(ui, |ui| {
-                    ui.heading("Lens");
-                    ui.add_space(SPACE);
-                    ui.end_row();
-                    ui.checkbox(&mut self.lens.enabled, "Show Lens");
-                    ui.end_row();
-                    ui.label("Lens size (meters)");
-                    ui.add(egui::Slider::new(
-                        &mut self.lens.size_meters,
-                        self.lens.size_meters_min..=self.lens.size_meters_max,
-                    ));
-                    ui.end_row();
-                    ui.label("Zoom speed")
-                        .on_hover_text("How fast the lens zooms in/out when scrolling.");
-                    ui.add(egui::Slider::new(
-                        &mut self.lens.scroll_speed_factor,
-                        0.0..=1.0,
-                    ));
+                    self.lens_settings(ui);
                     ui.end_row();
                     ui.end_row();
 
                     if self.options.view_mode == ViewMode::Aligned {
-                        ui.heading("Grid");
-                        ui.add_space(SPACE);
-                        ui.end_row();
-                        if ui.button("Reset Grid").clicked() {
-                            self.options.grid = GridOptions::default();
-                        }
-                        ui.checkbox(&mut self.options.grid.lines_visible, "Show Grid Lines");
-                        ui.end_row();
-                        ui.label("Grid color");
-                        ui.color_edit_button_srgba(&mut self.options.grid.line_stroke.color);
-                        ui.end_row();
-                        ui.label("Grid lines spacing (meters)");
-                        ui.add(egui::Slider::new(
-                            &mut self.options.grid.line_spacing,
-                            self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
-                        ));
-                        ui.end_row();
-                        ui.label("Grid scale (points per meter)");
-                        ui.add(egui::Slider::new(
-                            &mut self.options.grid.scale,
-                            self.options.grid.min_scale..=self.options.grid.max_scale,
-                        ));
-                        ui.end_row();
-                        ui.label("Zoom speed")
-                            .on_hover_text("How fast the grid zooms in/out when scrolling.");
-                        ui.add(egui::Slider::new(
-                            &mut self.options.grid.scroll_speed_factor,
-                            0.0..=1.0,
-                        ));
+                        self.grid_settings(ui);
                     }
                 });
         });
@@ -367,7 +368,6 @@ impl AppState {
 
             match self.options.view_mode {
                 ViewMode::Tiles => {
-                    // TODO: don't initialize the behavior every frame?
                     let mut behavior = MapsTreeBehavior {
                         maps: &mut self.maps,
                     };
