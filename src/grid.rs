@@ -56,7 +56,7 @@ impl Grid {
         }
     }
 
-    pub fn with_origin_offset(&mut self, offset: egui::Vec2) -> &Self {
+    pub fn with_origin_offset(mut self, offset: egui::Vec2) -> Self {
         self.origin_in_points += offset;
         self
     }
@@ -68,6 +68,8 @@ impl Grid {
 
         let relation = GridMapRelation::new(self, map);
 
+        // TODO: Fix drift when zoom level goes beyond original size.
+        // TODO: Crop to viewport to not explode.
         if map.texture_state.desired_size != relation.scaled_size {
             map.texture_state.texture_handle = None;
             map.texture_state.desired_size = relation.scaled_size;

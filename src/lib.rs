@@ -1,5 +1,6 @@
 pub mod app;
 pub mod grid;
+pub mod grid_options;
 pub mod image;
 pub mod image_pyramid;
 pub mod lens;

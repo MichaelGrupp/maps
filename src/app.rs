@@ -8,6 +8,7 @@ use egui_file_dialog::FileDialog;
 use strum_macros::{Display, EnumString, VariantNames};
 
 use crate::grid::Grid;
+use crate::grid_options::GridOptions;
 use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
 use crate::lens::Lens;
@@ -33,9 +34,7 @@ pub struct AppOptions {
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,
-    pub grid_scale: f32,
-    pub grid_lines_visible: bool,
-    pub grid_spacing: f32,
+    pub grid: GridOptions,
 }
 
 #[derive(Default)]
@@ -151,6 +150,9 @@ impl AppState {
             }
             if i.key_released(egui::Key::S) {
                 self.options.settings_visible = !self.options.settings_visible;
+            }
+            if i.key_released(egui::Key::G) {
+                self.options.grid.lines_visible = !self.options.grid.lines_visible;
             }
         });
     }
@@ -289,7 +291,8 @@ impl AppState {
                         self.lens.size_meters_min..=self.lens.size_meters_max,
                     ));
                     ui.end_row();
-                    ui.label("Scroll speed factor");
+                    ui.label("Zoom speed")
+                        .on_hover_text("How fast the lens zooms in/out when scrolling.");
                     ui.add(egui::Slider::new(
                         &mut self.lens.scroll_speed_factor,
                         0.0..=1.0,
@@ -300,15 +303,28 @@ impl AppState {
                     if self.options.view_mode == ViewMode::Aligned {
                         ui.heading("Grid");
                         ui.end_row();
-                        ui.checkbox(&mut self.options.grid_lines_visible, "Show Grid Lines");
+                        if ui.button("Reset Grid").clicked() {
+                            self.options.grid = GridOptions::default();
+                        }
+                        ui.checkbox(&mut self.options.grid.lines_visible, "Show Grid Lines");
                         ui.end_row();
                         ui.label("Grid scale (points per meter)");
-                        ui.add(egui::Slider::new(&mut self.options.grid_scale, 1.0..=10.));
+                        ui.add(egui::Slider::new(
+                            &mut self.options.grid.scale,
+                            self.options.grid.min_scale..=self.options.grid.max_scale,
+                        ));
                         ui.end_row();
                         ui.label("Grid lines spacing (meters)");
                         ui.add(egui::Slider::new(
-                            &mut self.options.grid_spacing,
-                            0.1..=100.,
+                            &mut self.options.grid.line_spacing,
+                            self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
+                        ));
+                        ui.end_row();
+                        ui.label("Zoom speed")
+                            .on_hover_text("How fast the grid zooms in/out when scrolling.");
+                        ui.add(egui::Slider::new(
+                            &mut self.options.grid.scroll_speed_factor,
+                            0.0..=1.0,
                         ));
                     }
                 });
@@ -359,12 +375,28 @@ impl AppState {
                     });
                 }
                 ViewMode::Aligned => {
-                    let grid = Grid::new(ui, self.options.grid_scale);
+                    // Modify the grid with the mouse, but only if inside this panel rect.
+                    let options = &mut self.options.grid;
+                    if ui.rect_contains_pointer(ui.available_rect_before_wrap()) {
+                        ui.input(|i| {
+                            if i.pointer.primary_down() {
+                                options.offset += i.pointer.delta();
+                            }
+                            if !self.lens.enabled {
+                                options.scale +=
+                                    i.smooth_scroll_delta.y * options.scroll_speed_factor;
+                                options.scale =
+                                    options.scale.clamp(options.min_scale, options.max_scale);
+                            }
+                        });
+                    }
+
+                    let grid = Grid::new(ui, options.scale).with_origin_offset(options.offset);
                     grid.show_maps(ui, &mut self.maps);
-                    if self.options.grid_lines_visible {
+                    if options.lines_visible {
                         grid.draw(
                             ui,
-                            self.options.grid_spacing,
+                            options.line_spacing,
                             egui::Stroke::new(1.0, egui::Color32::LIGHT_BLUE),
                         );
                     }
