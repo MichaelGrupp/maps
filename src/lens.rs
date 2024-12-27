@@ -7,7 +7,8 @@ use log::debug;
 use crate::image::to_egui_image;
 use crate::map_state::MapState;
 
-pub struct Lens {
+#[derive(Debug)]
+pub struct LensOptions {
     pub enabled: bool,
     pub size_meters: f32,
     pub size_meters_min: f32,
@@ -15,10 +16,10 @@ pub struct Lens {
     pub scroll_speed_factor: f32,
 }
 
-impl default::Default for Lens {
-    fn default() -> Lens {
-        Lens {
-            enabled: true,
+impl default::Default for LensOptions {
+    fn default() -> LensOptions {
+        LensOptions {
+            enabled: false,
             size_meters: 5.,
             size_meters_min: 2.5,
             size_meters_max: 25.,
@@ -27,9 +28,20 @@ impl default::Default for Lens {
     }
 }
 
-impl Lens {
+pub struct Lens<'a> {
+    // Options are mutably borrowed with outer lifetime
+    // to allow managing them outside.
+    options: &'a mut LensOptions,
+}
+
+impl<'a> Lens<'a> {
+    pub fn with(options: &'a mut LensOptions) -> Lens<'a> {
+        Lens { options }
+    }
+
     pub fn show_on_hover(&mut self, ui: &mut egui::Ui, map: &mut MapState, name: &str) {
-        if !self.enabled {
+        let options = &mut self.options;
+        if !options.enabled {
             return;
         }
 
@@ -50,9 +62,9 @@ impl Lens {
         ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
 
         // Change the hover region size when scrolling.
-        self.size_meters = (self.size_meters
-            + ui.input(|i| i.smooth_scroll_delta).y * self.scroll_speed_factor)
-            .clamp(self.size_meters_min, self.size_meters_max);
+        options.size_meters = (options.size_meters
+            + ui.input(|i| i.smooth_scroll_delta).y * options.scroll_speed_factor)
+            .clamp(options.size_meters_min, options.size_meters_max);
 
         // Show an overlay with a crop region of the original size image.
         // For this, the pointer position in the rendered texture needs to be converted
@@ -72,7 +84,7 @@ impl Lens {
         let original_pos = egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
 
         // Get crop for the overlay.
-        let hover_region_size_pixels = self.size_meters / map.meta.resolution as f32;
+        let hover_region_size_pixels = options.size_meters / map.meta.resolution as f32;
         let half_region_size = hover_region_size_pixels / 2.;
         let min_x = (original_pos.x - half_region_size).max(0.) as u32;
         let min_y = (original_pos.y - half_region_size).max(0.) as u32;

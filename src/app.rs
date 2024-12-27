@@ -11,7 +11,7 @@ use crate::grid::Grid;
 use crate::grid_options::GridOptions;
 use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
-use crate::lens::Lens;
+use crate::lens::{Lens, LensOptions};
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::texture_state::TextureState;
@@ -34,6 +34,7 @@ pub struct AppOptions {
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,
+    pub lens: LensOptions,
     pub grid: GridOptions,
 }
 
@@ -41,7 +42,6 @@ pub struct AppOptions {
 pub struct AppState {
     options: AppOptions,
     maps: HashMap<String, MapState>,
-    lens: Lens,
     status_message: String,
     file_dialog: FileDialog,
     tile_manager: Tiles,
@@ -141,9 +141,9 @@ impl AppState {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
                 self.options.settings_visible = false;
-                self.lens.enabled = false;
+                self.options.lens.enabled = false;
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
-                self.lens.enabled = !self.lens.enabled;
+                self.options.lens.enabled = !self.options.lens.enabled;
             }
             if i.key_released(egui::Key::M) {
                 self.options.menu_visible = !self.options.menu_visible;
@@ -193,23 +193,23 @@ impl AppState {
     fn lens_settings(&mut self, ui: &mut egui::Ui) {
         ui.heading("Lens");
         if ui.button("Reset").clicked() {
-            self.lens = Lens::default();
+            self.options.lens = LensOptions::default();
         }
         ui.add_space(SPACE);
         ui.end_row();
         ui.label("Show Lens");
-        ui.checkbox(&mut self.lens.enabled, "");
+        ui.checkbox(&mut self.options.lens.enabled, "");
         ui.end_row();
         ui.label("Lens size (meters)");
         ui.add(egui::Slider::new(
-            &mut self.lens.size_meters,
-            self.lens.size_meters_min..=self.lens.size_meters_max,
+            &mut self.options.lens.size_meters,
+            self.options.lens.size_meters_min..=self.options.lens.size_meters_max,
         ));
         ui.end_row();
         ui.label("Zoom speed")
             .on_hover_text("How fast the lens zooms in/out when scrolling.");
         ui.add(egui::Slider::new(
-            &mut self.lens.scroll_speed_factor,
+            &mut self.options.lens.scroll_speed_factor,
             0.0..=1.0,
         ));
     }
@@ -388,7 +388,7 @@ impl AppState {
                             if i.pointer.primary_down() {
                                 options.offset += i.pointer.delta();
                             }
-                            if !self.lens.enabled {
+                            if !self.options.lens.enabled {
                                 options.scale +=
                                     i.smooth_scroll_delta.y * options.scroll_speed_factor;
                                 options.scale =
@@ -405,7 +405,7 @@ impl AppState {
                 }
             }
             for (name, map) in &mut self.maps {
-                self.lens.show_on_hover(ui, map, name);
+                Lens::with(&mut self.options.lens).show_on_hover(ui, map, name);
             }
         });
     }
