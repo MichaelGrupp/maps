@@ -5,7 +5,7 @@ use log::debug;
 
 use crate::image::{fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
-use crate::texture_request::CropRequest;
+use crate::texture_request::{CropRequest, TextureRequest};
 
 #[derive(Default)]
 pub struct TextureState {
@@ -24,35 +24,17 @@ impl TextureState {
         }
     }
 
-    fn update_desired_size(&mut self, ui: &egui::Ui) {
-        let old_size = self.desired_size;
-        let pixels_per_point = ui.ctx().zoom_factor() * ui.ctx().pixels_per_point();
-        let desired_size = egui::vec2(
-            ui.available_width() * pixels_per_point,
-            ui.available_height() * pixels_per_point,
-        );
-        if desired_size != old_size {
-            // Note that in egui dropping the last handle of a texture will free it.
-            debug!(
-                "Desired size changed to {:?}, clearing texture.",
-                desired_size
-            );
+    pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
+        if self.desired_size != request.desired_rect.size() {
+            // Free the old texture if the size changed.
             self.texture_handle = None;
         }
-        self.desired_size = desired_size;
-    }
-
-    pub fn update_to_available_space(&mut self, ui: &egui::Ui, name: &str) {
-        self.update_desired_size(ui);
-        self.update(ui, name);
-    }
-
-    pub fn update(&mut self, ui: &egui::Ui, name: &str) {
+        self.desired_size = request.desired_rect.size();
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
-            debug!("Fitting and reloading texture for {}", name);
+            debug!("Fitting and reloading texture for {:?}", request);
             ui.ctx().load_texture(
-                name,
+                request.client.clone(),
                 to_egui_image(fit_image(
                     self.image_pyramid.get_level(self.desired_size),
                     self.desired_size,
@@ -60,6 +42,19 @@ impl TextureState {
                 Default::default(),
             )
         });
+    }
+
+    pub fn put(&mut self, ui: &mut egui::Ui, request: &TextureRequest) {
+        self.update(ui, request);
+
+        match &self.texture_handle {
+            Some(texture) => {
+                self.image_response = Some(ui.image(texture));
+            }
+            None => {
+                panic!("Missing texture handle for {}", request.client)
+            }
+        }
     }
 
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &CropRequest) {
@@ -75,6 +70,7 @@ impl TextureState {
             return;
         }
 
+        debug!("Cropping and reloading texture for {:?}", request);
         let uncropped = self.image_pyramid.get_level(self.desired_size);
 
         let uv_min = request.uv[0];

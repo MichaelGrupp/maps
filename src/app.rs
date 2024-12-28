@@ -14,6 +14,7 @@ use crate::image_pyramid::ImagePyramid;
 use crate::lens::{Lens, LensOptions};
 use crate::map_state::MapState;
 use crate::meta::Meta;
+use crate::texture_request::TextureRequest;
 use crate::texture_state::TextureState;
 use crate::tiles::{Pane, Tiles};
 use crate::tiles_behavior::MapsTreeBehavior;
@@ -159,24 +160,16 @@ impl AppState {
 
     fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
         for (name, map) in self.maps.iter_mut() {
-            map.texture_state.update_to_available_space(ui, name);
             if !map.visible {
                 continue;
             }
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                Self::show_image(ui, name, map);
+                map.texture_state.put(
+                    ui,
+                    &TextureRequest::new(name.clone(), ui.available_rect_before_wrap()),
+                );
             });
         }
-    }
-
-    fn show_image(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
-        let texture = match &map.texture_state.texture_handle {
-            Some(texture) => texture,
-            None => {
-                panic!("Missing texture handle for image {}", name);
-            }
-        };
-        map.texture_state.image_response = Some(ui.image(texture));
     }
 
     fn view_buttons(&mut self, ui: &mut egui::Ui) {
