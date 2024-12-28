@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use eframe::egui;
 
 use crate::map_state::MapState;
+use crate::texture_request::{CropRequest, TextureRequest};
 
 pub struct Grid {
     pub metric_extent: egui::Vec2,
@@ -68,43 +69,14 @@ impl Grid {
 
         let relation = GridMapRelation::new(self, map);
 
-        // TODO: Crop to viewport to not explode.
-        if map.texture_state.desired_size != relation.scaled_size {
-            map.texture_state.texture_handle = None;
-            map.texture_state.desired_size = relation.scaled_size;
-        }
-        map.texture_state
-            .update(ui, format!("{} in grid", name).as_str());
-
         let rect = egui::Rect::from_min_size(
             self.origin_in_points + relation.ulc_to_origin_in_points,
             relation.scaled_size,
         );
 
-        // Calculate the intersection of the image and the viewport.
-        let viewport_rect = ui.clip_rect();
-        let visible_rect = rect.intersect(viewport_rect);
-
-        // Calculate the UV coordinates for the visible portion.
-        let uv_min = egui::Pos2::new(
-            (visible_rect.min.x - rect.min.x) / rect.width(),
-            (visible_rect.min.y - rect.min.y) / rect.height(),
-        );
-        let uv_max = egui::Pos2::new(
-            (visible_rect.max.x - rect.min.x) / rect.width(),
-            (visible_rect.max.y - rect.min.y) / rect.height(),
-        );
-
-        let texture = map.texture_state.texture_handle.as_ref().unwrap();
-        map.texture_state.image_response = Some(
-            ui.put(
-                visible_rect,
-                egui::Image::new(texture)
-                    .maintain_aspect_ratio(false)
-                    .uv([uv_min, uv_max])
-                    .fit_to_exact_size(visible_rect.size()),
-            ),
-        );
+        let uncropped = TextureRequest::new(name.to_string(), rect);
+        let request = CropRequest::from_visible(ui, uncropped);
+        map.texture_state.crop_and_put(ui, &request);
     }
 
     pub fn show_maps(&self, ui: &mut egui::Ui, maps: &mut HashMap<String, MapState>) {

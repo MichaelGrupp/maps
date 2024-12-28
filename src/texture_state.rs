@@ -5,6 +5,7 @@ use log::debug;
 
 use crate::image::{fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
+use crate::texture_request::CropRequest;
 
 #[derive(Default)]
 pub struct TextureState {
@@ -12,6 +13,7 @@ pub struct TextureState {
     pub image_response: Option<egui::Response>,
     pub texture_handle: Option<egui::TextureHandle>,
     pub desired_size: egui::Vec2,
+    pub desired_uv: [egui::Pos2; 2],
 }
 
 impl TextureState {
@@ -58,5 +60,53 @@ impl TextureState {
                 Default::default(),
             )
         });
+    }
+
+    pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &CropRequest) {
+        let desired_size = request.uncropped.desired_rect.size();
+        if self.desired_size == desired_size && self.desired_uv == request.uv {
+            return;
+        }
+        self.desired_size = desired_size;
+        self.desired_uv = request.uv;
+
+        if request.visible_rect.is_negative() || request.uv[0] == request.uv[1] {
+            self.texture_handle = None;
+            return;
+        }
+
+        let uncropped = self.image_pyramid.get_level(self.desired_size);
+
+        let uv_min = request.uv[0];
+        let uv_max = request.uv[1];
+        let min_x = (uv_min.x * uncropped.width() as f32).round() as u32;
+        let min_y = (uv_min.y * uncropped.height() as f32).round() as u32;
+        let max_x = (uv_max.x * uncropped.width() as f32).round() as u32;
+        let max_y = (uv_max.y * uncropped.height() as f32).round() as u32;
+        let cropped_image = uncropped.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+
+        self.texture_handle = Some(ui.ctx().load_texture(
+            request.uncropped.client.clone(),
+            to_egui_image(cropped_image),
+            Default::default(),
+        ));
+    }
+
+    pub fn crop_and_put(&mut self, ui: &mut egui::Ui, request: &CropRequest) {
+        self.update_crop(ui, request);
+
+        match &self.texture_handle {
+            Some(texture) => {
+                self.image_response = Some(
+                    ui.put(
+                        request.visible_rect,
+                        egui::Image::new(texture)
+                            .maintain_aspect_ratio(false)
+                            .fit_to_exact_size(request.visible_rect.size()),
+                    ),
+                );
+            }
+            None => (), // Fine, can be out of view or empty.
+        }
     }
 }

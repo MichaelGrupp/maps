@@ -6,6 +6,7 @@ pub mod image_pyramid;
 pub mod lens;
 pub mod map_state;
 pub mod meta;
+pub mod texture_request;
 pub mod texture_state;
 pub mod tiles;
 pub mod tiles_behavior;
