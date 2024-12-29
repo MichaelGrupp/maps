@@ -149,11 +149,31 @@ impl AppState {
             if i.key_released(egui::Key::M) {
                 self.options.menu_visible = !self.options.menu_visible;
             }
-            if i.key_released(egui::Key::S) {
+            if i.key_released(egui::Key::O) {
                 self.options.settings_visible = !self.options.settings_visible;
             }
             if i.key_released(egui::Key::G) {
                 self.options.grid.lines_visible = !self.options.grid.lines_visible;
+            }
+            if i.key_down(egui::Key::W) {
+                self.options.grid.offset.y += 10.;
+            }
+            if i.key_down(egui::Key::A) {
+                self.options.grid.offset.x += 10.;
+            }
+            if i.key_down(egui::Key::S) {
+                self.options.grid.offset.y -= 10.;
+            }
+            if i.key_down(egui::Key::D) {
+                self.options.grid.offset.x -= 10.;
+            }
+            if i.key_down(egui::Key::Minus) {
+                self.options.grid.scale = (self.options.grid.scale - 1.)
+                    .clamp(self.options.grid.min_scale, self.options.grid.max_scale);
+            }
+            if i.key_down(egui::Key::Plus) {
+                self.options.grid.scale = (self.options.grid.scale + 1.)
+                    .clamp(self.options.grid.min_scale, self.options.grid.max_scale);
             }
         });
     }
