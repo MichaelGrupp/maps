@@ -22,7 +22,7 @@ impl default::Default for GridOptions {
         GridOptions {
             scale: 5.,
             min_scale: 1.,
-            max_scale: 100.,
+            max_scale: 500.,
             offset: egui::Vec2::new(0., 0.),
             lines_visible: false,
             line_spacing: 1.,
