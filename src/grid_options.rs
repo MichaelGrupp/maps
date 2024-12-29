@@ -15,6 +15,12 @@ pub struct GridOptions {
     pub max_line_spacing: f32,
     pub line_stroke: egui::Stroke,
     pub scroll_speed_factor: f32,
+    pub marker_visible: bool,
+    pub marker_length_meters: f32,
+    pub marker_width_meters: f32,
+    pub marker_x_color: egui::Color32,
+    pub marker_y_color: egui::Color32,
+    pub marker_z_color: egui::Color32,
 }
 
 impl default::Default for GridOptions {
@@ -30,6 +36,12 @@ impl default::Default for GridOptions {
             max_line_spacing: 100.,
             line_stroke: egui::Stroke::new(1., egui::Color32::LIGHT_BLUE),
             scroll_speed_factor: 0.2,
+            marker_visible: true,
+            marker_length_meters: 1.,
+            marker_width_meters: 0.1,
+            marker_x_color: egui::Color32::RED,
+            marker_y_color: egui::Color32::GREEN,
+            marker_z_color: egui::Color32::BLUE,
         }
     }
 }

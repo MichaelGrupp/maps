@@ -270,6 +270,32 @@ impl AppState {
             self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
         ));
         ui.end_row();
+        ui.end_row();
+        ui.label("Show marker");
+        ui.checkbox(&mut self.options.grid.marker_visible, "");
+        ui.end_row();
+        ui.label("Marker length (meters)");
+        ui.add(egui::Slider::new(
+            &mut self.options.grid.marker_length_meters,
+            0.1..=25.0,
+        ));
+        ui.end_row();
+        ui.label("Marker width (meters)");
+        ui.add(egui::Slider::new(
+            &mut self.options.grid.marker_width_meters,
+            0.01..=5.,
+        ));
+        ui.end_row();
+        ui.label("Marker color (X)");
+        ui.color_edit_button_srgba(&mut self.options.grid.marker_x_color);
+        ui.end_row();
+        ui.label("Marker color (Y)");
+        ui.color_edit_button_srgba(&mut self.options.grid.marker_y_color);
+        ui.end_row();
+        ui.label("Marker color (Z)");
+        ui.color_edit_button_srgba(&mut self.options.grid.marker_z_color);
+        ui.end_row();
+        ui.end_row();
         ui.label("Grid scale (points per meter)");
         ui.add(egui::Slider::new(
             &mut self.options.grid.scale,
@@ -443,6 +469,9 @@ impl AppState {
                     grid.show_maps(ui, &mut self.maps);
                     if options.lines_visible {
                         grid.draw(ui, options.line_spacing, options.line_stroke);
+                    }
+                    if options.marker_visible {
+                        grid.draw_axes(ui, &options);
                     }
                 }
             }

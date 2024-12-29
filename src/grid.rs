@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use eframe::egui;
 
+use crate::grid_options::GridOptions;
 use crate::map_state::MapState;
 use crate::texture_request::{CropRequest, TextureRequest};
 
@@ -135,5 +136,39 @@ impl Grid {
             );
             y += spacing_points;
         }
+    }
+
+    pub fn draw_axes(&self, ui: &mut egui::Ui, options: &GridOptions) {
+        // Convert stroke width to points.
+        let x_stroke = egui::Stroke::new(
+            options.marker_width_meters * self.points_per_meter,
+            options.marker_x_color,
+        );
+        let y_stroke = egui::Stroke::new(
+            options.marker_width_meters * self.points_per_meter,
+            options.marker_y_color,
+        );
+
+        ui.painter().line_segment(
+            [
+                self.origin_in_points,
+                self.origin_in_points
+                    + egui::vec2(options.marker_length_meters * self.points_per_meter, 0.),
+            ],
+            x_stroke,
+        );
+        ui.painter().line_segment(
+            [
+                self.origin_in_points,
+                self.origin_in_points
+                    + egui::vec2(0., options.marker_length_meters * self.points_per_meter),
+            ],
+            y_stroke,
+        );
+        ui.painter().circle_filled(
+            self.origin_in_points,
+            options.marker_width_meters * self.points_per_meter / 2.,
+            options.marker_z_color,
+        );
     }
 }
