@@ -159,15 +159,21 @@ impl AppState {
     }
 
     fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
+        let num_visible = self.maps.values().filter(|m| m.visible).count();
+        let rect_per_image = egui::Rect::from_min_max(
+            egui::Pos2::ZERO,
+            egui::pos2(
+                ui.available_width(),
+                ui.available_height() / num_visible as f32,
+            ),
+        );
         for (name, map) in self.maps.iter_mut() {
             if !map.visible {
                 continue;
             }
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                map.texture_state.put(
-                    ui,
-                    &TextureRequest::new(name.clone(), ui.available_rect_before_wrap()),
-                );
+                map.texture_state
+                    .put(ui, &TextureRequest::new(name.clone(), rect_per_image));
             });
         }
     }
