@@ -1,7 +1,6 @@
 use std::default;
 
 use eframe::egui;
-use image::GenericImageView;
 use log::debug;
 
 use crate::image::to_egui_image;
@@ -69,27 +68,35 @@ impl<'a> Lens<'a> {
         // Show an overlay with a crop region of the original size image.
         // For this, the pointer position in the rendered texture needs to be converted
         // to corresponding coordinates in the unscaled original image.
-        let texture = match &map.texture_state.texture_handle {
-            Some(texture) => texture,
-            None => {
-                panic!("Missing texture handle for image {}", name);
-            }
-        };
-        let texture_size = &texture.size_vec2();
-        let uv = pointer_pos - response.rect.min;
-        let uv = egui::vec2(uv.x / texture_size.x, uv.y / texture_size.y);
+
+        // UV coordinates in the visible texture.
+        let texture_size = &response.rect.size();
+        let texture_pos = pointer_pos - response.rect.min;
+        let lens_uv = egui::vec2(
+            texture_pos.x / texture_size.x,
+            texture_pos.y / texture_size.y,
+        );
+
+        // When partially visible, we deal with a UV rect inside an UV rect.
+        let texture_uv = map.texture_state.desired_uv;
 
         let original_image = &map.texture_state.image_pyramid.original;
-        let (original_width, original_height) = original_image.dimensions();
-        let original_pos = egui::vec2(uv.x * original_width as f32, uv.y * original_height as f32);
+        let original_width = original_image.width() as f32;
+        let original_height = original_image.height() as f32;
+        let crop_width = original_width * (texture_uv[1].x - texture_uv[0].x);
+        let crop_height = original_height * (texture_uv[1].y - texture_uv[0].y);
+        let original_pos = egui::vec2(
+            texture_uv[0].x * original_width + lens_uv.x * crop_width,
+            texture_uv[0].y * original_height + lens_uv.y * crop_height,
+        );
 
         // Get crop for the overlay.
         let hover_region_size_pixels = options.size_meters / map.meta.resolution as f32;
         let half_region_size = hover_region_size_pixels / 2.;
         let min_x = (original_pos.x - half_region_size).max(0.) as u32;
         let min_y = (original_pos.y - half_region_size).max(0.) as u32;
-        let max_x = (original_pos.x + half_region_size).min(original_width as f32) as u32;
-        let max_y = (original_pos.y + half_region_size).min(original_height as f32) as u32;
+        let max_x = (original_pos.x + half_region_size).min(original_width) as u32;
+        let max_y = (original_pos.y + half_region_size).min(original_height) as u32;
         if min_x >= max_x || min_y >= max_y {
             debug!("Ignoring hover because region would be empty.");
             return;
@@ -103,7 +110,7 @@ impl<'a> Lens<'a> {
 
         // Show the crop area also in the scaled texture coordinates as a small rectangle.
         let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0., 0., 0.));
-        let small_rect_ratio = original_width as f32 / texture_size.x as f32;
+        let small_rect_ratio = original_width / map.texture_state.desired_size.x;
         let small_rect = egui::Rect::from_min_size(
             pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
             egui::vec2(hover_region_size_pixels, hover_region_size_pixels) / small_rect_ratio,

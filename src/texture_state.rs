@@ -30,6 +30,7 @@ impl TextureState {
             self.texture_handle = None;
         }
         self.desired_size = request.desired_rect.size();
+        self.desired_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
             debug!("Fitting and reloading texture for {:?}", request);
