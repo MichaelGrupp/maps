@@ -37,6 +37,7 @@ pub struct AppOptions {
     pub view_mode: ViewMode,
     pub lens: LensOptions,
     pub grid: GridOptions,
+    pub active_lens: Option<String>,
 }
 
 #[derive(Default)]
@@ -144,7 +145,24 @@ impl AppState {
                 self.options.settings_visible = false;
                 self.options.lens.enabled = false;
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
-                self.options.lens.enabled = !self.options.lens.enabled;
+                // Activate if not enabled.
+                // If enabled, switch to the next map until the last one, then disable.
+                if self.options.lens.enabled && self.options.view_mode == ViewMode::Aligned {
+                    let keys: Vec<String> = self.maps.keys().cloned().collect();
+                    if !keys.is_empty() {
+                        let active_lens = self.options.active_lens.get_or_insert(keys[0].clone());
+                        let active_index = keys.iter().position(|k| k == active_lens).unwrap();
+                        let next_index = (active_index + 1) % keys.len();
+                        if next_index == 0 {
+                            self.options.active_lens = None;
+                            self.options.lens.enabled = false;
+                        } else {
+                            *active_lens = keys[next_index].clone();
+                        }
+                    }
+                } else {
+                    self.options.lens.enabled = !self.options.lens.enabled;
+                }
             }
             if i.key_released(egui::Key::M) {
                 self.options.menu_visible = !self.options.menu_visible;
@@ -333,6 +351,11 @@ impl AppState {
             for name in to_delete {
                 self.maps.remove(&name);
                 self.tile_manager.remove_pane(&name);
+                if let Some(active_lens) = &self.options.active_lens {
+                    if active_lens == &name {
+                        self.options.active_lens = None;
+                    }
+                }
             }
         });
     }
@@ -423,7 +446,18 @@ impl AppState {
                     }
                 }
             }
+            let num_visible_maps = self.maps.values().filter(|m| m.visible).count();
             for (name, map) in &mut self.maps {
+                if !self.options.lens.enabled {
+                    continue;
+                }
+                if self.options.view_mode == ViewMode::Aligned && num_visible_maps > 1 {
+                    // Show lens on hover only for the active map in Aligned view mode.
+                    let active_lens = self.options.active_lens.get_or_insert(name.to_string());
+                    if *active_lens != *name {
+                        continue;
+                    }
+                }
                 Lens::with(&mut self.options.lens).show_on_hover(ui, map, name);
             }
         });

@@ -138,11 +138,13 @@ impl<'a> Lens<'a> {
 
         egui::Window::new("overlay_window")
             .title_bar(false)
-            .auto_sized()
+            .fixed_size(overlay_rect.size())
             .current_pos(overlay_rect.min)
             .resizable(false)
             .collapsible(false)
             .show(ui.ctx(), |ui| {
+                // Show name in small font.
+                ui.label(egui::RichText::new(name).small());
                 ui.image(&overlay_texture_handle);
             });
 
