@@ -47,14 +47,12 @@ impl AppState {
             0.01..=5.,
         ));
         ui.end_row();
-        ui.label("Marker color (X)");
-        ui.color_edit_button_srgba(&mut self.options.grid.marker_x_color);
-        ui.end_row();
-        ui.label("Marker color (Y)");
-        ui.color_edit_button_srgba(&mut self.options.grid.marker_y_color);
-        ui.end_row();
-        ui.label("Marker color (Z)");
-        ui.color_edit_button_srgba(&mut self.options.grid.marker_z_color);
+        ui.label("Marker color (x, y, z)");
+        ui.horizontal(|ui| {
+            ui.color_edit_button_srgba(&mut self.options.grid.marker_x_color);
+            ui.color_edit_button_srgba(&mut self.options.grid.marker_y_color);
+            ui.color_edit_button_srgba(&mut self.options.grid.marker_z_color);
+        });
         ui.end_row();
         ui.end_row();
         ui.label("Grid scale (points per meter)");

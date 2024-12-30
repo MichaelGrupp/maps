@@ -15,6 +15,12 @@ impl AppState {
                     self.canvas_settings(ui);
                     ui.end_row();
                     ui.end_row();
+                    
+                    if !self.maps.is_empty() {
+                        self.tint_settings(ui);
+                        ui.end_row();
+                        ui.end_row();
+                    }
 
                     self.lens_settings(ui);
 
@@ -22,12 +28,6 @@ impl AppState {
                         ui.end_row();
                         ui.end_row();
                         self.grid_settings(ui);
-                    }
-
-                    if !self.maps.is_empty() {
-                        ui.end_row();
-                        ui.end_row();
-                        self.tint_settings(ui);
                     }
                 });
         });
