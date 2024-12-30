@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use eframe::egui;
 
-use crate::grid_options::GridOptions;
+use crate::grid_options::{GridLineDimension, GridOptions};
 use crate::map_state::MapState;
 use crate::texture_request::{CropRequest, TextureRequest};
 
@@ -187,7 +187,11 @@ impl Grid {
     }
 
     pub fn draw(&self, ui: &mut egui::Ui, options: &GridOptions) {
-        let spacing_points = options.line_spacing_meters * self.points_per_meter;
+        let spacing_points = match options.line_dimension {
+            GridLineDimension::Screen => options.line_spacing_points,
+            GridLineDimension::Metric => options.line_spacing_meters * self.points_per_meter,
+        };
+
         let label_font_size = (spacing_points / 3.).min(15.);
         let label_offset = egui::vec2(0., label_font_size / 2.);
         let label_font_id = egui::FontId::new(label_font_size, egui::FontFamily::Monospace);

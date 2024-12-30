@@ -15,7 +15,7 @@ impl AppState {
                     self.canvas_settings(ui);
                     ui.end_row();
                     ui.end_row();
-                    
+
                     if !self.maps.is_empty() {
                         self.tint_settings(ui);
                         ui.end_row();

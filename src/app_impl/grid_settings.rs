@@ -2,7 +2,7 @@ use eframe::egui;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
-use crate::grid_options::GridOptions;
+use crate::grid_options::{GridLineDimension, GridOptions};
 
 impl AppState {
     pub fn grid_settings(&mut self, ui: &mut egui::Ui) {
@@ -18,11 +18,38 @@ impl AppState {
         ui.label("Grid color");
         ui.color_edit_button_srgba(&mut self.options.grid.line_stroke.color);
         ui.end_row();
-        ui.label("Grid lines spacing (meters)");
-        ui.add(egui::Slider::new(
-            &mut self.options.grid.line_spacing_meters,
-            self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
-        ));
+        ui.label("Grid spacing dimension");
+        ui.horizontal(|ui| {
+            ui.selectable_value(
+                &mut self.options.grid.line_dimension,
+                GridLineDimension::Screen,
+                "Screen",
+            );
+            ui.selectable_value(
+                &mut self.options.grid.line_dimension,
+                GridLineDimension::Metric,
+                "Metric",
+            );
+        });
+        ui.end_row();
+        match self.options.grid.line_dimension {
+            GridLineDimension::Screen => {
+                ui.label("Grid lines spacing (points)");
+                ui.add(egui::Slider::new(
+                    &mut self.options.grid.line_spacing_points,
+                    self.options.grid.min_line_spacing_points
+                        ..=self.options.grid.max_line_spacing_points,
+                ));
+            }
+            GridLineDimension::Metric => {
+                ui.label("Grid lines spacing (meters)");
+                ui.add(egui::Slider::new(
+                    &mut self.options.grid.line_spacing_meters,
+                    self.options.grid.min_line_spacing_meters
+                        ..=self.options.grid.max_line_spacing_meters,
+                ));
+            }
+        }
         ui.end_row();
         ui.end_row();
         ui.label("Show tick labels");
