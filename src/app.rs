@@ -9,6 +9,7 @@ use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
 use crate::meta::Meta;
+use crate::texture_request::NO_TINT;
 use crate::tiles::Tiles;
 
 #[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
@@ -49,6 +50,7 @@ impl AppState {
     pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
         let mut state = AppState::default();
         state.options = options;
+        state.options.tint_for_all = NO_TINT;
 
         for meta in metas {
             state.load_image(meta)?;
