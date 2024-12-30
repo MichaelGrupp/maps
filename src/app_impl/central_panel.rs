@@ -55,7 +55,7 @@ impl AppState {
         let grid = Grid::new(ui, options.scale).with_origin_offset(options.offset);
         grid.show_maps(ui, &mut self.maps);
         if options.lines_visible {
-            grid.draw(ui, options.line_spacing, options.line_stroke);
+            grid.draw(ui, options);
         }
         if options.marker_visible {
             grid.draw_axes(ui, &options);

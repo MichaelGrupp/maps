@@ -86,56 +86,120 @@ impl Grid {
         }
     }
 
-    pub fn draw(&self, ui: &mut egui::Ui, spacing_meters: f32, stroke: egui::Stroke) {
-        // Draw grid lines in whole area, but always cross the origin.
-        // Start from the origin and go to left and right.
-        let spacing_points = spacing_meters * self.points_per_meter;
+    fn draw_vertical_lines(
+        &self,
+        ui: &mut egui::Ui,
+        options: &GridOptions,
+        spacing_points: f32,
+        label_font_id: egui::FontId,
+        label_offset: egui::Vec2,
+    ) {
         let mut x = self.origin_in_points.x;
         while x > 0. {
-            ui.painter().line_segment(
-                [
-                    egui::Pos2::new(x, 0.),
-                    egui::Pos2::new(x, self.metric_extent.y),
-                ],
-                stroke,
-            );
+            self.draw_vertical_line(ui, x, options, label_font_id.clone(), label_offset);
             x -= spacing_points;
         }
         x = self.origin_in_points.x + spacing_points;
         while x < self.metric_extent.x {
-            ui.painter().line_segment(
-                [
-                    egui::Pos2::new(x, 0.),
-                    egui::Pos2::new(x, self.metric_extent.y),
-                ],
-                stroke,
-            );
+            self.draw_vertical_line(ui, x, options, label_font_id.clone(), label_offset);
             x += spacing_points;
         }
+    }
 
-        // Now for the vertical lines.
+    fn draw_vertical_line(
+        &self,
+        ui: &mut egui::Ui,
+        x: f32,
+        options: &GridOptions,
+        label_font_id: egui::FontId,
+        label_offset: egui::Vec2,
+    ) {
+        let bottom = egui::Pos2::new(x, self.metric_extent.y / self.points_per_meter);
+        ui.painter().line_segment(
+            [
+                egui::Pos2::new(x, 0.),
+                egui::Pos2::new(x, self.metric_extent.y),
+            ],
+            options.line_stroke,
+        );
+        if options.tick_labels_visible {
+            ui.painter().text(
+                bottom - label_offset,
+                egui::Align2::LEFT_CENTER,
+                format!(
+                    "{:.1}",
+                    -(self.origin_in_points.x - x) / self.points_per_meter
+                ),
+                label_font_id,
+                options.tick_labels_color,
+            );
+        }
+    }
+
+    fn draw_horizontal_lines(
+        &self,
+        ui: &mut egui::Ui,
+        options: &GridOptions,
+        spacing_points: f32,
+        label_font_id: egui::FontId,
+        label_offset: egui::Vec2,
+    ) {
         let mut y = self.origin_in_points.y;
         while y > 0. {
-            ui.painter().line_segment(
-                [
-                    egui::Pos2::new(0., y),
-                    egui::Pos2::new(self.metric_extent.x, y),
-                ],
-                stroke,
-            );
+            self.draw_horizontal_line(ui, y, options, label_font_id.clone(), label_offset);
             y -= spacing_points;
         }
         y = self.origin_in_points.y + spacing_points;
         while y < self.metric_extent.y {
-            ui.painter().line_segment(
-                [
-                    egui::Pos2::new(0., y),
-                    egui::Pos2::new(self.metric_extent.x, y),
-                ],
-                stroke,
-            );
+            self.draw_horizontal_line(ui, y, options, label_font_id.clone(), label_offset);
             y += spacing_points;
         }
+    }
+
+    fn draw_horizontal_line(
+        &self,
+        ui: &mut egui::Ui,
+        y: f32,
+        options: &GridOptions,
+        label_font_id: egui::FontId,
+        label_offset: egui::Vec2,
+    ) {
+        let left = egui::Pos2::new(0., y);
+        ui.painter().line_segment(
+            [
+                left,
+                egui::Pos2::new(self.metric_extent.x / self.points_per_meter, y),
+            ],
+            options.line_stroke,
+        );
+        if options.tick_labels_visible {
+            ui.painter().text(
+                left + label_offset,
+                egui::Align2::LEFT_CENTER,
+                format!(
+                    "{:.1}",
+                    -(self.origin_in_points.y - y) / self.points_per_meter
+                ),
+                label_font_id,
+                options.tick_labels_color,
+            );
+        }
+    }
+
+    pub fn draw(&self, ui: &mut egui::Ui, options: &GridOptions) {
+        let spacing_points = options.line_spacing_meters * self.points_per_meter;
+        let label_font_size = (spacing_points / 3.).min(15.);
+        let label_offset = egui::vec2(0., label_font_size / 2.);
+        let label_font_id = egui::FontId::new(label_font_size, egui::FontFamily::Monospace);
+
+        self.draw_vertical_lines(
+            ui,
+            options,
+            spacing_points,
+            label_font_id.clone(),
+            label_offset,
+        );
+        self.draw_horizontal_lines(ui, options, spacing_points, label_font_id, label_offset);
     }
 
     pub fn draw_axes(&self, ui: &mut egui::Ui, options: &GridOptions) {

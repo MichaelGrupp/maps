@@ -10,7 +10,7 @@ pub struct GridOptions {
     pub max_scale: f32,
     pub offset: egui::Vec2,
     pub lines_visible: bool,
-    pub line_spacing: f32,
+    pub line_spacing_meters: f32,
     pub min_line_spacing: f32,
     pub max_line_spacing: f32,
     pub line_stroke: egui::Stroke,
@@ -21,6 +21,8 @@ pub struct GridOptions {
     pub marker_x_color: egui::Color32,
     pub marker_y_color: egui::Color32,
     pub marker_z_color: egui::Color32,
+    pub tick_labels_visible: bool,
+    pub tick_labels_color: egui::Color32,
 }
 
 impl default::Default for GridOptions {
@@ -31,7 +33,7 @@ impl default::Default for GridOptions {
             max_scale: 500.,
             offset: egui::Vec2::new(0., 0.),
             lines_visible: false,
-            line_spacing: 1.,
+            line_spacing_meters: 1.,
             min_line_spacing: 0.1,
             max_line_spacing: 100.,
             line_stroke: egui::Stroke::new(1., egui::Color32::LIGHT_BLUE),
@@ -42,6 +44,8 @@ impl default::Default for GridOptions {
             marker_x_color: egui::Color32::RED,
             marker_y_color: egui::Color32::GREEN,
             marker_z_color: egui::Color32::BLUE,
+            tick_labels_visible: true,
+            tick_labels_color: egui::Color32::DARK_GRAY,
         }
     }
 }

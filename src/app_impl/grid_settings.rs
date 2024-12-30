@@ -20,9 +20,16 @@ impl AppState {
         ui.end_row();
         ui.label("Grid lines spacing (meters)");
         ui.add(egui::Slider::new(
-            &mut self.options.grid.line_spacing,
+            &mut self.options.grid.line_spacing_meters,
             self.options.grid.min_line_spacing..=self.options.grid.max_line_spacing,
         ));
+        ui.end_row();
+        ui.end_row();
+        ui.label("Show tick labels");
+        ui.checkbox(&mut self.options.grid.tick_labels_visible, "");
+        ui.end_row();
+        ui.label("Tick label color");
+        ui.color_edit_button_srgba(&mut self.options.grid.tick_labels_color);
         ui.end_row();
         ui.end_row();
         ui.label("Show marker");
