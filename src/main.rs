@@ -14,6 +14,8 @@ use maps::app::{AppOptions, AppState, ViewMode};
 use maps::meta::Meta;
 use strum::VariantNames;
 
+const MIN_SIZE: egui::Vec2 = egui::vec2(300., 200.);
+
 #[derive(Parser, Debug)]
 #[command(name = "maps", version, author = "Michael Grupp")]
 struct Args {
@@ -85,7 +87,9 @@ fn main() -> eframe::Result {
 
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size(size),
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size(size)
+            .with_min_inner_size(MIN_SIZE),
         renderer: eframe::Renderer::Wgpu,
         ..Default::default()
     };
