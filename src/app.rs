@@ -14,7 +14,7 @@ use crate::image_pyramid::ImagePyramid;
 use crate::lens::{Lens, LensOptions};
 use crate::map_state::MapState;
 use crate::meta::Meta;
-use crate::texture_request::TextureRequest;
+use crate::texture_request::{TextureRequest, NO_TINT};
 use crate::texture_state::TextureState;
 use crate::tiles::{Pane, Tiles};
 use crate::tiles_behavior::MapsTreeBehavior;
@@ -38,6 +38,8 @@ pub struct AppOptions {
     pub lens: LensOptions,
     pub grid: GridOptions,
     pub active_lens: Option<String>,
+    pub active_tint_selection: Option<String>,
+    pub tint_for_all: egui::Color32,
 }
 
 #[derive(Default)]
@@ -58,6 +60,7 @@ impl AppState {
     pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
         let mut state = AppState::default();
         state.options = options;
+        state.options.tint_for_all = NO_TINT;
 
         for meta in metas {
             state.load_image(meta)?;
@@ -128,6 +131,7 @@ impl AppState {
                         visible: true,
                         texture_state: TextureState::new(image_pyramid),
                         overlay_texture: None,
+                        tint: None,
                     },
                 );
                 Ok(())
@@ -221,8 +225,10 @@ impl AppState {
                 continue;
             }
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                map.texture_state
-                    .put(ui, &TextureRequest::new(name.clone(), rect_per_image));
+                map.texture_state.put(
+                    ui,
+                    &TextureRequest::new(name.clone(), rect_per_image).with_tint(map.tint),
+                );
             });
         }
     }
@@ -321,6 +327,52 @@ impl AppState {
         ));
     }
 
+    fn tint_settings(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Blend");
+        ui.add_space(SPACE);
+        ui.end_row();
+
+        let all_key = "< All >".to_string();
+        let selected = self
+            .options
+            .active_tint_selection
+            .get_or_insert(all_key.clone());
+        egui::ComboBox::from_label("")
+            .selected_text(format!("{}", selected))
+            .show_ui(ui, |ui| {
+                ui.selectable_value(selected, all_key.clone(), &all_key);
+                for name in self.maps.keys() {
+                    ui.selectable_value(selected, name.to_string(), name);
+                }
+            });
+
+        let reset = ui.button("Reset").clicked();
+        ui.end_row();
+
+        ui.label("Tint color / alpha");
+        if *selected == all_key {
+            let tint = &mut self.options.tint_for_all;
+            if reset {
+                *tint = NO_TINT;
+            }
+            ui.color_edit_button_srgba(tint);
+            for map in self.maps.values_mut() {
+                map.tint = Some(*tint);
+            }
+        } else {
+            let tint = self
+                .maps
+                .get_mut(selected)
+                .unwrap()
+                .tint
+                .get_or_insert(NO_TINT);
+            if reset {
+                *tint = NO_TINT;
+            }
+            ui.color_edit_button_srgba(tint);
+        }
+    }
+
     fn header_panel(&mut self, ui: &mut egui::Ui) {
         let add_toggle_button = |ui: &mut egui::Ui,
                                  icon: &str,
@@ -393,6 +445,11 @@ impl AppState {
                         self.options.active_lens = None;
                     }
                 }
+                if let Some(active_tint_selection) = &self.options.active_tint_selection {
+                    if active_tint_selection == &name {
+                        self.options.active_tint_selection = None;
+                    }
+                }
             }
         });
     }
@@ -407,11 +464,17 @@ impl AppState {
                 .striped(false)
                 .show(ui, |ui| {
                     self.lens_settings(ui);
-                    ui.end_row();
-                    ui.end_row();
 
                     if self.options.view_mode == ViewMode::Aligned {
+                        ui.end_row();
+                        ui.end_row();
                         self.grid_settings(ui);
+                    }
+
+                    if !self.maps.is_empty() {
+                        ui.end_row();
+                        ui.end_row();
+                        self.tint_settings(ui);
                     }
                 });
         });

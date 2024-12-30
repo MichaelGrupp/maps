@@ -1,9 +1,12 @@
 use eframe::egui;
 
+pub const NO_TINT: egui::Color32 = egui::Color32::WHITE;
+
 #[derive(Debug)]
 pub struct TextureRequest {
     pub client: String,
     pub desired_rect: egui::Rect,
+    pub tint: egui::Color32,
 }
 
 impl TextureRequest {
@@ -11,7 +14,20 @@ impl TextureRequest {
         TextureRequest {
             client,
             desired_rect,
+            tint: NO_TINT,
         }
+    }
+
+    pub fn with_tint(mut self, tint: Option<egui::Color32>) -> TextureRequest {
+        match tint {
+            Some(tint) => {
+                self.tint = tint;
+            }
+            None => {
+                self.tint = NO_TINT;
+            }
+        }
+        self
     }
 }
 

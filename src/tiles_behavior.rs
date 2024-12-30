@@ -35,7 +35,11 @@ impl<'a> egui_tiles::Behavior<Pane> for MapsTreeBehavior<'a> {
                         panic!("Missing texture handle for image {}", pane.id);
                     }
                 };
-                let image_response = ui.image(texture).interact(egui::Sense::click_and_drag());
+                let image = match map.tint {
+                    Some(tint) => egui::Image::new(texture).tint(tint),
+                    None => egui::Image::new(texture),
+                };
+                let image_response = ui.add(image).interact(egui::Sense::click_and_drag());
                 if image_response.drag_started_by(egui::PointerButton::Primary) {
                     debug!("Dragging image {}", pane.id);
                     tiles_response = egui_tiles::UiResponse::DragStarted;

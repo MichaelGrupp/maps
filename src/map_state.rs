@@ -10,4 +10,5 @@ pub struct MapState {
     pub visible: bool,
     pub texture_state: TextureState,
     pub overlay_texture: Option<egui::TextureHandle>,
+    pub tint: Option<egui::Color32>,
 }

@@ -75,7 +75,7 @@ impl Grid {
             relation.scaled_size,
         );
 
-        let uncropped = TextureRequest::new(name.to_string(), rect);
+        let uncropped = TextureRequest::new(name.to_string(), rect).with_tint(map.tint);
         let request = CropRequest::from_visible(ui, uncropped);
         map.texture_state.crop_and_put(ui, &request);
     }

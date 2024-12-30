@@ -50,7 +50,7 @@ impl TextureState {
 
         match &self.texture_handle {
             Some(texture) => {
-                self.image_response = Some(ui.image(texture));
+                self.image_response = Some(ui.add(egui::Image::new(texture).tint(request.tint)));
             }
             None => {
                 panic!("Missing texture handle for {}", request.client)
@@ -99,7 +99,8 @@ impl TextureState {
                         request.visible_rect,
                         egui::Image::new(texture)
                             .maintain_aspect_ratio(false)
-                            .fit_to_exact_size(request.visible_rect.size()),
+                            .fit_to_exact_size(request.visible_rect.size())
+                            .tint(request.uncropped.tint),
                     ),
                 );
             }
