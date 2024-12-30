@@ -81,6 +81,11 @@ impl TextureState {
         let max_x = (uv_max.x * uncropped.width() as f32).round() as u32;
         let max_y = (uv_max.y * uncropped.height() as f32).round() as u32;
         let cropped_image = uncropped.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        if cropped_image.width() == 0 || cropped_image.height() == 0 {
+            debug!("Crop resulted in empty image.");
+            self.texture_handle = None;
+            return;
+        }
 
         self.texture_handle = Some(ui.ctx().load_texture(
             request.uncropped.client.clone(),
