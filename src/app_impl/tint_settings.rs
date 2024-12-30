@@ -8,12 +8,12 @@ use crate::app_impl::constants::SPACE;
 use crate::texture_request::NO_TINT;
 
 #[derive(Debug)]
-pub struct TintSettings {
+pub struct TintOptions {
     pub active_tint_selection: Option<String>,
     pub tint_for_all: egui::Color32,
 }
 
-impl default::Default for TintSettings {
+impl default::Default for TintOptions {
     fn default() -> Self {
         Self {
             active_tint_selection: None,

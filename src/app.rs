@@ -5,8 +5,8 @@ use eframe::egui;
 use egui_file_dialog::FileDialog;
 use strum_macros::{Display, EnumString, VariantNames};
 
-use crate::app_impl::canvas_settings::CanvasSettings;
-use crate::app_impl::tint_settings::TintSettings;
+use crate::app_impl::canvas_settings::CanvasOptions;
+use crate::app_impl::tint_settings::TintOptions;
 use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
@@ -23,14 +23,14 @@ pub enum ViewMode {
 
 #[derive(Debug, Default)]
 pub struct AppOptions {
-    pub canvas_settings: CanvasSettings,
+    pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,
     pub lens: LensOptions,
     pub grid: GridOptions,
     pub active_lens: Option<String>,
-    pub tint_settings: TintSettings,
+    pub tint_settings: TintOptions,
 }
 
 #[derive(Default)]
@@ -51,7 +51,7 @@ impl AppState {
     pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
         let mut state = AppState::default();
         state.options = options;
-        
+
         for meta in metas {
             state.load_image(meta)?;
         }
