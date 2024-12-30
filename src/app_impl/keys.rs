@@ -3,13 +3,17 @@ use eframe::egui;
 use crate::app::{AppState, ViewMode};
 
 impl AppState {
-    fn flip_lens(&mut self) {
-        if !self.options.lens.enabled || self.options.view_mode != ViewMode::Aligned {
-            // Activate in all cases, or toggle in non-overlapping views.
+    fn flip_lens(&mut self, skip: i32) {
+        if self.options.view_mode != ViewMode::Aligned {
+            // Toggle in non-overlapping views.
             self.options.lens.enabled = !self.options.lens.enabled;
             return;
         }
         // In overlapping aligned view, switch to the next visible maps, then disable.
+        if !self.options.lens.enabled {
+            self.options.lens.enabled = true;
+            return;
+        }
         let keys: Vec<&String> = self
             .maps
             .keys()
@@ -21,8 +25,13 @@ impl AppState {
         }
         let active_lens = self.options.active_lens.get_or_insert(keys[0].clone());
         if let Some(active_index) = keys.iter().position(|k| *k == active_lens) {
-            let next_index = (active_index + 1) % keys.len();
-            if next_index == 0 {
+            let next_index = if active_index == 0 && skip.is_negative() {
+                // Rotate index with right click.
+                keys.len() - 1
+            } else {
+                (active_index as i32 + skip) as usize % keys.len()
+            };
+            if next_index == 0 && skip.is_positive() {
                 self.options.active_lens = None;
                 self.options.lens.enabled = false;
             } else {
@@ -38,7 +47,12 @@ impl AppState {
                 self.options.settings_visible = false;
                 self.options.lens.enabled = false;
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
-                self.flip_lens();
+                self.flip_lens(1);
+            }
+            if i.key_released(egui::Key::K) || i.pointer.primary_released() {
+                if self.options.lens.enabled {
+                    self.flip_lens(-1);
+                }
             }
             if i.key_released(egui::Key::M) {
                 self.options.menu_visible = !self.options.menu_visible;
