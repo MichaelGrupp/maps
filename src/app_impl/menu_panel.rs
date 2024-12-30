@@ -36,9 +36,11 @@ impl AppState {
                         self.options.active_lens = None;
                     }
                 }
-                if let Some(active_tint_selection) = &self.options.active_tint_selection {
+                if let Some(active_tint_selection) =
+                    &self.options.tint_settings.active_tint_selection
+                {
                     if active_tint_selection == &name {
-                        self.options.active_tint_selection = None;
+                        self.options.tint_settings.active_tint_selection = None;
                     }
                 }
             }

@@ -6,11 +6,11 @@ use egui_file_dialog::FileDialog;
 use strum_macros::{Display, EnumString, VariantNames};
 
 use crate::app_impl::canvas_settings::CanvasSettings;
+use crate::app_impl::tint_settings::TintSettings;
 use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
 use crate::meta::Meta;
-use crate::texture_request::NO_TINT;
 use crate::tiles::Tiles;
 
 #[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
@@ -30,8 +30,7 @@ pub struct AppOptions {
     pub lens: LensOptions,
     pub grid: GridOptions,
     pub active_lens: Option<String>,
-    pub active_tint_selection: Option<String>,
-    pub tint_for_all: egui::Color32,
+    pub tint_settings: TintSettings,
 }
 
 #[derive(Default)]
@@ -52,12 +51,15 @@ impl AppState {
     pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
         let mut state = AppState::default();
         state.options = options;
-        state.options.tint_for_all = NO_TINT;
-
+        
         for meta in metas {
             state.load_image(meta)?;
         }
+        for map in state.maps.values_mut() {
+            map.tint = Some(state.options.tint_settings.tint_for_all);
+        }
         state.file_dialog = Self::make_yaml_file_dialog();
+
         Ok(state)
     }
 }

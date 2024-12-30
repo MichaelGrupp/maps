@@ -1,9 +1,26 @@
+use std::default;
+
 use eframe::egui;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 use crate::texture_request::NO_TINT;
+
+#[derive(Debug)]
+pub struct TintSettings {
+    pub active_tint_selection: Option<String>,
+    pub tint_for_all: egui::Color32,
+}
+
+impl default::Default for TintSettings {
+    fn default() -> Self {
+        Self {
+            active_tint_selection: None,
+            tint_for_all: NO_TINT,
+        }
+    }
+}
 
 impl AppState {
     pub fn tint_settings(&mut self, ui: &mut egui::Ui) {
@@ -14,6 +31,7 @@ impl AppState {
         let all_key = "< All >".to_string();
         let selected = self
             .options
+            .tint_settings
             .active_tint_selection
             .get_or_insert(all_key.clone());
         egui::ComboBox::from_label("")
@@ -30,7 +48,7 @@ impl AppState {
 
         ui.label("Tint color / alpha");
         if *selected == all_key {
-            let tint = &mut self.options.tint_for_all;
+            let tint = &mut self.options.tint_settings.tint_for_all;
             if reset {
                 *tint = NO_TINT;
             }

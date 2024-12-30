@@ -9,4 +9,4 @@ mod lens_settings;
 pub mod load_delete;
 pub mod menu_panel;
 pub mod settings_panel;
-mod tint_settings;
+pub mod tint_settings;

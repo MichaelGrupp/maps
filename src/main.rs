@@ -37,6 +37,13 @@ struct Args {
         help = format!("Initial view mode. Possible values: {}", ViewMode::VARIANTS.join(", ")),
     )]
     view_mode: ViewMode,
+    #[clap(
+        short,
+        long,
+        default_value_t = 1.,
+        help = "Initial alpha value for maps. 0. is transparent, 1.0 is opaque."
+    )]
+    alpha: f32,
 }
 
 fn main() -> eframe::Result {
@@ -72,10 +79,16 @@ fn main() -> eframe::Result {
         }
     }
 
-    let options = AppOptions {
+    let mut options = AppOptions {
         view_mode: args.view_mode,
         ..Default::default()
     };
+
+    // Looks like there is no faster way to edit just the alpha value of a Color32.
+    let mut color = options.tint_settings.tint_for_all;
+    let new_alpha = (args.alpha * 255.) as u8;
+    color = egui::Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), new_alpha);
+    options.tint_settings.tint_for_all = color;
 
     let app_state = match AppState::init(metas, options) {
         Ok(state) => Box::new(state),
