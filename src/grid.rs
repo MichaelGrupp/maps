@@ -11,6 +11,7 @@ pub struct Grid {
     pub points_per_meter: f32,
     pub pixels_per_point: f32,
     pub origin_in_points: egui::Pos2, // Location of the origin in point coordinates.
+    pub left_offset: egui::Vec2,
 }
 
 // Relations of a RHS metric coordinate map to the LHS point coordinate grid.
@@ -50,11 +51,14 @@ impl Grid {
     pub fn new(ui: &egui::Ui, points_per_meter: f32) -> Grid {
         let available_size = ui.available_size();
         let metric_extent = available_size * points_per_meter;
+        // TODO: offset is a hack to avoid wrong drawing when a left side menu is expanded.
+        let left_offset = egui::vec2(ui.cursor().min.x, 0.);
         Grid {
             metric_extent: metric_extent,
             points_per_meter: points_per_meter,
             pixels_per_point: ui.ctx().zoom_factor() * ui.ctx().pixels_per_point(),
             origin_in_points: (available_size / 2.).to_pos2(),
+            left_offset: left_offset,
         }
     }
 
@@ -100,7 +104,7 @@ impl Grid {
             x -= spacing_points;
         }
         x = self.origin_in_points.x + spacing_points;
-        while x < self.metric_extent.x {
+        while x < self.metric_extent.x + self.left_offset.x {
             self.draw_vertical_line(ui, x, options, label_font_id.clone(), label_offset);
             x += spacing_points;
         }
@@ -164,11 +168,11 @@ impl Grid {
         label_font_id: egui::FontId,
         label_offset: egui::Vec2,
     ) {
-        let left = egui::Pos2::new(0., y);
+        let left = egui::Pos2::new(0., y) + self.left_offset;
         ui.painter().line_segment(
             [
                 left,
-                egui::Pos2::new(self.metric_extent.x / self.points_per_meter, y),
+                egui::Pos2::new(self.metric_extent.x * self.points_per_meter, y) + self.left_offset,
             ],
             options.line_stroke,
         );
