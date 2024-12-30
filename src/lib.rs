@@ -1,4 +1,5 @@
 pub mod app;
+pub mod app_impl;
 pub mod grid;
 pub mod grid_options;
 pub mod image;
