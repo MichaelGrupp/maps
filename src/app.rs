@@ -189,16 +189,16 @@ impl AppState {
                 self.options.grid.lines_visible = !self.options.grid.lines_visible;
             }
             if i.key_down(egui::Key::W) {
-                self.options.grid.offset.y += 10.;
-            }
-            if i.key_down(egui::Key::A) {
-                self.options.grid.offset.x += 10.;
-            }
-            if i.key_down(egui::Key::S) {
                 self.options.grid.offset.y -= 10.;
             }
-            if i.key_down(egui::Key::D) {
+            if i.key_down(egui::Key::A) {
                 self.options.grid.offset.x -= 10.;
+            }
+            if i.key_down(egui::Key::S) {
+                self.options.grid.offset.y += 10.;
+            }
+            if i.key_down(egui::Key::D) {
+                self.options.grid.offset.x += 10.;
             }
             if i.key_down(egui::Key::Minus) {
                 self.options.grid.scale = (self.options.grid.scale - 1.)
