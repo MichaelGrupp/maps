@@ -12,6 +12,10 @@ impl AppState {
                 .num_columns(2)
                 .striped(false)
                 .show(ui, |ui| {
+                    self.canvas_settings(ui);
+                    ui.end_row();
+                    ui.end_row();
+
                     self.lens_settings(ui);
 
                     if self.options.view_mode == ViewMode::Aligned {

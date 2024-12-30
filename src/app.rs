@@ -5,6 +5,7 @@ use eframe::egui;
 use egui_file_dialog::FileDialog;
 use strum_macros::{Display, EnumString, VariantNames};
 
+use crate::app_impl::canvas_settings::CanvasSettings;
 use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
@@ -22,6 +23,7 @@ pub enum ViewMode {
 
 #[derive(Debug, Default)]
 pub struct AppOptions {
+    pub canvas_settings: CanvasSettings,
     pub menu_visible: bool,
     pub settings_visible: bool,
     pub view_mode: ViewMode,

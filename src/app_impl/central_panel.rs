@@ -96,28 +96,30 @@ impl AppState {
     }
 
     pub fn central_panel(&mut self, ui: &mut egui::Ui) {
-        egui::CentralPanel::default().show(ui.ctx(), |ui| {
-            if self.maps.is_empty() {
-                self.show_empty(ui);
-                return;
-            }
+        egui::CentralPanel::default()
+            .frame(egui::Frame::default().fill(self.options.canvas_settings.background_color))
+            .show(ui.ctx(), |ui| {
+                if self.maps.is_empty() {
+                    self.show_empty(ui);
+                    return;
+                }
 
-            match self.options.view_mode {
-                ViewMode::Tiles => {
-                    self.show_tiles(ui);
+                match self.options.view_mode {
+                    ViewMode::Tiles => {
+                        self.show_tiles(ui);
+                    }
+                    ViewMode::Stacked => {
+                        egui::ScrollArea::both().show(ui, |ui| {
+                            self.show_stacked_images(ui);
+                            // Fill the remaining vertical space, otherwise the scroll bar can jump around.
+                            ui.add_space(ui.available_height());
+                        });
+                    }
+                    ViewMode::Aligned => {
+                        self.show_grid(ui);
+                    }
                 }
-                ViewMode::Stacked => {
-                    egui::ScrollArea::both().show(ui, |ui| {
-                        self.show_stacked_images(ui);
-                        // Fill the remaining vertical space, otherwise the scroll bar can jump around.
-                        ui.add_space(ui.available_height());
-                    });
-                }
-                ViewMode::Aligned => {
-                    self.show_grid(ui);
-                }
-            }
-            self.show_lens(ui);
-        });
+                self.show_lens(ui);
+            });
     }
 }

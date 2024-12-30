@@ -1,3 +1,4 @@
+pub mod canvas_settings;
 pub mod central_panel;
 mod constants;
 pub mod footer_panel;
