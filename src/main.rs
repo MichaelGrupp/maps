@@ -46,6 +46,24 @@ struct Args {
     alpha: f32,
 }
 
+fn load_icon() -> egui::IconData {
+    let (icon_rgba, icon_width, icon_height) = {
+        let icon = include_bytes!("../data/icon.png");
+        let image = image::load_from_memory(icon)
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+
+    egui::IconData {
+        rgba: icon_rgba,
+        width: icon_width,
+        height: icon_height,
+    }
+}
+
 fn main() -> eframe::Result {
     let args = Args::parse();
 
@@ -101,6 +119,7 @@ fn main() -> eframe::Result {
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
+            .with_icon(load_icon())
             .with_inner_size(size)
             .with_min_inner_size(MIN_SIZE),
         renderer: eframe::Renderer::Wgpu,
