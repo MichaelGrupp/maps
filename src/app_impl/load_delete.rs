@@ -16,6 +16,7 @@ use crate::app::{AppState, Error};
 impl AppState {
     pub fn make_yaml_file_dialog() -> FileDialog {
         FileDialog::new()
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
             .add_file_filter(
                 "yaml",
                 Arc::new(|path| {
