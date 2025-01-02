@@ -90,9 +90,9 @@ impl<'a> Lens<'a> {
             texture_uv[0].y * original_height + lens_uv.y * crop_height,
         );
 
-        // Get crop for the overlay.
-        let hover_region_size_pixels = options.size_meters / map.meta.resolution as f32;
-        let half_region_size = hover_region_size_pixels / 2.;
+        // Get crop for the overlay. The result can be smaller at the border.
+        let region_size_pixels = options.size_meters / map.meta.resolution as f32;
+        let half_region_size = region_size_pixels / 2.;
         let min_x = (original_pos.x - half_region_size).max(0.) as u32;
         let min_y = (original_pos.y - half_region_size).max(0.) as u32;
         let max_x = (original_pos.x + half_region_size).min(original_width) as u32;
@@ -102,6 +102,8 @@ impl<'a> Lens<'a> {
             return;
         }
         let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        let cropped_size = egui::vec2(cropped_image.width() as f32, cropped_image.height() as f32);
+
         let overlay_texture_handle = ui.ctx().load_texture(
             "overlay_".to_owned() + name,
             to_egui_image(cropped_image),
@@ -109,45 +111,55 @@ impl<'a> Lens<'a> {
         );
 
         // Show the crop area also in the scaled texture coordinates as a small rectangle.
-        let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0., 0., 0.));
         let small_rect_ratio = original_width / map.texture_state.desired_size.x;
-        let small_rect = egui::Rect::from_min_size(
-            pointer_pos - egui::vec2(half_region_size, half_region_size) / small_rect_ratio,
-            egui::vec2(hover_region_size_pixels, hover_region_size_pixels) / small_rect_ratio,
+        self.lens_rect(
+            ui,
+            egui::Rect::from_min_size(
+                // Clamp to the texture bounds to show correctly at borders.
+                (pointer_pos - (cropped_size / small_rect_ratio) / 2.)
+                    .max(response.rect.min)
+                    .min(response.rect.max - cropped_size / small_rect_ratio),
+                cropped_size / small_rect_ratio,
+            ),
         );
+
+        // Show overlay in diagonally opposite direction of the hovered quadrant.
+        let overlay_pos = Self::bounce_pos(ui, pointer_pos, cropped_size);
+        let overlay_rect = egui::Rect::from_center_size(overlay_pos, cropped_size);
+
+        // Draw rectangle around the overlay, a bit wider than the overlay itself.
+        let stroke = egui::Stroke::new(5., egui::Rgba::from_rgb(0., 0., 0.));
         ui.painter()
-            .add(egui::Shape::rect_stroke(small_rect, 0., stroke));
+            .add(egui::Shape::rect_stroke(overlay_rect, 1., stroke));
 
-        // Display the overlay next to the mouse pointer.
-        // Make sure it stays within the window and does not overlap with the small rectangle.
-        let pointer_offset = egui::vec2(small_rect.width(), small_rect.width());
-        let overlay_pos = (pointer_pos + pointer_offset).min(
-            response.rect.max - egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
-        );
-        let mut overlay_rect = egui::Rect::from_min_size(
-            overlay_pos,
-            egui::vec2(hover_region_size_pixels, hover_region_size_pixels),
-        );
-        if overlay_rect.intersects(small_rect) {
-            let distance_to_right = response.rect.max.x - small_rect.max.x;
-            overlay_rect = overlay_rect.translate(egui::vec2(
-                -(distance_to_right + small_rect.width() + pointer_offset.x),
-                0.,
-            ));
-        }
-
-        egui::Window::new("overlay_window")
-            .title_bar(false)
-            .fixed_size(overlay_rect.size())
-            .current_pos(overlay_rect.min)
-            .resizable(false)
-            .collapsible(false)
-            .show(ui.ctx(), |ui| {
-                // Show name in small font.
-                ui.label(egui::RichText::new(name).small());
-                ui.image(&overlay_texture_handle);
-            });
+        ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
 
         map.overlay_texture = Some(overlay_texture_handle);
+    }
+
+    fn lens_rect(&mut self, ui: &egui::Ui, rect: egui::Rect) {
+        let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0., 0., 0.));
+        let fill = egui::Rgba::from_black_alpha(0.25);
+        ui.painter().add(egui::Shape::rect_filled(rect, 0., fill));
+        ui.painter().add(egui::Shape::rect_stroke(rect, 1., stroke));
+    }
+
+    fn bounce_pos(ui: &egui::Ui, pointer_pos: egui::Pos2, overlay_size: egui::Vec2) -> egui::Pos2 {
+        let offset = overlay_size / 2. + egui::vec2(10., 10.);
+        let window_uv = egui::vec2(
+            pointer_pos.x / ui.ctx().screen_rect().width(),
+            pointer_pos.y / ui.ctx().screen_rect().height(),
+        );
+
+        let overlay_pos = if window_uv.x < 0.5 && window_uv.y < 0.5 {
+            pointer_pos + offset
+        } else if window_uv.x < 0.5 {
+            pointer_pos + offset * egui::vec2(1., -1.)
+        } else if window_uv.y < 0.5 {
+            pointer_pos + offset * egui::vec2(-1., 1.)
+        } else {
+            pointer_pos - offset
+        };
+        overlay_pos
     }
 }
