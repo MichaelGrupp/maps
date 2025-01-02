@@ -38,24 +38,24 @@ impl<'a> Lens<'a> {
         Lens { options }
     }
 
-    pub fn show_on_hover(&mut self, ui: &mut egui::Ui, map: &mut MapState, name: &str) {
+    pub fn show_on_hover(&mut self, ui: &mut egui::Ui, map: &mut MapState, name: &str) -> bool {
         let options = &mut self.options;
         if !options.enabled {
-            return;
+            return false;
         }
 
         let response = match &map.texture_state.image_response {
             Some(response) => response,
             None => {
                 // Can be missing e.g. if a tab is not visible yet.
-                return;
+                return false;
             }
         };
 
         let Some(pointer_pos) = response.hover_pos() else {
             // Clear the overlay texture if the mouse is not hovering over the image.
             map.overlay_texture = None;
-            return;
+            return false;
         };
 
         ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
@@ -99,7 +99,7 @@ impl<'a> Lens<'a> {
         let max_y = (original_pos.y + half_region_size).min(original_height) as u32;
         if min_x >= max_x || min_y >= max_y {
             debug!("Ignoring hover because region would be empty.");
-            return;
+            return false;
         }
         let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
         let cropped_size = egui::vec2(cropped_image.width() as f32, cropped_image.height() as f32);
@@ -135,6 +135,7 @@ impl<'a> Lens<'a> {
         ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
 
         map.overlay_texture = Some(overlay_texture_handle);
+        return true;
     }
 
     fn lens_rect(&mut self, ui: &egui::Ui, rect: egui::Rect) {

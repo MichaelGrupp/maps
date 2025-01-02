@@ -75,8 +75,13 @@ impl AppState {
                     continue;
                 }
             }
-            Lens::with(&mut self.options.lens).show_on_hover(ui, map, name);
+            if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name) {
+                self.status_message = format!("Lens active on: {}", name);
+                return;
+            }
         }
+        // TODO: use separate status message for lens.
+        self.status_message = "".to_string();
     }
 
     fn show_empty(&mut self, ui: &mut egui::Ui) {
