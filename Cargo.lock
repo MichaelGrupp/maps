@@ -1417,6 +1417,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "fast_image_resize"
+version = "5.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec7890c03bc18abd95e18d972f6f8f19ecc792cc01f208f060b3764a672de9e2"
+dependencies = [
+ "bytemuck",
+ "cfg-if",
+ "document-features",
+ "image",
+ "num-traits",
+ "thiserror",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2235,6 +2249,7 @@ dependencies = [
  "egui_extras",
  "egui_tiles",
  "env_logger",
+ "fast_image_resize",
  "image",
  "log",
  "nalgebra",

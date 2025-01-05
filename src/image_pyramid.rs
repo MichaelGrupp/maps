@@ -7,8 +7,8 @@ use log::debug;
 use crate::image::fit_image;
 
 // Side lengths used for the image pyramid levels.
-// These shall correspond roughly to realistic screen resolutions.
-const SIZES: [u32; 5] = [4000, 2000, 1000, 500, 250];
+// These shall correspond roughly to zoom levels w.r.t. original images.
+const SIZES: [u32; 7] = [8000, 6000, 4000, 2000, 1000, 500, 250];
 
 // Stores downscaled versions of an image for discrete sizes.
 // Intended for efficient on-screen rendering of images at different zoom levels.
