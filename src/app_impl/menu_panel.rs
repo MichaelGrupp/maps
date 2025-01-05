@@ -28,22 +28,17 @@ impl AppState {
                         ui.end_row();
                     }
                 });
-            for name in to_delete {
-                self.maps.remove(&name);
-                self.tile_manager.remove_pane(&name);
-                if let Some(active_lens) = &self.options.active_lens {
-                    if active_lens == &name {
-                        self.options.active_lens = None;
-                    }
-                }
-                if let Some(active_tint_selection) =
-                    &self.options.tint_settings.active_tint_selection
-                {
-                    if active_tint_selection == &name {
-                        self.options.tint_settings.active_tint_selection = None;
-                    }
-                }
+            self.delete(&to_delete);
+
+            if self.maps.is_empty() {
+                return;
             }
+
+            ui.separator();
+            ui.add_space(SPACE);
+            ui.heading("Pose");
+            ui.add_space(SPACE);
+            self.pose_edit(ui);
         });
     }
 }

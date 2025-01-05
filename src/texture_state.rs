@@ -5,7 +5,7 @@ use log::debug;
 
 use crate::image::{fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
-use crate::texture_request::{CropRequest, TextureRequest};
+use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
 #[derive(Default)]
 pub struct TextureState {
@@ -58,7 +58,7 @@ impl TextureState {
         }
     }
 
-    pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &CropRequest) {
+    pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
         if self.desired_size == desired_size && self.desired_uv == request.uv {
             return;
@@ -94,20 +94,22 @@ impl TextureState {
         ));
     }
 
-    pub fn crop_and_put(&mut self, ui: &mut egui::Ui, request: &CropRequest) {
+    pub fn crop_and_put(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         self.update_crop(ui, request);
 
         match &self.texture_handle {
             Some(texture) => {
-                self.image_response = Some(
-                    ui.put(
-                        request.visible_rect,
-                        egui::Image::new(texture)
-                            .maintain_aspect_ratio(false)
-                            .fit_to_exact_size(request.visible_rect.size())
-                            .tint(request.uncropped.tint),
-                    ),
-                );
+                // Manually paint and get response.
+                // ui.put() clips to the viewport, which is bad for rotated images.
+                let image = egui::Image::new(texture)
+                    .rotate(request.rotation.angle(), request.rotation_center_in_uv)
+                    .maintain_aspect_ratio(false)
+                    .fit_to_exact_size(request.visible_rect.size())
+                    .tint(request.uncropped.tint);
+                image.paint_at(ui, request.visible_rect);
+                // TODO: this doesn't get the hover response in the rotated texture.
+                self.image_response =
+                    Some(ui.interact(request.visible_rect, ui.id(), egui::Sense::hover()));
             }
             None => (), // Fine, can be out of view or empty.
         }

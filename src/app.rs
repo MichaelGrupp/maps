@@ -31,6 +31,7 @@ pub struct AppOptions {
     pub grid: GridOptions,
     pub active_lens: Option<String>,
     pub tint_settings: TintOptions,
+    pub selected_map: String,
 }
 
 #[derive(Default)]

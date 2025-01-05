@@ -78,6 +78,8 @@ impl AppState {
                     meta.yaml_path.to_str().unwrap().to_owned(),
                     MapState {
                         meta,
+                        translation: Default::default(),
+                        rotation_angle: 0.,
                         visible: true,
                         texture_state: TextureState::new(image_pyramid),
                         overlay_texture: None,
@@ -89,6 +91,23 @@ impl AppState {
             Err(e) => Err(Error {
                 message: format!("Error loading image: {:?}", e),
             }),
+        }
+    }
+
+    pub fn delete(&mut self, to_delete: &Vec<String>) {
+        for name in to_delete {
+            self.maps.remove(name);
+            self.tile_manager.remove_pane(&name);
+            if let Some(active_lens) = &self.options.active_lens {
+                if active_lens == name {
+                    self.options.active_lens = None;
+                }
+            }
+            if let Some(active_tint_selection) = &self.options.tint_settings.active_tint_selection {
+                if active_tint_selection == name {
+                    self.options.tint_settings.active_tint_selection = None;
+                }
+            }
         }
     }
 }

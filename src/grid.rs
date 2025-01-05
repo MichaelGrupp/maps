@@ -4,7 +4,7 @@ use eframe::egui;
 
 use crate::grid_options::{GridLineDimension, GridOptions};
 use crate::map_state::MapState;
-use crate::texture_request::{CropRequest, TextureRequest};
+use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
 pub struct Grid {
     pub metric_extent: egui::Vec2,
@@ -38,7 +38,15 @@ impl GridMapRelation {
             -map.meta.origin.translation.y as f32, // RHS to LHS
         ) * points_per_meter
             * scale_factor;
-        let ulc_to_origin_in_points = llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
+        let mut ulc_to_origin_in_points =
+            llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
+
+        let translation_in_points = egui::Vec2::new(
+            map.translation.x as f32,
+            -map.translation.y as f32, // RHS to LHS
+        ) * points_per_meter
+            * scale_factor;
+        ulc_to_origin_in_points = translation_in_points + ulc_to_origin_in_points;
 
         GridMapRelation {
             scaled_size: scaled_size,
@@ -80,7 +88,12 @@ impl Grid {
         );
 
         let uncropped = TextureRequest::new(name.to_string(), rect).with_tint(map.tint);
-        let request = CropRequest::from_visible(ui, uncropped);
+        let request = RotatedCropRequest::from_visible(
+            ui,
+            uncropped,
+            map.rotation_angle,
+            relation.ulc_to_origin_in_points,
+        );
         map.texture_state.crop_and_put(ui, &request);
     }
 

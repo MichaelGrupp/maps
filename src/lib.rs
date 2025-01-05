@@ -7,6 +7,7 @@ mod image_pyramid;
 mod lens;
 mod map_state;
 pub mod meta;
+mod rect_helpers;
 mod texture_request;
 mod texture_state;
 mod tiles;
