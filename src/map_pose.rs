@@ -70,8 +70,13 @@ impl MapPose {
 
     pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
         match std::fs::File::open(yaml_path) {
-            Ok(file) => match serde_yml::from_reader(file) {
-                Ok(map_pose) => Ok(map_pose),
+            Ok(file) => match serde_yml::from_reader::<std::fs::File, MapPose>(file) {
+                Ok(mut map_pose) => {
+                    map_pose.rotation.roll = emath::normalized_angle(map_pose.rotation.roll);
+                    map_pose.rotation.pitch = emath::normalized_angle(map_pose.rotation.pitch);
+                    map_pose.rotation.yaw = emath::normalized_angle(map_pose.rotation.yaw);
+                    Ok(map_pose)
+                }
                 Err(error) => Err(Error {
                     message: error.to_string(),
                 }),
