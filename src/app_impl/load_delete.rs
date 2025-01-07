@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use eframe::egui;
 use egui_file_dialog::FileDialog;
+use log::debug;
 
 use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
@@ -47,11 +48,11 @@ impl AppState {
 
     pub fn load_meta_button(&mut self, ui: &mut egui::Ui) {
         if ui.button("📂 Load Maps").clicked() {
-            self.file_dialog.pick_multiple();
+            self.load_meta_file_dialog.pick_multiple();
         }
-        self.file_dialog.update(ui.ctx());
+        self.load_meta_file_dialog.update(ui.ctx());
 
-        if let Some(paths) = self.file_dialog.take_picked_multiple() {
+        if let Some(paths) = self.load_meta_file_dialog.take_picked_multiple() {
             for path in paths {
                 ui.ctx().request_repaint();
                 match self.load_meta(path.clone()) {
@@ -106,6 +107,49 @@ impl AppState {
             if let Some(active_tint_selection) = &self.options.tint_settings.active_tint_selection {
                 if active_tint_selection == name {
                     self.options.tint_settings.active_tint_selection = None;
+                }
+            }
+        }
+    }
+
+    pub fn load_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
+        if ui.button("📂 Load Pose").clicked() {
+            self.load_map_pose_file_dialog.pick_file();
+        }
+        self.load_map_pose_file_dialog.update(ui.ctx());
+
+        match self.load_map_pose_file_dialog.take_picked() {
+            Some(path) => {
+                debug!("Loading pose file: {:?}", path);
+                match MapPose::from_yaml_file(&path) {
+                    Ok(map_pose) => {
+                        self.status_message = format!("Loaded pose file: {:?}", path);
+                        self.maps.get_mut(map_name).unwrap().pose = map_pose;
+                    }
+                    Err(e) => {
+                        self.status_message = format!("Error loading pose file: {:?}", e.message);
+                    }
+                }
+            }
+            None => (), // Nothing selected.
+        }
+    }
+
+    pub fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
+        if ui.button("💾 Save Pose").clicked() {
+            self.save_map_pose_file_dialog.save_file();
+        }
+        self.save_map_pose_file_dialog.update(ui.ctx());
+
+        if let Some(path) = self.save_map_pose_file_dialog.take_picked() {
+            ui.ctx().request_repaint();
+            debug!("Saving pose file: {:?}", path);
+            match self.maps.get(map_name).unwrap().pose.to_yaml_file(&path) {
+                Ok(_) => {
+                    self.status_message = format!("Saved pose file: {:?}", path);
+                }
+                Err(e) => {
+                    self.status_message = format!("Error saving pose file: {:?}", e.message);
                 }
             }
         }

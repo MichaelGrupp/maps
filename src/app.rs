@@ -39,7 +39,9 @@ pub struct AppState {
     pub options: AppOptions,
     pub maps: HashMap<String, MapState>,
     pub status_message: String,
-    pub file_dialog: FileDialog,
+    pub load_meta_file_dialog: FileDialog,
+    pub load_map_pose_file_dialog: FileDialog,
+    pub save_map_pose_file_dialog: FileDialog,
     pub tile_manager: Tiles,
 }
 
@@ -59,7 +61,11 @@ impl AppState {
         for map in state.maps.values_mut() {
             map.tint = Some(state.options.tint_settings.tint_for_all);
         }
-        state.file_dialog = Self::make_yaml_file_dialog();
+        state.load_meta_file_dialog = Self::make_yaml_file_dialog();
+        state.load_map_pose_file_dialog = Self::make_yaml_file_dialog();
+        state.save_map_pose_file_dialog = Self::make_yaml_file_dialog()
+            .allow_file_overwrite(true)
+            .default_file_name("map_pose.yaml");
 
         Ok(state)
     }

@@ -59,7 +59,7 @@ impl MapPose {
         emath::vec2(self.translation.x, self.translation.y)
     }
 
-    pub fn from_yaml_file(yaml_path: PathBuf) -> Result<MapPose, Error> {
+    pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
         match std::fs::File::open(yaml_path) {
             Ok(file) => match serde_yml::from_reader(file) {
                 Ok(map_pose) => Ok(map_pose),
@@ -82,7 +82,7 @@ impl MapPose {
         }
     }
 
-    pub fn to_yaml_file(&self, yaml_path: PathBuf) -> Result<(), Error> {
+    pub fn to_yaml_file(&self, yaml_path: &PathBuf) -> Result<(), Error> {
         match std::fs::write(yaml_path, self.to_yaml()?) {
             Ok(_) => Ok(()),
             Err(error) => Err(Error {

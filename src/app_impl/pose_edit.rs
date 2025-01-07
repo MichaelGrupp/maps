@@ -15,7 +15,27 @@ impl AppState {
                 }
             });
 
-        match self.maps.get_mut(&self.options.selected_map) {
+        let map_name = self.options.selected_map.clone();
+
+        if !map_name.is_empty() {
+            ui.add_space(SPACE);
+            ui.horizontal(|ui| {
+                self.load_map_pose_button(ui, map_name.as_str());
+                self.save_map_pose_button(ui, map_name.as_str());
+                if ui.button("Reset").clicked() {
+                    match self.maps.get_mut(&map_name) {
+                        Some(map) => {
+                            map.pose = Default::default();
+                        }
+                        None => {
+                            ui.label("Select a map to edit its pose.");
+                        }
+                    }
+                }
+            });
+        }
+
+        match self.maps.get_mut(&map_name) {
             Some(map) => {
                 ui.vertical(|ui| {
                     ui.add_space(SPACE);
