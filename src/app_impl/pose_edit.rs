@@ -19,20 +19,13 @@ impl AppState {
 
         if !map_name.is_empty() {
             ui.add_space(SPACE);
-            ui.horizontal(|ui| {
-                self.load_map_pose_button(ui, map_name.as_str());
-                self.save_map_pose_button(ui, map_name.as_str());
-                if ui.button("Reset").clicked() {
-                    match self.maps.get_mut(&map_name) {
-                        Some(map) => {
-                            map.pose = Default::default();
-                        }
-                        None => {
-                            ui.label("Select a map to edit its pose.");
-                        }
-                    }
-                }
-            });
+            egui::Grid::new("pose_io_grid")
+                .num_columns(2)
+                .striped(false)
+                .show(ui, |ui| {
+                    self.save_map_pose_button(ui, map_name.as_str());
+                    self.load_map_pose_button(ui, map_name.as_str());
+                });
         }
 
         match self.maps.get_mut(&map_name) {
@@ -56,6 +49,23 @@ impl AppState {
             None => {
                 ui.label("Select a map to edit its pose.");
             }
+        }
+
+        if !map_name.is_empty() {
+            ui.add_space(SPACE);
+            egui::Grid::new("pose_buttons_grid")
+                .num_columns(2)
+                .striped(false)
+                .show(ui, |ui| {
+                    if let Some(map) = self.maps.get_mut(&map_name) {
+                        if ui.button("Reset").clicked() {
+                            map.pose = Default::default();
+                        }
+                        if ui.button("Invert").clicked() {
+                            map.pose.invert();
+                        }
+                    }
+                });
         }
     }
 }

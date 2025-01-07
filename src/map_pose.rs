@@ -40,6 +40,15 @@ impl MapPose {
         }
     }
 
+    pub fn invert(&mut self) {
+        self.translation.x = -self.translation.x;
+        self.translation.y = -self.translation.y;
+        self.translation.z = -self.translation.z;
+        self.rotation.roll = -self.rotation.roll;
+        self.rotation.pitch = -self.rotation.pitch;
+        self.rotation.yaw = -self.rotation.yaw;
+    }
+
     pub fn with_vec2(&mut self, vec: emath::Vec2) -> &mut Self {
         self.translation.x = vec.x;
         self.translation.y = vec.y;
