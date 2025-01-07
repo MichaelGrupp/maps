@@ -243,7 +243,7 @@ impl Grid {
             [
                 self.origin_in_points,
                 self.origin_in_points
-                    + egui::vec2(0., options.marker_length_meters * self.points_per_meter),
+                    - egui::vec2(0., options.marker_length_meters * self.points_per_meter), // RHS to LHS
             ],
             y_stroke,
         );
