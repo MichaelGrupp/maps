@@ -52,7 +52,7 @@ impl MapPose {
     }
 
     pub fn rot2(&self) -> emath::Rot2 {
-        emath::Rot2::from_angle(self.rotation.yaw)
+        emath::Rot2::from_angle(self.rotation.yaw).normalized()
     }
 
     pub fn vec2(&self) -> emath::Vec2 {
