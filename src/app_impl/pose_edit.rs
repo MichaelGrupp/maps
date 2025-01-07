@@ -20,11 +20,17 @@ impl AppState {
                 ui.vertical(|ui| {
                     ui.add_space(SPACE);
                     ui.label("x");
-                    ui.add(egui::Slider::new(&mut map.translation.x, -1000.0..=1000.0));
+                    ui.add(egui::Slider::new(
+                        &mut map.pose.translation.x,
+                        -1000.0..=1000.0,
+                    ));
                     ui.label("y");
-                    ui.add(egui::Slider::new(&mut map.translation.y, -1000.0..=1000.0));
+                    ui.add(egui::Slider::new(
+                        &mut map.pose.translation.y,
+                        -1000.0..=1000.0,
+                    ));
                     ui.label("θ");
-                    ui.add(egui::Slider::new(&mut map.rotation_angle, -PI..=PI));
+                    ui.add(egui::Slider::new(&mut map.pose.rotation.yaw, -PI..=PI));
                 });
             }
             None => {

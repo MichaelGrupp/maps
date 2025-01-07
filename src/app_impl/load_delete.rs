@@ -12,6 +12,7 @@ use crate::texture_state::TextureState;
 use crate::tiles::Pane;
 
 use crate::app::{AppState, Error};
+use crate::map_pose::MapPose;
 
 impl AppState {
     pub fn make_yaml_file_dialog() -> FileDialog {
@@ -78,8 +79,7 @@ impl AppState {
                     meta.yaml_path.to_str().unwrap().to_owned(),
                     MapState {
                         meta,
-                        translation: Default::default(),
-                        rotation_angle: 0.,
+                        pose: MapPose::default(),
                         visible: true,
                         texture_state: TextureState::new(image_pyramid),
                         overlay_texture: None,

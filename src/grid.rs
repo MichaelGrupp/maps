@@ -41,11 +41,8 @@ impl GridMapRelation {
         let mut ulc_to_origin_in_points =
             llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
 
-        let translation_in_points = egui::Vec2::new(
-            map.translation.x as f32,
-            -map.translation.y as f32, // RHS to LHS
-        ) * points_per_meter
-            * scale_factor;
+        let translation_in_points =
+            map.pose.vec2() * egui::vec2(1., -1.) * points_per_meter * scale_factor;
         ulc_to_origin_in_points = translation_in_points + ulc_to_origin_in_points;
 
         GridMapRelation {
@@ -91,7 +88,7 @@ impl Grid {
         let request = RotatedCropRequest::from_visible(
             ui,
             uncropped,
-            map.rotation_angle,
+            map.pose.rot2().inverse(), // RHS to LHS
             relation.ulc_to_origin_in_points,
         );
         map.texture_state.crop_and_put(ui, &request);

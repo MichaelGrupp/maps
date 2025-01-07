@@ -46,7 +46,7 @@ impl RotatedCropRequest {
     pub fn from_visible(
         ui: &egui::Ui,
         uncropped: TextureRequest,
-        rotation_angle: f32,
+        rotation: egui::emath::Rot2,
         rotation_center_in_points: egui::Vec2,
     ) -> RotatedCropRequest {
         let viewport_rect = ui.clip_rect();
@@ -56,8 +56,6 @@ impl RotatedCropRequest {
         // Pre-calculate the minimal, unrotated crop that is needed to show the rotated surface in the viewport.
         // I.e. neither clipping too much nor making the texture unnecessarily large / inefficient.
         // Enable debug log level to see what is going on (I spent too much time figuring this out).
-        let rotation = eframe::emath::Rot2::from_angle(rotation_angle);
-
         let rotated = rotate(&image_rect, rotation, origin_in_points);
         debug_paint(ui, rotated, egui::Color32::RED);
 
