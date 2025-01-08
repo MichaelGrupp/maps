@@ -39,6 +39,7 @@ pub struct RotatedCropRequest {
     pub visible_rect: egui::Rect,
     pub uv: [egui::Pos2; 2],
     pub rotation: eframe::emath::Rot2,
+    pub translation: egui::Vec2,
     pub rotation_center_in_uv: egui::Vec2,
 }
 
@@ -47,6 +48,7 @@ impl RotatedCropRequest {
         ui: &egui::Ui,
         uncropped: TextureRequest,
         rotation: egui::emath::Rot2,
+        translation: egui::Vec2,
         rotation_center_in_points: egui::Vec2,
     ) -> RotatedCropRequest {
         let viewport_rect = ui.clip_rect();
@@ -57,12 +59,17 @@ impl RotatedCropRequest {
         // I.e. neither clipping too much nor making the texture unnecessarily large / inefficient.
         // Enable debug log level to see what is going on (I spent too much time figuring this out).
         let rotated = rotate(&image_rect, rotation, origin_in_points);
-        debug_paint(ui, rotated, egui::Color32::RED);
+        let transformed = rotated.translate(translation);
+        debug_paint(ui, transformed, egui::Color32::RED);
 
-        let rotated_visible = rotated.intersect(viewport_rect);
-        debug_paint(ui, rotated_visible, egui::Color32::GOLD);
+        let transformed_visible = transformed.intersect(viewport_rect);
+        debug_paint(ui, transformed_visible, egui::Color32::GOLD);
 
-        let min_crop = rotate(&rotated_visible, rotation.inverse(), origin_in_points);
+        let min_crop = rotate(
+            &transformed_visible.translate(-translation),
+            rotation.inverse(),
+            origin_in_points,
+        );
         debug_paint(ui, min_crop, egui::Color32::BLUE);
 
         let visible_rect = min_crop.intersect(image_rect);
@@ -82,6 +89,7 @@ impl RotatedCropRequest {
                 ),
             ],
             rotation: rotation,
+            translation: translation,
             rotation_center_in_uv: egui::Vec2::new(
                 -(rotation_center_in_points.x + (visible_rect.min.x - image_rect.min.x))
                     / visible_rect.width(),

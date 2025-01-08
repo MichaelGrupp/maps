@@ -18,6 +18,7 @@ pub struct Grid {
 struct GridMapRelation {
     scaled_size: egui::Vec2,
     ulc_to_origin_in_points: egui::Vec2, // Upper left corner to map origin in points.
+    ulc_to_origin_in_points_translated: egui::Vec2, // Includes map pose translation.
 }
 
 impl GridMapRelation {
@@ -38,16 +39,16 @@ impl GridMapRelation {
             -map.meta.origin.translation.y as f32, // RHS to LHS
         ) * points_per_meter
             * scale_factor;
-        let mut ulc_to_origin_in_points =
-            llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
+        let ulc_to_origin_in_points = llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
 
         let translation_in_points =
             map.pose.vec2() * egui::vec2(1., -1.) * points_per_meter * scale_factor;
-        ulc_to_origin_in_points = translation_in_points + ulc_to_origin_in_points;
+        let ulc_to_origin_in_points_translated = translation_in_points + ulc_to_origin_in_points;
 
         GridMapRelation {
             scaled_size: scaled_size,
             ulc_to_origin_in_points: ulc_to_origin_in_points,
+            ulc_to_origin_in_points_translated: ulc_to_origin_in_points_translated,
         }
     }
 }
@@ -89,6 +90,7 @@ impl Grid {
             ui,
             uncropped,
             map.pose.rot2().inverse(), // RHS to LHS
+            relation.ulc_to_origin_in_points_translated - relation.ulc_to_origin_in_points,
             relation.ulc_to_origin_in_points,
         );
         map.texture_state.crop_and_put(ui, &request);
