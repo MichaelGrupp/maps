@@ -2,7 +2,7 @@ use eframe::egui;
 use egui_file_dialog::DialogState;
 
 use crate::app::{AppState, ViewMode};
-use crate::grid_options::DragDirection;
+use crate::movable::{DragDirection, Draggable};
 
 const GRID_DRAG_AMOUNT: f32 = 10.;
 const GRID_ZOOM_AMOUNT: f32 = 1.;

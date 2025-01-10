@@ -8,6 +8,7 @@ mod lens;
 mod map_pose;
 mod map_state;
 pub mod meta;
+mod movable;
 mod rect_helpers;
 mod texture_request;
 mod texture_state;

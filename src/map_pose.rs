@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use eframe::emath;
 use serde::{Deserialize, Serialize};
 
+use crate::movable::{Draggable, Rotatable};
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct MapPose {
     pub root_frame: String,
@@ -28,6 +30,19 @@ pub struct Translation {
 #[derive(Debug)]
 pub struct Error {
     pub message: String,
+}
+
+impl Draggable for MapPose {
+    fn drag(&mut self, delta: emath::Vec2) {
+        self.translation.x += delta.x;
+        self.translation.y += delta.y;
+    }
+}
+
+impl Rotatable for MapPose {
+    fn rotate(&mut self, delta: f32) {
+        self.rotation.yaw = emath::normalized_angle(self.rotation.yaw + delta);
+    }
 }
 
 impl MapPose {

@@ -4,6 +4,7 @@ use crate::app::{AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
 use crate::grid::Grid;
 use crate::lens::Lens;
+use crate::movable::Draggable;
 use crate::texture_request::TextureRequest;
 use crate::tiles_behavior::MapsTreeBehavior;
 

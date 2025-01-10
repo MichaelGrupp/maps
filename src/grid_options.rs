@@ -2,18 +2,13 @@ use std::default;
 
 use eframe::egui;
 
+use crate::movable::Draggable;
+
 #[derive(Debug, Default, PartialEq)]
 pub enum GridLineDimension {
     Screen,
     #[default]
     Metric,
-}
-
-pub enum DragDirection {
-    Up,
-    Down,
-    Left,
-    Right,
 }
 
 // Visualization options for the grid that are viewport-independent.
@@ -81,18 +76,10 @@ impl GridOptions {
         let scale_factor = self.scale / old_scale;
         self.offset *= scale_factor;
     }
+}
 
-    pub fn drag(&mut self, delta: egui::Vec2) {
+impl Draggable for GridOptions {
+    fn drag(&mut self, delta: egui::Vec2) {
         self.offset += delta;
-    }
-
-    pub fn drag_directed(&mut self, amount: f32, direction: DragDirection) {
-        let delta = match direction {
-            DragDirection::Up => egui::vec2(0., -amount),
-            DragDirection::Down => egui::vec2(0., amount),
-            DragDirection::Left => egui::vec2(-amount, 0.),
-            DragDirection::Right => egui::vec2(amount, 0.),
-        };
-        self.drag(delta);
     }
 }
