@@ -1,4 +1,5 @@
 use eframe::egui;
+use egui_file_dialog::DialogState;
 
 use crate::app::{AppState, ViewMode};
 use crate::grid_options::DragDirection;
@@ -44,7 +45,17 @@ impl AppState {
         }
     }
 
+    pub fn dialogs_open(&self) -> bool {
+        self.load_meta_file_dialog.state() == DialogState::Open
+            || self.load_map_pose_file_dialog.state() == DialogState::Open
+            || self.save_map_pose_file_dialog.state() == DialogState::Open
+    }
+
     pub fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
+        if self.dialogs_open() {
+            return;
+        }
+
         ui.input(|i| {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
