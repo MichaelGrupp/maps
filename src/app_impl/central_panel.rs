@@ -43,11 +43,11 @@ impl AppState {
         if ui.rect_contains_pointer(ui.available_rect_before_wrap()) {
             ui.input(|i| {
                 if i.pointer.primary_down() {
-                    options.offset += i.pointer.delta();
+                    options.drag(i.pointer.delta());
                 }
-                if !self.options.lens.enabled {
-                    options.scale += i.smooth_scroll_delta.y * options.scroll_speed_factor;
-                    options.scale = options.scale.clamp(options.min_scale, options.max_scale);
+                let scale_delta = i.smooth_scroll_delta.y * options.scroll_speed_factor;
+                if !self.options.lens.enabled && scale_delta != 0. {
+                    options.zoom(scale_delta);
                 }
             });
         }

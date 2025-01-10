@@ -1,6 +1,10 @@
 use eframe::egui;
 
 use crate::app::{AppState, ViewMode};
+use crate::grid_options::DragDirection;
+
+const GRID_DRAG_AMOUNT: f32 = 10.;
+const GRID_ZOOM_AMOUNT: f32 = 1.;
 
 impl AppState {
     fn flip_lens(&mut self, skip: i32) {
@@ -64,24 +68,30 @@ impl AppState {
                 self.options.grid.lines_visible = !self.options.grid.lines_visible;
             }
             if i.key_down(egui::Key::W) {
-                self.options.grid.offset.y -= 10.;
+                self.options
+                    .grid
+                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Up);
             }
             if i.key_down(egui::Key::A) {
-                self.options.grid.offset.x -= 10.;
+                self.options
+                    .grid
+                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Left);
             }
             if i.key_down(egui::Key::S) {
-                self.options.grid.offset.y += 10.;
+                self.options
+                    .grid
+                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Down);
             }
             if i.key_down(egui::Key::D) {
-                self.options.grid.offset.x += 10.;
+                self.options
+                    .grid
+                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Right);
             }
             if i.key_down(egui::Key::Minus) {
-                self.options.grid.scale = (self.options.grid.scale - 1.)
-                    .clamp(self.options.grid.min_scale, self.options.grid.max_scale);
+                self.options.grid.zoom(-GRID_ZOOM_AMOUNT);
             }
             if i.key_down(egui::Key::Plus) {
-                self.options.grid.scale = (self.options.grid.scale + 1.)
-                    .clamp(self.options.grid.min_scale, self.options.grid.max_scale);
+                self.options.grid.zoom(GRID_ZOOM_AMOUNT);
             }
         });
     }

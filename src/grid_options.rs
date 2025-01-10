@@ -9,6 +9,13 @@ pub enum GridLineDimension {
     Metric,
 }
 
+pub enum DragDirection {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 // Visualization options for the grid that are viewport-independent.
 #[derive(Debug)]
 pub struct GridOptions {
@@ -62,5 +69,30 @@ impl default::Default for GridOptions {
             tick_labels_visible: true,
             tick_labels_color: egui::Color32::DARK_GRAY,
         }
+    }
+}
+
+impl GridOptions {
+    pub fn zoom(&mut self, delta: f32) {
+        // Viewport-centered zoom.
+        let old_scale = self.scale;
+        self.scale += delta;
+        self.scale = self.scale.clamp(self.min_scale, self.max_scale);
+        let scale_factor = self.scale / old_scale;
+        self.offset *= scale_factor;
+    }
+
+    pub fn drag(&mut self, delta: egui::Vec2) {
+        self.offset += delta;
+    }
+
+    pub fn drag_directed(&mut self, amount: f32, direction: DragDirection) {
+        let delta = match direction {
+            DragDirection::Up => egui::vec2(0., -amount),
+            DragDirection::Down => egui::vec2(0., amount),
+            DragDirection::Left => egui::vec2(-amount, 0.),
+            DragDirection::Right => egui::vec2(amount, 0.),
+        };
+        self.drag(delta);
     }
 }
