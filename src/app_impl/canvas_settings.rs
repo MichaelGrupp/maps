@@ -24,6 +24,9 @@ impl AppState {
         }
         ui.add_space(SPACE);
         ui.end_row();
+        ui.label("Dark / Light mode");
+        egui::widgets::global_theme_preference_switch(ui);
+        ui.end_row();
         ui.label("Background color");
         ui.color_edit_button_srgba(&mut self.options.canvas_settings.background_color);
     }
