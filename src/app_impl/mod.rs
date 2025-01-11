@@ -8,6 +8,6 @@ pub mod keys;
 mod lens_settings;
 pub mod load_delete;
 pub mod menu_panel;
-mod pose_edit;
+pub mod pose_edit;
 pub mod settings_panel;
 pub mod tint_settings;

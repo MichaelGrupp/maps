@@ -6,12 +6,12 @@ use egui_file_dialog::FileDialog;
 use strum_macros::{Display, EnumString, VariantNames};
 
 use crate::app_impl::canvas_settings::CanvasOptions;
+use crate::app_impl::pose_edit::PoseEditOptions;
 use crate::app_impl::tint_settings::TintOptions;
 use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
 use crate::meta::Meta;
-use crate::movable::MovableAmounts;
 use crate::tiles::Tiles;
 
 #[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
@@ -40,9 +40,8 @@ pub struct AppOptions {
     pub grid: GridOptions,
     pub active_lens: Option<String>,
     pub tint_settings: TintOptions,
-    pub selected_map: String,
+    pub pose_edit: PoseEditOptions,
     pub active_movable: ActiveMovable,
-    pub movable_amounts: MovableAmounts,
 }
 
 #[derive(Default)]

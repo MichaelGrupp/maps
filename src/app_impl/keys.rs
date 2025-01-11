@@ -44,14 +44,18 @@ impl AppState {
         }
     }
 
-    pub fn dialogs_open(&self) -> bool {
+    fn dialogs_open(&self) -> bool {
         self.load_meta_file_dialog.state() == DialogState::Open
             || self.load_map_pose_file_dialog.state() == DialogState::Open
             || self.save_map_pose_file_dialog.state() == DialogState::Open
     }
 
+    fn text_editing(&self) -> bool {
+        self.options.pose_edit.edit_map_frame || self.options.pose_edit.edit_root_frame
+    }
+
     pub fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
-        if self.dialogs_open() {
+        if self.dialogs_open() || self.text_editing() {
             return;
         }
 
@@ -81,7 +85,10 @@ impl AppState {
             // Get the obects that can be currently dragged.
             let draggable: Option<&mut dyn Draggable> = match self.options.active_movable {
                 ActiveMovable::MapPose => {
-                    match self.maps.get_mut(self.options.selected_map.as_str()) {
+                    match self
+                        .maps
+                        .get_mut(self.options.pose_edit.selected_map.as_str())
+                    {
                         Some(map) => Some(&mut map.pose),
                         None => None,
                     }
@@ -90,7 +97,7 @@ impl AppState {
                 _ => None,
             };
 
-            let drag_amount = self.options.movable_amounts.drag;
+            let drag_amount = self.options.pose_edit.movable_amounts.drag;
             if let Some(draggable) = draggable {
                 if i.key_down(egui::Key::W) {
                     draggable.drag_directed(drag_amount, DragDirection::Up);
@@ -108,7 +115,10 @@ impl AppState {
 
             let rotatable: Option<&mut dyn Rotatable> = match self.options.active_movable {
                 ActiveMovable::MapPose => {
-                    match self.maps.get_mut(self.options.selected_map.as_str()) {
+                    match self
+                        .maps
+                        .get_mut(self.options.pose_edit.selected_map.as_str())
+                    {
                         Some(map) => Some(&mut map.pose),
                         None => None,
                     }
@@ -116,7 +126,7 @@ impl AppState {
                 _ => None,
             };
 
-            let rotation_amount = self.options.movable_amounts.rotate;
+            let rotation_amount = self.options.pose_edit.movable_amounts.rotate;
             if let Some(rotatable) = rotatable {
                 if i.key_down(egui::Key::Q) {
                     rotatable.rotate_directed(rotation_amount, DragDirection::Left);
