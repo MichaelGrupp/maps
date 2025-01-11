@@ -148,8 +148,8 @@ impl AppState {
             .num_columns(2)
             .striped(false)
             .show(ui, |ui| {
-                self.save_map_pose_button(ui, map_name.as_str());
                 self.load_map_pose_button(ui, map_name.as_str());
+                self.save_map_pose_button(ui, map_name.as_str());
             });
     }
 }
