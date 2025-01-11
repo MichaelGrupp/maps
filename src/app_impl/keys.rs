@@ -4,7 +4,6 @@ use egui_file_dialog::DialogState;
 use crate::app::{ActiveMovable, AppState, ViewMode};
 use crate::movable::{DragDirection, Draggable, Rotatable};
 
-const DRAG_AMOUNT: f32 = 10.;
 const GRID_ZOOM_AMOUNT: f32 = 1.;
 
 impl AppState {
@@ -91,18 +90,19 @@ impl AppState {
                 _ => None,
             };
 
+            let drag_amount = self.options.movable_amounts.drag;
             if let Some(draggable) = draggable {
                 if i.key_down(egui::Key::W) {
-                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Up);
+                    draggable.drag_directed(drag_amount, DragDirection::Up);
                 }
                 if i.key_down(egui::Key::A) {
-                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Left);
+                    draggable.drag_directed(drag_amount, DragDirection::Left);
                 }
                 if i.key_down(egui::Key::S) {
-                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Down);
+                    draggable.drag_directed(drag_amount, DragDirection::Down);
                 }
                 if i.key_down(egui::Key::D) {
-                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Right);
+                    draggable.drag_directed(drag_amount, DragDirection::Right);
                 }
             }
 
@@ -116,12 +116,13 @@ impl AppState {
                 _ => None,
             };
 
+            let rotation_amount = self.options.movable_amounts.rotate;
             if let Some(rotatable) = rotatable {
                 if i.key_down(egui::Key::Q) {
-                    rotatable.rotate_directed(0.01, DragDirection::Left);
+                    rotatable.rotate_directed(rotation_amount, DragDirection::Left);
                 }
                 if i.key_down(egui::Key::E) {
-                    rotatable.rotate_directed(0.01, DragDirection::Right);
+                    rotatable.rotate_directed(rotation_amount, DragDirection::Right);
                 }
             }
 

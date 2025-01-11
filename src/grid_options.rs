@@ -79,7 +79,8 @@ impl GridOptions {
 }
 
 impl Draggable for GridOptions {
+    // Assumes that drag delta is in meters.
     fn drag(&mut self, delta: egui::Vec2) {
-        self.offset += delta;
+        self.offset += delta * self.scale;
     }
 }

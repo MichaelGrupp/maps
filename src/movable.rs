@@ -35,3 +35,18 @@ pub trait Rotatable {
         self.rotate(delta);
     }
 }
+
+#[derive(Debug)]
+pub struct MovableAmounts {
+    pub drag: f32,
+    pub rotate: f32,
+}
+
+impl Default for MovableAmounts {
+    fn default() -> Self {
+        MovableAmounts {
+            drag: 5.,
+            rotate: 0.01,
+        }
+    }
+}

@@ -11,6 +11,7 @@ use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
 use crate::meta::Meta;
+use crate::movable::MovableAmounts;
 use crate::tiles::Tiles;
 
 #[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
@@ -41,6 +42,7 @@ pub struct AppOptions {
     pub tint_settings: TintOptions,
     pub selected_map: String,
     pub active_movable: ActiveMovable,
+    pub movable_amounts: MovableAmounts,
 }
 
 #[derive(Default)]

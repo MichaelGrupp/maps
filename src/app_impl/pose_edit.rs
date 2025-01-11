@@ -19,6 +19,7 @@ impl AppState {
         let map_pose = self.maps.get_mut(&map_name).map(|m| &mut m.pose);
         if map_pose.is_none() {
             ui.label("Select a map to edit its pose.");
+            self.options.active_movable = ActiveMovable::Grid;
             return;
         }
         let map_pose = map_pose.unwrap();
@@ -28,14 +29,6 @@ impl AppState {
             .num_columns(2)
             .striped(false)
             .show(ui, |ui| {
-                if ui.button("Zero").clicked() {
-                    *map_pose = Default::default();
-                }
-                if ui.button("Invert").clicked() {
-                    map_pose.invert();
-                }
-                ui.end_row();
-                ui.end_row();
                 ui.selectable_value(
                     &mut self.options.active_movable,
                     ActiveMovable::MapPose,
@@ -48,23 +41,50 @@ impl AppState {
                 );
             });
 
+        ui.separator();
+        ui.vertical(|ui| {
+            ui.label("x/y step (m)");
+            ui.add(egui::Slider::new(
+                &mut self.options.movable_amounts.drag,
+                0.0..=10.0,
+            ));
+            if self.options.active_movable == ActiveMovable::MapPose {
+                ui.end_row();
+                ui.label("θ step (rad)");
+                ui.add(egui::Slider::new(
+                    &mut self.options.movable_amounts.rotate,
+                    0.0..=0.1,
+                ));
+            }
+        });
+
+        ui.separator();
         ui.vertical(|ui| {
             ui.add_space(SPACE);
-            ui.label("x");
+            ui.horizontal(|ui| {
+                if ui.button("Zero values").clicked() {
+                    *map_pose = Default::default();
+                }
+                if ui.button("Invert pose").clicked() {
+                    map_pose.invert();
+                }
+            });
+            ui.add_space(SPACE);
+            ui.label("x (m)");
             ui.add(egui::Slider::new(
                 &mut map_pose.translation.x,
                 -1000.0..=1000.0,
             ));
-            ui.label("y");
+            ui.label("y (m)");
             ui.add(egui::Slider::new(
                 &mut map_pose.translation.y,
                 -1000.0..=1000.0,
             ));
-            ui.label("θ");
+            ui.label("θ (rad)");
             ui.add(egui::Slider::new(&mut map_pose.rotation.yaw, -PI..=PI));
+            ui.add_space(SPACE);
         });
 
-        ui.add_space(2. * SPACE);
         egui::Grid::new("pose_io_grid")
             .num_columns(2)
             .striped(false)

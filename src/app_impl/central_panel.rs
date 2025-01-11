@@ -44,7 +44,8 @@ impl AppState {
         if ui.rect_contains_pointer(ui.available_rect_before_wrap()) {
             ui.input(|i| {
                 if i.pointer.primary_down() {
-                    options.drag(i.pointer.delta());
+                    // Scaled because meters are expected for drag().
+                    options.drag(i.pointer.delta() / options.scale);
                 }
                 let scale_delta = i.smooth_scroll_delta.y * options.scroll_speed_factor;
                 if !self.options.lens.enabled && scale_delta != 0. {
