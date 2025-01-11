@@ -1,10 +1,10 @@
 use eframe::egui;
 use egui_file_dialog::DialogState;
 
-use crate::app::{AppState, ViewMode};
-use crate::movable::{DragDirection, Draggable};
+use crate::app::{ActiveMovable, AppState, ViewMode};
+use crate::movable::{DragDirection, Draggable, Rotatable};
 
-const GRID_DRAG_AMOUNT: f32 = 10.;
+const DRAG_AMOUNT: f32 = 10.;
 const GRID_ZOOM_AMOUNT: f32 = 1.;
 
 impl AppState {
@@ -78,26 +78,53 @@ impl AppState {
             if i.key_released(egui::Key::G) {
                 self.options.grid.lines_visible = !self.options.grid.lines_visible;
             }
-            if i.key_down(egui::Key::W) {
-                self.options
-                    .grid
-                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Up);
+
+            // Get the obects that can be currently dragged.
+            let draggable: Option<&mut dyn Draggable> = match self.options.active_movable {
+                ActiveMovable::MapPose => {
+                    match self.maps.get_mut(self.options.selected_map.as_str()) {
+                        Some(map) => Some(&mut map.pose),
+                        None => None,
+                    }
+                }
+                ActiveMovable::Grid => Some(&mut self.options.grid),
+                _ => None,
+            };
+
+            if let Some(draggable) = draggable {
+                if i.key_down(egui::Key::W) {
+                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Up);
+                }
+                if i.key_down(egui::Key::A) {
+                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Left);
+                }
+                if i.key_down(egui::Key::S) {
+                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Down);
+                }
+                if i.key_down(egui::Key::D) {
+                    draggable.drag_directed(DRAG_AMOUNT, DragDirection::Right);
+                }
             }
-            if i.key_down(egui::Key::A) {
-                self.options
-                    .grid
-                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Left);
+
+            let rotatable: Option<&mut dyn Rotatable> = match self.options.active_movable {
+                ActiveMovable::MapPose => {
+                    match self.maps.get_mut(self.options.selected_map.as_str()) {
+                        Some(map) => Some(&mut map.pose),
+                        None => None,
+                    }
+                }
+                _ => None,
+            };
+
+            if let Some(rotatable) = rotatable {
+                if i.key_down(egui::Key::Q) {
+                    rotatable.rotate_directed(0.01, DragDirection::Left);
+                }
+                if i.key_down(egui::Key::E) {
+                    rotatable.rotate_directed(0.01, DragDirection::Right);
+                }
             }
-            if i.key_down(egui::Key::S) {
-                self.options
-                    .grid
-                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Down);
-            }
-            if i.key_down(egui::Key::D) {
-                self.options
-                    .grid
-                    .drag_directed(GRID_DRAG_AMOUNT, DragDirection::Right);
-            }
+
             if i.key_down(egui::Key::Minus) {
                 self.options.grid.zoom(-GRID_ZOOM_AMOUNT);
             }

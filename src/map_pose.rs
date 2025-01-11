@@ -35,7 +35,7 @@ pub struct Error {
 impl Draggable for MapPose {
     fn drag(&mut self, delta: emath::Vec2) {
         self.translation.x += delta.x;
-        self.translation.y += delta.y;
+        self.translation.y -= delta.y;
     }
 }
 

@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use eframe::egui;
 
-use crate::app::AppState;
+use crate::app::{ActiveMovable, AppState};
 use crate::app_impl::constants::SPACE;
 
 impl AppState {
@@ -16,56 +16,61 @@ impl AppState {
             });
 
         let map_name = self.options.selected_map.clone();
+        let map_pose = self.maps.get_mut(&map_name).map(|m| &mut m.pose);
+        if map_pose.is_none() {
+            ui.label("Select a map to edit its pose.");
+            return;
+        }
+        let map_pose = map_pose.unwrap();
 
-        if !map_name.is_empty() {
+        ui.add_space(SPACE);
+        egui::Grid::new("pose_buttons_grid")
+            .num_columns(2)
+            .striped(false)
+            .show(ui, |ui| {
+                if ui.button("Zero").clicked() {
+                    *map_pose = Default::default();
+                }
+                if ui.button("Invert").clicked() {
+                    map_pose.invert();
+                }
+                ui.end_row();
+                ui.end_row();
+                ui.selectable_value(
+                    &mut self.options.active_movable,
+                    ActiveMovable::MapPose,
+                    "Move Map",
+                );
+                ui.selectable_value(
+                    &mut self.options.active_movable,
+                    ActiveMovable::Grid,
+                    "Move Grid",
+                );
+            });
+
+        ui.vertical(|ui| {
             ui.add_space(SPACE);
-            egui::Grid::new("pose_io_grid")
-                .num_columns(2)
-                .striped(false)
-                .show(ui, |ui| {
-                    self.save_map_pose_button(ui, map_name.as_str());
-                    self.load_map_pose_button(ui, map_name.as_str());
-                });
-        }
+            ui.label("x");
+            ui.add(egui::Slider::new(
+                &mut map_pose.translation.x,
+                -1000.0..=1000.0,
+            ));
+            ui.label("y");
+            ui.add(egui::Slider::new(
+                &mut map_pose.translation.y,
+                -1000.0..=1000.0,
+            ));
+            ui.label("θ");
+            ui.add(egui::Slider::new(&mut map_pose.rotation.yaw, -PI..=PI));
+        });
 
-        match self.maps.get_mut(&map_name) {
-            Some(map) => {
-                ui.vertical(|ui| {
-                    ui.add_space(SPACE);
-                    ui.label("x");
-                    ui.add(egui::Slider::new(
-                        &mut map.pose.translation.x,
-                        -1000.0..=1000.0,
-                    ));
-                    ui.label("y");
-                    ui.add(egui::Slider::new(
-                        &mut map.pose.translation.y,
-                        -1000.0..=1000.0,
-                    ));
-                    ui.label("θ");
-                    ui.add(egui::Slider::new(&mut map.pose.rotation.yaw, -PI..=PI));
-                });
-            }
-            None => {
-                ui.label("Select a map to edit its pose.");
-            }
-        }
-
-        if !map_name.is_empty() {
-            ui.add_space(SPACE);
-            egui::Grid::new("pose_buttons_grid")
-                .num_columns(2)
-                .striped(false)
-                .show(ui, |ui| {
-                    if let Some(map) = self.maps.get_mut(&map_name) {
-                        if ui.button("Reset").clicked() {
-                            map.pose = Default::default();
-                        }
-                        if ui.button("Invert").clicked() {
-                            map.pose.invert();
-                        }
-                    }
-                });
-        }
+        ui.add_space(2. * SPACE);
+        egui::Grid::new("pose_io_grid")
+            .num_columns(2)
+            .striped(false)
+            .show(ui, |ui| {
+                self.save_map_pose_button(ui, map_name.as_str());
+                self.load_map_pose_button(ui, map_name.as_str());
+            });
     }
 }

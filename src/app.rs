@@ -21,6 +21,14 @@ pub enum ViewMode {
     Aligned,
 }
 
+#[derive(Clone, Debug, Default, PartialEq)]
+pub enum ActiveMovable {
+    None,
+    MapPose,
+    #[default]
+    Grid,
+}
+
 #[derive(Debug, Default)]
 pub struct AppOptions {
     pub canvas_settings: CanvasOptions,
@@ -32,6 +40,7 @@ pub struct AppOptions {
     pub active_lens: Option<String>,
     pub tint_settings: TintOptions,
     pub selected_map: String,
+    pub active_movable: ActiveMovable,
 }
 
 #[derive(Default)]
