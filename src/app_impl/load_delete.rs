@@ -115,7 +115,11 @@ impl AppState {
     }
 
     pub fn load_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
-        if ui.button("📂 Load Pose").clicked() {
+        if ui
+            .button("📂 Load Pose")
+            .on_hover_text("Load a map pose from a YAML file.")
+            .clicked()
+        {
             self.load_map_pose_file_dialog.pick_file();
         }
         self.load_map_pose_file_dialog.update(ui.ctx());
@@ -145,7 +149,11 @@ impl AppState {
     }
 
     pub fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
-        if ui.button("💾 Save Pose").clicked() {
+        if ui
+            .button("💾 Save Pose")
+            .on_hover_text("Save the map pose to a YAML file.")
+            .clicked()
+        {
             self.save_map_pose_file_dialog.save_file();
         }
         self.save_map_pose_file_dialog.update(ui.ctx());
