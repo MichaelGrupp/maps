@@ -42,6 +42,11 @@ impl AppState {
             ui.heading("Pose");
             ui.add_space(SPACE);
             self.pose_edit(ui);
+            if !self.options.pose_edit.selected_map.is_empty() && self.maps.len() > 1 {
+                ui.separator();
+                ui.add_space(SPACE);
+                self.apply_pose_to_other_maps(ui);
+            }
         });
     }
 }

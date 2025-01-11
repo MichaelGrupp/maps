@@ -152,4 +152,39 @@ impl AppState {
                 self.save_map_pose_button(ui, map_name.as_str());
             });
     }
+
+    pub fn apply_pose_to_other_maps(&mut self, ui: &mut egui::Ui) {
+        ui.label("Apply pose also to:");
+        ui.add_space(SPACE);
+        let mut selected_maps: Vec<String> = Vec::new();
+        egui::Grid::new("pose_apply_grid")
+            .num_columns(2)
+            .striped(false)
+            .show(ui, |ui| {
+                for name in self.maps.keys() {
+                    if name == &self.options.pose_edit.selected_map {
+                        continue;
+                    }
+                    if ui.button(name).clicked() {
+                        selected_maps.push(name.clone());
+                    }
+                    ui.end_row();
+                }
+            });
+
+        if selected_maps.is_empty() {
+            return;
+        }
+
+        let map_pose_to_copy = self.maps[&self.options.pose_edit.selected_map].pose.clone();
+
+        for map_name in selected_maps {
+            let map_pose = self.maps.get_mut(&map_name).map(|m| &mut m.pose);
+            if map_pose.is_none() {
+                continue;
+            }
+            let map_pose = map_pose.unwrap();
+            *map_pose = map_pose_to_copy.clone();
+        }
+    }
 }
