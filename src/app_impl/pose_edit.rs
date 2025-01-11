@@ -56,6 +56,21 @@ impl AppState {
                     0.0..=0.1,
                 ));
             }
+            ui.add_space(SPACE);
+            ui.horizontal(|ui| {
+                if ui.button("Fine").clicked() {
+                    self.options.movable_amounts.drag = 0.001;
+                    self.options.movable_amounts.rotate = 0.001;
+                }
+                if ui.button("Medium").clicked() {
+                    self.options.movable_amounts.drag = 0.1;
+                    self.options.movable_amounts.rotate = 0.01;
+                }
+                if ui.button("Coarse").clicked() {
+                    self.options.movable_amounts.drag = 1.;
+                    self.options.movable_amounts.rotate = 0.1;
+                }
+            });
         });
 
         ui.separator();
