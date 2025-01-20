@@ -9,7 +9,6 @@ use crate::texture_request::{RotatedCropRequest, TextureRequest};
 pub struct Grid {
     pub metric_extent: egui::Vec2,
     pub points_per_meter: f32,
-    pub pixels_per_point: f32,
     pub origin_in_points: egui::Pos2, // Location of the origin in point coordinates.
     pub left_offset: egui::Vec2,
 }
@@ -23,8 +22,7 @@ struct GridMapRelation {
 
 impl GridMapRelation {
     fn new(grid: &Grid, map: &MapState) -> GridMapRelation {
-        let pixels_per_meter = 1. / map.meta.resolution as f32;
-        let points_per_meter = pixels_per_meter * grid.pixels_per_point;
+        let points_per_meter = 1. / map.meta.resolution as f32;
         let scale_factor = grid.points_per_meter / points_per_meter;
 
         let original_size = egui::Vec2::new(
@@ -62,7 +60,6 @@ impl Grid {
         Grid {
             metric_extent: metric_extent,
             points_per_meter: points_per_meter,
-            pixels_per_point: ui.ctx().zoom_factor() * ui.ctx().pixels_per_point(),
             origin_in_points: (available_size / 2.).to_pos2(),
             left_offset: left_offset,
         }
