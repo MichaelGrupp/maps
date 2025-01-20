@@ -191,7 +191,7 @@ impl Grid {
                 egui::Align2::LEFT_CENTER,
                 format!(
                     "{:.1}",
-                    -(self.origin_in_points.y - y) / self.points_per_meter
+                    (self.origin_in_points.y - y) / self.points_per_meter
                 ),
                 label_font_id,
                 options.tick_labels_color,
