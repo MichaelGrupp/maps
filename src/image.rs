@@ -2,9 +2,12 @@ use std::path::PathBuf;
 
 use eframe::egui;
 use fast_image_resize::images::Image as ResizeImage;
-use fast_image_resize::{IntoImageView, Resizer};
+use fast_image_resize::{IntoImageView, ResizeOptions, Resizer};
 use image::{GenericImageView, ImageBuffer, ImageReader};
 use log::{debug, error, info};
+
+#[allow(unused_imports)]
+use fast_image_resize::CpuExtensions;
 
 pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageError> {
     info!("Loading image: {:?}", path);
@@ -36,7 +39,18 @@ pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
 fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::DynamicImage {
     let mut resized_img = ResizeImage::new(width, height, img.pixel_type().unwrap());
     let mut resizer = Resizer::new();
-    resizer.resize(img, &mut resized_img, None).unwrap();
+
+    #[allow(unused_unsafe)]
+    unsafe {
+        // TODO: NEON is shown with artifacts. At least on Apple Silicon M4.
+        #[cfg(target_arch = "aarch64")]
+        if resizer.cpu_extensions() == CpuExtensions::Neon {
+            resizer.set_cpu_extensions(CpuExtensions::None);
+        }
+    }
+
+    let options = ResizeOptions::default();
+    resizer.resize(img, &mut resized_img, &options).unwrap();
 
     match img.color() {
         image::ColorType::L8 => {
