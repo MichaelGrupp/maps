@@ -60,7 +60,7 @@ impl AppState {
             grid.draw(ui, options);
         }
         if options.marker_visible {
-            grid.draw_axes(ui, &options);
+            grid.draw_axes(ui, options);
         }
     }
 

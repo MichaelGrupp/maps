@@ -44,9 +44,9 @@ impl GridMapRelation {
         let ulc_to_origin_in_points_translated = translation_in_points + ulc_to_origin_in_points;
 
         GridMapRelation {
-            scaled_size: scaled_size,
-            ulc_to_origin_in_points: ulc_to_origin_in_points,
-            ulc_to_origin_in_points_translated: ulc_to_origin_in_points_translated,
+            scaled_size,
+            ulc_to_origin_in_points,
+            ulc_to_origin_in_points_translated,
         }
     }
 }
@@ -58,10 +58,10 @@ impl Grid {
         // TODO: offset is a hack to avoid wrong drawing when a left side menu is expanded.
         let left_offset = egui::vec2(ui.cursor().min.x, 0.);
         Grid {
-            metric_extent: metric_extent,
-            points_per_meter: points_per_meter,
+            metric_extent,
+            points_per_meter,
             origin_in_points: (available_size / 2.).to_pos2(),
-            left_offset: left_offset,
+            left_offset,
         }
     }
 

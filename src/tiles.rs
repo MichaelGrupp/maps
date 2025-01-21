@@ -2,7 +2,6 @@ use core::panic;
 use std::collections::HashMap;
 use std::default;
 
-use egui_tiles;
 use log::debug;
 use uuid::Uuid;
 

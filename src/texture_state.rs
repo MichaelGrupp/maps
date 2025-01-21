@@ -97,21 +97,18 @@ impl TextureState {
     pub fn crop_and_put(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         self.update_crop(ui, request);
 
-        match &self.texture_handle {
-            Some(texture) => {
-                // Manually paint and get response.
-                // ui.put() clips to the viewport, which is bad for rotated images.
-                let image = egui::Image::new(texture)
-                    .rotate(request.rotation.angle(), request.rotation_center_in_uv)
-                    .maintain_aspect_ratio(false)
-                    .fit_to_exact_size(request.visible_rect.size())
-                    .tint(request.uncropped.tint);
-                image.paint_at(ui, request.visible_rect.translate(request.translation));
-                // TODO: this doesn't get the hover response in the rotated texture.
-                self.image_response =
-                    Some(ui.interact(request.visible_rect, ui.id(), egui::Sense::hover()));
-            }
-            None => (), // Fine, can be out of view or empty.
+        if let Some(texture) = &self.texture_handle {
+            // Manually paint and get response.
+            // ui.put() clips to the viewport, which is bad for rotated images.
+            let image = egui::Image::new(texture)
+                .rotate(request.rotation.angle(), request.rotation_center_in_uv)
+                .maintain_aspect_ratio(false)
+                .fit_to_exact_size(request.visible_rect.size())
+                .tint(request.uncropped.tint);
+            image.paint_at(ui, request.visible_rect.translate(request.translation));
+            // TODO: this doesn't get the hover response in the rotated texture.
+            self.image_response =
+                Some(ui.interact(request.visible_rect, ui.id(), egui::Sense::hover()));
         }
     }
 }

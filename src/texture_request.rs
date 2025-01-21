@@ -88,8 +88,8 @@ impl RotatedCropRequest {
                     (visible_rect.max.y - image_rect.min.y) / image_rect.height(),
                 ),
             ],
-            rotation: rotation,
-            translation: translation,
+            rotation,
+            translation,
             rotation_center_in_uv: egui::Vec2::new(
                 -(rotation_center_in_points.x + (visible_rect.min.x - image_rect.min.x))
                     / visible_rect.width(),

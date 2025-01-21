@@ -19,7 +19,7 @@ impl AppState {
         egui::ComboBox::from_label("")
             .selected_text(self.options.pose_edit.selected_map.clone())
             .show_ui(ui, |ui| {
-                for (name, _) in &self.maps {
+                for name in self.maps.keys() {
                     ui.selectable_value(
                         &mut self.options.pose_edit.selected_map,
                         name.clone(),

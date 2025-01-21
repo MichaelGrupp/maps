@@ -67,10 +67,10 @@ impl AppState {
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
                 self.flip_lens(1);
             }
-            if i.key_released(egui::Key::K) || i.pointer.primary_released() {
-                if self.options.lens.enabled {
-                    self.flip_lens(-1);
-                }
+            if (i.key_released(egui::Key::K) || i.pointer.primary_released())
+                && self.options.lens.enabled
+            {
+                self.flip_lens(-1);
             }
             if i.key_released(egui::Key::M) {
                 self.options.menu_visible = !self.options.menu_visible;

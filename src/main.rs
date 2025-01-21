@@ -4,7 +4,6 @@ use std::vec::Vec;
 
 // CLI
 use clap::Parser;
-use env_logger;
 use log::{debug, error, info};
 
 // GUI

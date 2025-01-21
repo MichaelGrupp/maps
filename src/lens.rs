@@ -135,7 +135,7 @@ impl<'a> Lens<'a> {
         ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
 
         map.overlay_texture = Some(overlay_texture_handle);
-        return true;
+        true
     }
 
     fn lens_rect(&mut self, ui: &egui::Ui, rect: egui::Rect) {
@@ -152,7 +152,7 @@ impl<'a> Lens<'a> {
             pointer_pos.y / ui.ctx().screen_rect().height(),
         );
 
-        let overlay_pos = if window_uv.x < 0.5 && window_uv.y < 0.5 {
+        if window_uv.x < 0.5 && window_uv.y < 0.5 {
             pointer_pos + offset
         } else if window_uv.x < 0.5 {
             pointer_pos + offset * egui::vec2(1., -1.)
@@ -160,7 +160,6 @@ impl<'a> Lens<'a> {
             pointer_pos + offset * egui::vec2(-1., 1.)
         } else {
             pointer_pos - offset
-        };
-        overlay_pos
+        }
     }
 }

@@ -2,7 +2,6 @@ use log::debug;
 use std::collections::HashMap;
 
 use eframe::egui;
-use egui_tiles;
 
 use crate::map_state::MapState;
 use crate::texture_request::TextureRequest;
@@ -13,7 +12,7 @@ pub struct MapsTreeBehavior<'a> {
     pub maps: &'a mut HashMap<String, MapState>,
 }
 
-impl<'a> egui_tiles::Behavior<Pane> for MapsTreeBehavior<'a> {
+impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
     fn tab_title_for_pane(&mut self, pane: &Pane) -> egui::WidgetText {
         pane.id.clone().into()
     }

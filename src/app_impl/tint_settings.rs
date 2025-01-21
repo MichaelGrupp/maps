@@ -35,7 +35,7 @@ impl AppState {
             .active_tint_selection
             .get_or_insert(all_key.clone());
         egui::ComboBox::from_label("")
-            .selected_text(format!("{}", selected))
+            .selected_text(selected.to_string())
             .show_ui(ui, |ui| {
                 ui.selectable_value(selected, all_key.clone(), &all_key);
                 for name in self.maps.keys() {

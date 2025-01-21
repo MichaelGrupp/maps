@@ -43,9 +43,9 @@ impl ImagePyramid {
                 }
                 levels
             }(&original),
-            original: original,
+            original,
             aspect_ratio: original_size.x / original_size.y,
-            original_size: original_size,
+            original_size,
         }
     }
 
@@ -65,7 +65,7 @@ impl ImagePyramid {
         {
             Some(closest) => {
                 debug!("Returning pyramid level for size: {}", closest);
-                self.levels_by_size.get(&closest).unwrap()
+                self.levels_by_size.get(closest).unwrap()
             }
             None => {
                 debug!(

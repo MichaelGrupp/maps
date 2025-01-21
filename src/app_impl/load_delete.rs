@@ -100,7 +100,7 @@ impl AppState {
     pub fn delete(&mut self, to_delete: &Vec<String>) {
         for name in to_delete {
             self.maps.remove(name);
-            self.tile_manager.remove_pane(&name);
+            self.tile_manager.remove_pane(name);
             if let Some(active_lens) = &self.options.active_lens {
                 if active_lens == name {
                     self.options.active_lens = None;
@@ -124,27 +124,24 @@ impl AppState {
         }
         self.load_map_pose_file_dialog.update(ui.ctx());
 
-        match self.load_map_pose_file_dialog.take_picked() {
-            Some(path) => {
-                debug!("Loading pose file: {:?}", path);
-                match MapPose::from_yaml_file(&path) {
-                    Ok(map_pose) => {
-                        self.status_message = format!("Loaded pose file: {:?}", path);
-                        self.maps.get_mut(map_name).unwrap().pose = map_pose;
-                        // Start from the same path the next time, also for saving.
-                        self.load_map_pose_file_dialog
-                            .config_mut()
-                            .initial_directory = path.clone();
-                        self.save_map_pose_file_dialog
-                            .config_mut()
-                            .initial_directory = path;
-                    }
-                    Err(e) => {
-                        self.status_message = format!("Error loading pose file: {:?}", e.message);
-                    }
+        if let Some(path) = self.load_map_pose_file_dialog.take_picked() {
+            debug!("Loading pose file: {:?}", path);
+            match MapPose::from_yaml_file(&path) {
+                Ok(map_pose) => {
+                    self.status_message = format!("Loaded pose file: {:?}", path);
+                    self.maps.get_mut(map_name).unwrap().pose = map_pose;
+                    // Start from the same path the next time, also for saving.
+                    self.load_map_pose_file_dialog
+                        .config_mut()
+                        .initial_directory = path.clone();
+                    self.save_map_pose_file_dialog
+                        .config_mut()
+                        .initial_directory = path;
+                }
+                Err(e) => {
+                    self.status_message = format!("Error loading pose file: {:?}", e.message);
                 }
             }
-            None => (), // Nothing selected.
         }
     }
 
