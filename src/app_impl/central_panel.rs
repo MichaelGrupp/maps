@@ -62,6 +62,7 @@ impl AppState {
         if options.marker_visible {
             grid.draw_axes(ui, options);
         }
+        self.status.hover_position = grid.hover_pos_metric(ui);
     }
 
     fn show_lens(&mut self, ui: &mut egui::Ui) {
@@ -78,12 +79,12 @@ impl AppState {
                 }
             }
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name) {
-                self.status_message = format!("Lens active on: {}", name);
+                self.status.lens_name = name.to_string();
                 return;
+            } else {
+                self.status.lens_name = "".to_string();
             }
         }
-        // TODO: use separate status message for lens.
-        self.status_message = "".to_string();
     }
 
     fn show_empty(&mut self, ui: &mut egui::Ui) {

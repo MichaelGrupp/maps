@@ -35,6 +35,7 @@ pub struct AppOptions {
     pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,
     pub settings_visible: bool,
+    pub help_visible: bool,
     pub view_mode: ViewMode,
     pub lens: LensOptions,
     pub grid: GridOptions,
@@ -45,10 +46,20 @@ pub struct AppOptions {
 }
 
 #[derive(Default)]
+pub struct StatusInfo {
+    pub error: String,
+    pub warning: String,
+    pub info: String,
+    pub lens_active: bool,
+    pub lens_name: String,
+    pub hover_position: Option<egui::Pos2>,
+}
+
+#[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,
     pub maps: HashMap<String, MapState>,
-    pub status_message: String,
+    pub status: StatusInfo,
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
     pub save_map_pose_file_dialog: FileDialog,
@@ -91,6 +102,8 @@ impl eframe::App for AppState {
             self.settings_panel(ui);
             self.central_panel(ui);
             self.footer_panel(ui);
+
+            self.info_window(ui);
         });
     }
 }

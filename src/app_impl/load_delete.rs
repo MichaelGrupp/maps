@@ -57,13 +57,12 @@ impl AppState {
                 ui.ctx().request_repaint();
                 match self.load_meta(path.clone()) {
                     Ok(_) => {
-                        self.status_message = format!("Loaded metadata file: {:?}", path);
+                        self.status.info = format!("Loaded metadata file: {:?}", path);
                         // Start from the same path the next time.
                         self.load_meta_file_dialog.config_mut().initial_directory = path;
                     }
                     Err(e) => {
-                        self.status_message =
-                            format!("Error loading metadata file: {:?}", e.message);
+                        self.status.error = format!("Error loading metadata file: {:?}", e.message);
                     }
                 }
             }
@@ -71,7 +70,7 @@ impl AppState {
     }
 
     pub fn load_image(&mut self, meta: Meta) -> Result<(), Error> {
-        self.status_message = format!("Loading image: {:?}", meta.image_path);
+        self.status.info = format!("Loading image: {:?}", meta.image_path);
         match load_image(&meta.image_path) {
             Ok(image) => {
                 self.tile_manager.add_pane(Pane {
@@ -128,7 +127,7 @@ impl AppState {
             debug!("Loading pose file: {:?}", path);
             match MapPose::from_yaml_file(&path) {
                 Ok(map_pose) => {
-                    self.status_message = format!("Loaded pose file: {:?}", path);
+                    self.status.info = format!("Loaded pose file: {:?}", path);
                     self.maps.get_mut(map_name).unwrap().pose = map_pose;
                     // Start from the same path the next time, also for saving.
                     self.load_map_pose_file_dialog
@@ -139,7 +138,7 @@ impl AppState {
                         .initial_directory = path;
                 }
                 Err(e) => {
-                    self.status_message = format!("Error loading pose file: {:?}", e.message);
+                    self.status.error = format!("Error loading pose file: {:?}", e.message);
                 }
             }
         }
@@ -160,7 +159,7 @@ impl AppState {
             debug!("Saving pose file: {:?}", path);
             match self.maps.get(map_name).unwrap().pose.to_yaml_file(&path) {
                 Ok(_) => {
-                    self.status_message = format!("Saved pose file: {:?}", path);
+                    self.status.info = format!("Saved pose file: {:?}", path);
                     // Start from the same path the next time, also for loading.
                     self.save_map_pose_file_dialog
                         .config_mut()
@@ -170,7 +169,7 @@ impl AppState {
                         .initial_directory = path;
                 }
                 Err(e) => {
-                    self.status_message = format!("Error saving pose file: {:?}", e.message);
+                    self.status.error = format!("Error saving pose file: {:?}", e.message);
                 }
             }
         }

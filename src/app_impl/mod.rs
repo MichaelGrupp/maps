@@ -4,6 +4,7 @@ mod constants;
 pub mod footer_panel;
 mod grid_settings;
 pub mod header_panel;
+pub mod info_window;
 pub mod keys;
 mod lens_settings;
 pub mod load_delete;

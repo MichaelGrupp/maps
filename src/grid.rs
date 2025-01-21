@@ -99,6 +99,17 @@ impl Grid {
         }
     }
 
+    pub fn to_metric(&self, point: &egui::Pos2) -> egui::Pos2 {
+        ((*point - self.origin_in_points) / self.points_per_meter).to_pos2()
+    }
+
+    pub fn hover_pos_metric(&self, ui: &egui::Ui) -> Option<egui::Pos2> {
+        if !ui.rect_contains_pointer(ui.clip_rect()) {
+            return None;
+        }
+        ui.ctx().pointer_hover_pos().map(|pos| self.to_metric(&pos))
+    }
+
     fn draw_vertical_lines(
         &self,
         ui: &mut egui::Ui,
