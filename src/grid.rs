@@ -7,6 +7,7 @@ use crate::map_state::MapState;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
 pub struct Grid {
+    pub ui_offset: egui::Vec2,
     pub metric_extent: egui::Vec2,
     pub points_per_meter: f32,
     pub origin_in_points: egui::Pos2, // Location of the origin in point coordinates.
@@ -53,14 +54,19 @@ impl GridMapRelation {
 
 impl Grid {
     pub fn new(ui: &egui::Ui, points_per_meter: f32) -> Grid {
+        // Where are we with this UI in the global context?
+        // Required to offset the origin because we paint at manual positions.
+        let ui_offset = ui.clip_rect().min.to_vec2();
+
         let available_size = ui.available_size();
         let metric_extent = available_size * points_per_meter;
         // TODO: offset is a hack to avoid wrong drawing when a left side menu is expanded.
         let left_offset = egui::vec2(ui.cursor().min.x, 0.);
         Grid {
+            ui_offset,
             metric_extent,
             points_per_meter,
-            origin_in_points: (available_size / 2.).to_pos2(),
+            origin_in_points: (available_size / 2.).to_pos2() + ui_offset,
             left_offset,
         }
     }
@@ -68,6 +74,15 @@ impl Grid {
     pub fn with_origin_offset(mut self, offset: egui::Vec2) -> Self {
         self.origin_in_points += offset;
         self
+    }
+
+    pub fn centered_at(self, metric_pos: egui::Pos2) -> Self {
+        let offset = -metric_pos.to_vec2() * self.points_per_meter;
+        self.with_origin_offset(offset)
+    }
+
+    pub fn to_metric(&self, point: &egui::Pos2) -> egui::Pos2 {
+        ((*point - self.origin_in_points) / self.points_per_meter).to_pos2()
     }
 
     pub fn show_map(&self, ui: &mut egui::Ui, map: &mut MapState, name: &str) {
@@ -97,10 +112,6 @@ impl Grid {
         for (name, map) in maps.iter_mut() {
             self.show_map(ui, map, name);
         }
-    }
-
-    pub fn to_metric(&self, point: &egui::Pos2) -> egui::Pos2 {
-        ((*point - self.origin_in_points) / self.points_per_meter).to_pos2()
     }
 
     pub fn hover_pos_metric(&self, ui: &egui::Ui) -> Option<egui::Pos2> {
@@ -148,7 +159,7 @@ impl Grid {
         );
         if options.tick_labels_visible {
             ui.painter().text(
-                bottom - label_offset,
+                bottom - label_offset + egui::vec2(0., self.ui_offset.y),
                 egui::Align2::LEFT_CENTER,
                 format!(
                     "{:.1}",

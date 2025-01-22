@@ -6,6 +6,10 @@ use crate::movable::{DragDirection, Draggable, Rotatable};
 
 impl AppState {
     fn flip_lens(&mut self, skip: i32) {
+        if self.options.view_mode == ViewMode::Aligned {
+            // TODO: remove classic lens completely from grid.
+            return;
+        }
         if self.options.view_mode != ViewMode::Aligned {
             // Toggle in non-overlapping views.
             self.options.lens.enabled = !self.options.lens.enabled;

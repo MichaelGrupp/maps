@@ -22,12 +22,16 @@ impl AppState {
                         ui.end_row();
                     }
 
-                    self.lens_settings(ui);
+                    if self.options.view_mode != ViewMode::Aligned {
+                        self.lens_settings(ui);
+                        ui.end_row();
+                        ui.end_row();
+                    }
 
                     if self.options.view_mode == ViewMode::Aligned {
-                        ui.end_row();
-                        ui.end_row();
                         self.grid_settings(ui);
+                        ui.end_row();
+                        ui.end_row();
                     }
                 });
         });

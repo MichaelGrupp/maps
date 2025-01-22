@@ -63,6 +63,34 @@ impl AppState {
             grid.draw_axes(ui, options);
         }
         self.status.hover_position = grid.hover_pos_metric(ui);
+
+        self.show_grid_lens(ui, self.status.hover_position);
+    }
+
+    pub fn show_grid_lens(&mut self, ui: &mut egui::Ui, center_pos: Option<egui::Pos2>) {
+        let options = &self.options.grid;
+        let grid_lens_scale = options.scale * 10.; // TODO: make this configurable.
+        egui::Window::new(egui::RichText::new("🔍").strong())
+            .title_bar(true)
+            .auto_sized()
+            .resizable(true)
+            .collapsible(true)
+            .default_size(egui::vec2(200., 200.))
+            .default_pos(ui.clip_rect().min + egui::vec2(20., 20.))
+            .show(ui.ctx(), |ui| {
+                if let Some(center_pos) = center_pos {
+                    let mini_grid = Grid::new(ui, grid_lens_scale).centered_at(center_pos);
+                    mini_grid.show_maps(ui, &mut self.maps);
+                    if options.lines_visible {
+                        mini_grid.draw(ui, options);
+                    }
+                    if options.marker_visible {
+                        mini_grid.draw_axes(ui, options);
+                    }
+                }
+                // Fill window, grid is not a widget.
+                ui.allocate_exact_size(ui.available_size(), egui::Sense::hover());
+            });
     }
 
     fn show_lens(&mut self, ui: &mut egui::Ui) {
@@ -73,6 +101,7 @@ impl AppState {
                 continue;
             }
             if self.options.view_mode == ViewMode::Aligned && num_visible_maps > 1 {
+                // TODO: remove classic lens from aligned view mode.
                 // Show lens on hover only for the active map in Aligned view mode.
                 let active_lens = self.options.active_lens.get_or_insert(name.to_string());
                 if *active_lens != *name {
