@@ -110,6 +110,9 @@ impl AppState {
                     self.options.tint_settings.active_tint_selection = None;
                 }
             }
+            if self.options.pose_edit.selected_map == *name {
+                self.options.pose_edit.selected_map = "".to_string();
+            }
         }
     }
 
