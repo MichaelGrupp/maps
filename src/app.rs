@@ -50,8 +50,6 @@ pub struct StatusInfo {
     pub error: String,
     pub warning: String,
     pub info: String,
-    pub lens_active: bool,
-    pub lens_name: String,
     pub hover_position: Option<egui::Pos2>,
 }
 

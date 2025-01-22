@@ -69,6 +69,7 @@ impl AppState {
         let num_visible_maps = self.maps.values().filter(|m| m.visible).count();
         for (name, map) in &mut self.maps {
             if !self.options.lens.enabled {
+                self.options.active_lens = None; // TODO: ensure this better.
                 continue;
             }
             if self.options.view_mode == ViewMode::Aligned && num_visible_maps > 1 {
@@ -79,10 +80,10 @@ impl AppState {
                 }
             }
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name) {
-                self.status.lens_name = name.to_string();
-                return;
-            } else {
-                self.status.lens_name = "".to_string();
+                if self.options.view_mode != ViewMode::Aligned {
+                    // TODO: Other modes don't set active_lens. Handle this better.
+                    self.options.active_lens = Some(name.clone());
+                }
             }
         }
     }
