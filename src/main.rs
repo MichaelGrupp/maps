@@ -45,6 +45,27 @@ struct Args {
     alpha: f32,
 }
 
+// Gather build information from build.rs during compile time.
+pub mod built_info {
+    // The file has been placed there by the build script.
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
+fn build_info_string() -> String {
+    format!(
+        "maps v{} rev:{}{} | {} | {}",
+        built_info::PKG_VERSION,
+        built_info::GIT_VERSION.unwrap_or("unknown"),
+        if built_info::GIT_DIRTY.unwrap_or(false) {
+            "(+ uncommited changes)"
+        } else {
+            ""
+        },
+        built_info::TARGET,
+        built_info::PROFILE,
+    )
+}
+
 fn load_icon() -> egui::IconData {
     let (icon_rgba, icon_width, icon_height) = {
         let icon = include_bytes!("../data/icon.png");
@@ -65,10 +86,12 @@ fn load_icon() -> egui::IconData {
 
 fn main() -> eframe::Result {
     let args = Args::parse();
+    let build_info = build_info_string();
 
     // Use env_logger to log to stderr when executing: RUST_LOG=debug maps
     // To show only logs of this app: RUST_LOG=maps=debug maps
     env_logger::init();
+    info!("{}", build_info);
 
     let mut metas: Vec<Meta> = Vec::new();
 
@@ -108,7 +131,7 @@ fn main() -> eframe::Result {
     options.tint_settings.tint_for_all = color;
 
     let app_state = match AppState::init(metas, options) {
-        Ok(state) => Box::new(state),
+        Ok(state) => Box::new(state.with_build_info(build_info)),
         Err(e) => {
             error!("Fatal error during initialization. {}", e.message);
             exit(1);

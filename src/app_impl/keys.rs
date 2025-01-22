@@ -64,6 +64,7 @@ impl AppState {
                 self.options.menu_visible = false;
                 self.options.settings_visible = false;
                 self.options.lens.enabled = false;
+                self.options.help_visible = false;
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
                 self.flip_lens(1);
             }

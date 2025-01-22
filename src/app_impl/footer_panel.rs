@@ -22,7 +22,8 @@ impl AppState {
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui
-                            .add(egui::Button::new("ℹ").fill(ui.visuals().faint_bg_color))
+                            .add(egui::Button::new("ℹ").fill(ui.visuals().window_fill()))
+                            .on_hover_text("Open the information window.")
                             .clicked()
                         {
                             self.options.help_visible = !self.options.help_visible;

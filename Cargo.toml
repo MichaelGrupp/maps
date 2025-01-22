@@ -6,6 +6,10 @@ license = "Apache-2.0"
 version = "0.1.0"
 edition = "2021"
 readme = "README.md"
+build = "build.rs"
+
+[build-dependencies]
+built = { version = "0.7.5", features = ["git2"] }
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }

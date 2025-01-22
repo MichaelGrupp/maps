@@ -58,6 +58,7 @@ pub struct StatusInfo {
 #[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,
+    pub build_info: String,
     pub maps: HashMap<String, MapState>,
     pub status: StatusInfo,
     pub load_meta_file_dialog: FileDialog,
@@ -89,6 +90,11 @@ impl AppState {
             .default_file_name("map_pose.yaml");
 
         Ok(state)
+    }
+
+    pub fn with_build_info(mut self, build_info: String) -> Self {
+        self.build_info = build_info;
+        self
     }
 }
 
