@@ -4,8 +4,6 @@ use egui_file_dialog::DialogState;
 use crate::app::{ActiveMovable, AppState, ViewMode};
 use crate::movable::{DragDirection, Draggable, Rotatable};
 
-const GRID_ZOOM_AMOUNT: f32 = 1.;
-
 impl AppState {
     fn flip_lens(&mut self, skip: i32) {
         if self.options.view_mode != ViewMode::Aligned {
@@ -138,10 +136,14 @@ impl AppState {
             }
 
             if i.key_down(egui::Key::Minus) {
-                self.options.grid.zoom(-GRID_ZOOM_AMOUNT);
+                self.options
+                    .grid
+                    .zoom(-self.options.grid.scroll_delta_percent);
             }
             if i.key_down(egui::Key::Plus) {
-                self.options.grid.zoom(GRID_ZOOM_AMOUNT);
+                self.options
+                    .grid
+                    .zoom(self.options.grid.scroll_delta_percent);
             }
         });
     }

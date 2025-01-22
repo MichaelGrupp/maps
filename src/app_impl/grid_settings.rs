@@ -88,11 +88,11 @@ impl AppState {
             self.options.grid.min_scale..=self.options.grid.max_scale,
         ));
         ui.end_row();
-        ui.label("Zoom speed")
-            .on_hover_text("How fast the grid zooms in/out when scrolling.");
+        ui.label("Zoom delta (%)")
+            .on_hover_text("How much the grid zooms in/out when scrolling.");
         ui.add(egui::Slider::new(
-            &mut self.options.grid.scroll_speed_factor,
-            0.0..=1.0,
+            &mut self.options.grid.scroll_delta_percent,
+            0.01..=10.,
         ));
     }
 }

@@ -27,7 +27,7 @@ pub struct GridOptions {
     pub min_line_spacing_points: f32,
     pub max_line_spacing_points: f32,
     pub line_stroke: egui::Stroke,
-    pub scroll_speed_factor: f32,
+    pub scroll_delta_percent: f32,
     pub marker_visible: bool,
     pub marker_length_meters: f32,
     pub marker_width_meters: f32,
@@ -54,7 +54,7 @@ impl default::Default for GridOptions {
             min_line_spacing_points: 1.,
             max_line_spacing_points: 1000.,
             line_stroke: egui::Stroke::new(1., egui::Color32::LIGHT_BLUE),
-            scroll_speed_factor: 0.2,
+            scroll_delta_percent: 1.,
             marker_visible: true,
             marker_length_meters: 1.,
             marker_width_meters: 0.1,
@@ -68,10 +68,10 @@ impl default::Default for GridOptions {
 }
 
 impl GridOptions {
-    pub fn zoom(&mut self, delta: f32) {
+    pub fn zoom(&mut self, delta_percent: f32) {
         // Viewport-centered zoom.
         let old_scale = self.scale;
-        self.scale += delta;
+        self.scale += delta_percent * 0.01 * self.scale;
         self.scale = self.scale.clamp(self.min_scale, self.max_scale);
         let scale_factor = self.scale / old_scale;
         self.offset *= scale_factor;

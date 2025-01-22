@@ -47,7 +47,7 @@ impl AppState {
                     // Scaled because meters are expected for drag().
                     options.drag(i.pointer.delta() / options.scale);
                 }
-                let scale_delta = i.smooth_scroll_delta.y * options.scroll_speed_factor;
+                let scale_delta = i.smooth_scroll_delta.y * options.scroll_delta_percent;
                 if !self.options.lens.enabled && scale_delta != 0. {
                     options.zoom(scale_delta);
                 }
