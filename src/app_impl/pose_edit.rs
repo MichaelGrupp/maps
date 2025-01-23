@@ -82,7 +82,7 @@ impl AppState {
                     .on_hover_text("Quick setting for slow, fine movement.")
                     .clicked()
                 {
-                    self.options.pose_edit.movable_amounts.drag = 0.001;
+                    self.options.pose_edit.movable_amounts.drag = 0.01;
                     self.options.pose_edit.movable_amounts.rotate = 0.001;
                 }
                 if ui
