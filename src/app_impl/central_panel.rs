@@ -1,6 +1,7 @@
 use eframe::egui;
+use uuid::Uuid;
 
-use crate::app::{AppState, ViewMode};
+use crate::app::{ActiveTool, AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
 use crate::grid::Grid;
 use crate::lens::Lens;
@@ -39,16 +40,26 @@ impl AppState {
     }
 
     fn show_grid(&mut self, ui: &mut egui::Ui) {
-        // Modify the grid with the mouse, but only if inside this panel rect.
         let options = &mut self.options.grid;
+        let mut clicked = false;
+        // Modify the grid with the mouse, but only if inside this panel rect.‚
         if ui.rect_contains_pointer(ui.available_rect_before_wrap()) {
+            match self.options.active_tool {
+                ActiveTool::PlaceLens | ActiveTool::Measure => {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+                }
+                _ => {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::Default);
+                }
+            }
             ui.input(|i| {
+                clicked = i.pointer.primary_released();
                 if i.pointer.primary_down() {
                     // Scaled because meters are expected for drag().
                     options.drag(i.pointer.delta() / options.scale);
                 }
                 let scale_delta = i.smooth_scroll_delta.y * options.scroll_delta_percent;
-                if !self.options.lens.enabled && scale_delta != 0. {
+                if scale_delta != 0. {
                     options.zoom(scale_delta);
                 }
             });
@@ -64,53 +75,79 @@ impl AppState {
         }
         self.status.hover_position = grid.hover_pos_metric(ui);
 
-        self.show_grid_lens(ui, self.status.hover_position);
+        if self.options.active_tool == ActiveTool::HoverLens {
+            self.show_grid_lens(ui, self.status.hover_position, "hover_lens", false);
+            // Don't show the other fixed lenses too not get too messy.
+            return;
+        }
+
+        if clicked && self.options.active_tool == ActiveTool::PlaceLens {
+            self.grid_lenses.insert(
+                Uuid::new_v4().to_string(),
+                self.status.hover_position.unwrap(),
+            );
+            self.options.active_tool = ActiveTool::None;
+        }
+        let ids = self.grid_lenses.keys().cloned().collect::<Vec<_>>();
+        for id in ids {
+            if let Some(pos) = self.grid_lenses.get(&id) {
+                self.show_grid_lens(ui, Some(*pos), id.clone().as_str(), true);
+            }
+        }
     }
 
-    pub fn show_grid_lens(&mut self, ui: &mut egui::Ui, center_pos: Option<egui::Pos2>) {
+    pub fn show_grid_lens(
+        &mut self,
+        ui: &mut egui::Ui,
+        center_pos: Option<egui::Pos2>,
+        id: &str,
+        closable: bool,
+    ) {
         let options = &self.options.grid;
         let grid_lens_scale = options.scale * 10.; // TODO: make this configurable.
-        egui::Window::new(egui::RichText::new("🔍").strong())
+        let mut open = true;
+        let mut window = egui::Window::new(egui::RichText::new("🔍").strong())
             .title_bar(true)
+            .id(egui::Id::new(id))
             .auto_sized()
             .resizable(true)
             .collapsible(true)
             .default_size(egui::vec2(200., 200.))
-            .default_pos(ui.clip_rect().min + egui::vec2(20., 20.))
-            .show(ui.ctx(), |ui| {
-                if let Some(center_pos) = center_pos {
-                    let mini_grid = Grid::new(ui, grid_lens_scale).centered_at(center_pos);
-                    mini_grid.show_maps(ui, &mut self.maps);
-                    if options.lines_visible {
-                        mini_grid.draw(ui, options);
-                    }
-                    if options.marker_visible {
-                        mini_grid.draw_axes(ui, options);
-                    }
+            .default_pos(ui.clip_rect().min + egui::vec2(20., 20.));
+        if closable {
+            window = window.open(&mut open);
+        }
+        window.show(ui.ctx(), |ui| {
+            if let Some(center_pos) = center_pos {
+                let mini_grid = Grid::new(ui, grid_lens_scale).centered_at(center_pos);
+                mini_grid.show_maps(ui, &mut self.maps);
+                if options.lines_visible {
+                    mini_grid.draw(ui, options);
                 }
-                // Fill window, grid is not a widget.
-                ui.allocate_exact_size(ui.available_size(), egui::Sense::hover());
-            });
+                if options.marker_visible {
+                    mini_grid.draw_axes(ui, options);
+                }
+            }
+            // Fill window, grid is not a widget.
+            ui.allocate_exact_size(ui.available_size(), egui::Sense::hover());
+        });
+        if !open {
+            self.grid_lenses.remove(id);
+        }
     }
 
     fn show_lens(&mut self, ui: &mut egui::Ui) {
-        let num_visible_maps = self.maps.values().filter(|m| m.visible).count();
+        if self.options.view_mode == ViewMode::Aligned {
+            // The "classic" lens is not shown in aligned mode, we add grids there.
+            return;
+        }
         for (name, map) in &mut self.maps {
             if !self.options.lens.enabled {
-                self.options.active_lens = None; // TODO: ensure this better.
+                self.options.active_lens = None;
                 continue;
-            }
-            if self.options.view_mode == ViewMode::Aligned && num_visible_maps > 1 {
-                // TODO: remove classic lens from aligned view mode.
-                // Show lens on hover only for the active map in Aligned view mode.
-                let active_lens = self.options.active_lens.get_or_insert(name.to_string());
-                if *active_lens != *name {
-                    continue;
-                }
             }
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name) {
                 if self.options.view_mode != ViewMode::Aligned {
-                    // TODO: Other modes don't set active_lens. Handle this better.
                     self.options.active_lens = Some(name.clone());
                 }
             }

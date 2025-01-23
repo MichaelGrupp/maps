@@ -43,7 +43,7 @@ impl AppState {
                         ui.label("Zoom grid in 'Aligned' view or change lens size, if active.");
                         ui.end_row();
                         ui.label("left click / l");
-                        ui.label("Activate hovering lens in 'Tiles' or 'Stacked' view.");
+                        ui.label("Toggle hovering lens.");
                         ui.end_row();
                         ui.end_row();
 

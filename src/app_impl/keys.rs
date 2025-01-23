@@ -1,51 +1,10 @@
 use eframe::egui;
 use egui_file_dialog::DialogState;
 
-use crate::app::{ActiveMovable, AppState, ViewMode};
+use crate::app::{ActiveMovable, ActiveTool, AppState};
 use crate::movable::{DragDirection, Draggable, Rotatable};
 
 impl AppState {
-    fn flip_lens(&mut self, skip: i32) {
-        if self.options.view_mode == ViewMode::Aligned {
-            // TODO: remove classic lens completely from grid.
-            return;
-        }
-        if self.options.view_mode != ViewMode::Aligned {
-            // Toggle in non-overlapping views.
-            self.options.lens.enabled = !self.options.lens.enabled;
-            return;
-        }
-        // In overlapping aligned view, switch to the next visible maps, then disable.
-        if !self.options.lens.enabled {
-            self.options.lens.enabled = true;
-            return;
-        }
-        let keys: Vec<&String> = self
-            .maps
-            .keys()
-            .filter(|k| self.maps.get(*k).unwrap().visible)
-            .collect();
-        if keys.is_empty() {
-            self.options.lens.enabled = false;
-            return;
-        }
-        let active_lens = self.options.active_lens.get_or_insert(keys[0].clone());
-        if let Some(active_index) = keys.iter().position(|k| *k == active_lens) {
-            let next_index = if active_index == 0 && skip.is_negative() {
-                // Rotate index with right click.
-                keys.len() - 1
-            } else {
-                (active_index as i32 + skip) as usize % keys.len()
-            };
-            if next_index == 0 && skip.is_positive() {
-                self.options.active_lens = None;
-                self.options.lens.enabled = false;
-            } else {
-                *active_lens = keys[next_index].clone();
-            }
-        }
-    }
-
     fn dialogs_open(&self) -> bool {
         self.load_meta_file_dialog.state() == DialogState::Open
             || self.load_map_pose_file_dialog.state() == DialogState::Open
@@ -67,13 +26,14 @@ impl AppState {
                 self.options.settings_visible = false;
                 self.options.lens.enabled = false;
                 self.options.help_visible = false;
+                self.options.active_tool = ActiveTool::None;
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
-                self.flip_lens(1);
-            }
-            if (i.key_released(egui::Key::K) || i.pointer.primary_released())
-                && self.options.lens.enabled
-            {
-                self.flip_lens(-1);
+                self.options.lens.enabled = !self.options.lens.enabled;
+                if self.options.active_tool == ActiveTool::HoverLens {
+                    self.options.active_tool = ActiveTool::None;
+                } else {
+                    self.options.active_tool = ActiveTool::HoverLens;
+                }
             }
             if i.key_released(egui::Key::M) {
                 self.options.menu_visible = !self.options.menu_visible;

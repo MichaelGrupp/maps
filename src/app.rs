@@ -30,6 +30,15 @@ pub enum ActiveMovable {
     Grid,
 }
 
+#[derive(Clone, Debug, Default, PartialEq)]
+pub enum ActiveTool {
+    None,
+    #[default]
+    HoverLens,
+    PlaceLens,
+    Measure,
+}
+
 #[derive(Debug, Default)]
 pub struct AppOptions {
     pub canvas_settings: CanvasOptions,
@@ -43,6 +52,7 @@ pub struct AppOptions {
     pub tint_settings: TintOptions,
     pub pose_edit: PoseEditOptions,
     pub active_movable: ActiveMovable,
+    pub active_tool: ActiveTool,
 }
 
 #[derive(Default)]
@@ -58,6 +68,7 @@ pub struct AppState {
     pub options: AppOptions,
     pub build_info: String,
     pub maps: HashMap<String, MapState>,
+    pub grid_lenses: HashMap<String, egui::Pos2>,
     pub status: StatusInfo,
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
