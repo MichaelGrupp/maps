@@ -81,6 +81,25 @@ impl AppState {
             return;
         }
 
+        if self.options.active_tool == ActiveTool::Measure {
+            if !clicked {
+                grid.draw_measure(ui, options, self.status.hover_position);
+                return;
+            }
+            if let Some(click_pos) = self.status.hover_position {
+                if options.measure_start.is_none() {
+                    options.measure_start = Some(click_pos);
+                } else if options.measure_end.is_none() {
+                    options.measure_end = Some(click_pos);
+                } else {
+                    options.measure_start = Some(click_pos);
+                    options.measure_end = None;
+                }
+            }
+            // Don't show fixed lenses when measuring.
+            return;
+        }
+
         if clicked && self.options.active_tool == ActiveTool::PlaceLens {
             self.grid_lenses.insert(
                 Uuid::new_v4().to_string(),

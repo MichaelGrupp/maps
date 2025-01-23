@@ -36,6 +36,9 @@ pub struct GridOptions {
     pub marker_z_color: egui::Color32,
     pub tick_labels_visible: bool,
     pub tick_labels_color: egui::Color32,
+    pub measure_start: Option<egui::Pos2>, // metric
+    pub measure_end: Option<egui::Pos2>,   // metric
+    pub measure_stroke: egui::Stroke,
 }
 
 impl default::Default for GridOptions {
@@ -63,6 +66,9 @@ impl default::Default for GridOptions {
             marker_z_color: egui::Color32::BLUE,
             tick_labels_visible: true,
             tick_labels_color: egui::Color32::DARK_GRAY,
+            measure_start: None,
+            measure_end: None,
+            measure_stroke: egui::Stroke::new(2., egui::Color32::ORANGE),
         }
     }
 }

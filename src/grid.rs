@@ -85,6 +85,10 @@ impl Grid {
         ((*point - self.origin_in_points) / self.points_per_meter).to_pos2()
     }
 
+    pub fn to_point(&self, metric: &egui::Pos2) -> egui::Pos2 {
+        *metric * self.points_per_meter + self.origin_in_points.to_vec2()
+    }
+
     pub fn show_map(&self, ui: &mut egui::Ui, map: &mut MapState, name: &str) {
         if !map.visible {
             return;
@@ -273,5 +277,40 @@ impl Grid {
             options.marker_width_meters * self.points_per_meter / 2.,
             options.marker_z_color,
         );
+    }
+
+    pub fn draw_measure(
+        &self,
+        ui: &mut egui::Ui,
+        options: &GridOptions,
+        temporary_end: Option<egui::Pos2>,
+    ) {
+        if let Some(start_metric) = options.measure_start {
+            let start = self.to_point(&start_metric);
+            ui.painter().circle_filled(
+                start,
+                options.measure_stroke.width * 2.,
+                options.measure_stroke.color,
+            );
+
+            let end_metric = options
+                .measure_end
+                .unwrap_or(temporary_end.unwrap_or(start_metric));
+            let end = self.to_point(&end_metric);
+            ui.painter()
+                .line_segment([start, end], options.measure_stroke);
+            ui.painter().circle_filled(
+                end,
+                options.measure_stroke.width * 2.,
+                options.measure_stroke.color,
+            );
+            ui.painter().text(
+                end,
+                egui::Align2::LEFT_BOTTOM,
+                format!("{:.3} m", (end_metric - start_metric).length()),
+                egui::FontId::new(15., egui::FontFamily::Monospace),
+                options.measure_stroke.color,
+            );
+        }
     }
 }

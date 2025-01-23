@@ -94,5 +94,10 @@ impl AppState {
             &mut self.options.grid.scroll_delta_percent,
             0.01..=10.,
         ));
+        ui.end_row();
+        ui.end_row();
+        ui.label("Measurement color")
+            .on_hover_text("Line color of the measurement tool.");
+        ui.color_edit_button_srgba(&mut self.options.grid.measure_stroke.color);
     }
 }

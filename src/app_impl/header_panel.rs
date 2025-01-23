@@ -16,6 +16,7 @@ impl AppState {
             ui.selectable_value(&mut self.options.active_tool, ActiveTool::Measure, "📏´")
                 .on_hover_text("Click two points on the grid to measure the distance.");
             if self.options.active_tool != ActiveTool::None {
+                ui.separator();
                 ui.selectable_value(&mut self.options.active_tool, ActiveTool::None, "❌")
                     .on_hover_text("Click to disable the active tool.");
             }
