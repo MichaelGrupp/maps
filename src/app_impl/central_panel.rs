@@ -131,7 +131,7 @@ impl AppState {
             .auto_sized()
             .resizable(true)
             .collapsible(true)
-            .default_size(egui::vec2(200., 200.))
+            .default_size(egui::vec2(250., 250.))
             .default_pos(ui.clip_rect().min + egui::vec2(20., 20.) * self.grid_lenses.len() as f32);
         if closable {
             window = window.open(&mut open);
