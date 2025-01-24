@@ -139,7 +139,7 @@ impl Grid {
             x -= spacing_points;
         }
         x = self.origin_in_points.x + spacing_points;
-        while x < self.metric_extent.x + self.left_offset.x {
+        while x < ui.available_width() + self.ui_offset.x {
             self.draw_vertical_line(ui, x, options, label_font_id.clone(), label_offset);
             x += spacing_points;
         }
@@ -157,7 +157,7 @@ impl Grid {
         ui.painter().line_segment(
             [
                 egui::Pos2::new(x, 0.),
-                egui::Pos2::new(x, self.metric_extent.y),
+                egui::Pos2::new(x, ui.available_height() + self.ui_offset.y),
             ],
             options.line_stroke,
         );
@@ -189,7 +189,7 @@ impl Grid {
             y -= spacing_points;
         }
         y = self.origin_in_points.y + spacing_points;
-        while y < self.metric_extent.y {
+        while y < ui.available_height() + self.ui_offset.y {
             self.draw_horizontal_line(ui, y, options, label_font_id.clone(), label_offset);
             y += spacing_points;
         }
@@ -207,7 +207,7 @@ impl Grid {
         ui.painter().line_segment(
             [
                 left,
-                egui::Pos2::new(self.metric_extent.x * self.points_per_meter, y) + self.left_offset,
+                egui::Pos2::new(ui.available_width() + self.ui_offset.x, y) + self.left_offset,
             ],
             options.line_stroke,
         );
