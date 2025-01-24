@@ -115,6 +115,7 @@ impl AppState {
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
+            self.error_modal(ui);
             self.handle_key_shortcuts(ui);
 
             self.header_panel(ui);

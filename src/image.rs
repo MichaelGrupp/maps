@@ -23,7 +23,7 @@ pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageErr
             }
         },
         Err(e) => {
-            error!("Error loading image: {:?}", e);
+            error!("Error loading image {:?}: {}", path, e.to_string());
             Err(image::ImageError::IoError(e))
         }
     }

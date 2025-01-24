@@ -47,7 +47,7 @@ impl AppState {
                 Err(e) => Err(e),
             },
             Err(e) => Err(Error {
-                message: format!("Error loading metadata file: {:?}", e),
+                message: format!("Error loading metadata file: {}", e.message),
             }),
         }
     }
@@ -68,7 +68,7 @@ impl AppState {
                         self.load_meta_file_dialog.config_mut().initial_directory = path;
                     }
                     Err(e) => {
-                        self.status.error = format!("Error loading metadata file: {:?}", e.message);
+                        self.status.error = e.message;
                     }
                 }
             }
@@ -97,7 +97,11 @@ impl AppState {
                 Ok(())
             }
             Err(e) => Err(Error {
-                message: format!("Error loading image: {:?}", e),
+                message: format!(
+                    "Error loading image {:?}: {}",
+                    &meta.image_path,
+                    e.to_string()
+                ),
             }),
         }
     }
@@ -147,7 +151,7 @@ impl AppState {
                         .initial_directory = path;
                 }
                 Err(e) => {
-                    self.status.error = format!("Error loading pose file: {:?}", e.message);
+                    self.status.error = format!("Error loading pose file: {}", e.message);
                 }
             }
         }
@@ -178,7 +182,7 @@ impl AppState {
                         .initial_directory = path;
                 }
                 Err(e) => {
-                    self.status.error = format!("Error saving pose file: {:?}", e.message);
+                    self.status.error = format!("Error saving pose file: {}", e.message);
                 }
             }
         }
