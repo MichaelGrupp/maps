@@ -96,8 +96,19 @@ impl AppState {
         ));
         ui.end_row();
         ui.end_row();
+
+        ui.heading("Tools");
+        ui.add_space(SPACE);
+        ui.end_row();
         ui.label("Measurement color")
             .on_hover_text("Line color of the measurement tool.");
         ui.color_edit_button_srgba(&mut self.options.grid.measure_stroke.color);
+        ui.end_row();
+        ui.label("Lens magnification")
+            .on_hover_text("Magnification factor for hovering / fixed lenses.");
+        ui.add(egui::Slider::new(
+            &mut self.options.grid.lens_magnification,
+            0.1..=10.0,
+        ));
     }
 }

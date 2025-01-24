@@ -39,6 +39,7 @@ pub struct GridOptions {
     pub measure_start: Option<egui::Pos2>, // metric
     pub measure_end: Option<egui::Pos2>,   // metric
     pub measure_stroke: egui::Stroke,
+    pub lens_magnification: f32,
 }
 
 impl default::Default for GridOptions {
@@ -69,6 +70,7 @@ impl default::Default for GridOptions {
             measure_start: None,
             measure_end: None,
             measure_stroke: egui::Stroke::new(2., egui::Color32::ORANGE),
+            lens_magnification: 5.,
         }
     }
 }

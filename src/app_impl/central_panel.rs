@@ -123,7 +123,7 @@ impl AppState {
         closable: bool,
     ) {
         let options = &self.options.grid;
-        let grid_lens_scale = options.scale * 10.; // TODO: make this configurable.
+        let grid_lens_scale = options.scale * options.lens_magnification;
         let mut open = true;
         let mut window = egui::Window::new(egui::RichText::new("🔍").strong())
             .title_bar(true)
