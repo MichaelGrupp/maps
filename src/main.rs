@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::vec::Vec;
 
@@ -10,6 +10,7 @@ use log::{debug, error, info};
 use eframe::egui;
 
 use maps::app::{AppOptions, AppState, ViewMode};
+use maps::map_pose::MapPose;
 use maps::meta::Meta;
 use strum::VariantNames;
 
@@ -43,6 +44,12 @@ struct Args {
         help = "Initial alpha value for maps. 0. is transparent, 1.0 is opaque."
     )]
     alpha: f32,
+    #[clap(
+        short,
+        long,
+        help = "Map pose YAML file that will be applied to all maps that are loaded via CLI."
+    )]
+    pose: Option<PathBuf>,
 }
 
 // Gather build information from build.rs during compile time.
@@ -119,6 +126,20 @@ fn main() -> eframe::Result {
         }
     }
 
+    let map_pose = match &args.pose {
+        Some(pose_path) => {
+            info!("Loading map pose from {:?}", pose_path);
+            match MapPose::from_yaml_file(pose_path) {
+                Ok(pose) => Some(pose),
+                Err(e) => {
+                    error!("Error loading pose {:?}: {}", pose_path, e.message);
+                    exit(1);
+                }
+            }
+        }
+        None => None,
+    };
+
     let mut options = AppOptions {
         view_mode: args.view_mode,
         ..Default::default()
@@ -130,13 +151,20 @@ fn main() -> eframe::Result {
     color = egui::Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), new_alpha);
     options.tint_settings.tint_for_all = color;
 
-    let app_state = match AppState::init(metas, options) {
+    let mut app_state = match AppState::init(metas, options) {
         Ok(state) => Box::new(state.with_build_info(build_info)),
         Err(e) => {
             error!("Fatal error during initialization. {}", e.message);
             exit(1);
         }
     };
+
+    if let Some(pose) = map_pose {
+        for (name, map) in app_state.maps.iter_mut() {
+            info!("Applying pose to map: {}", name);
+            map.pose = pose.clone();
+        }
+    }
 
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
     let options = eframe::NativeOptions {

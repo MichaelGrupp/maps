@@ -5,7 +5,7 @@ mod grid_options;
 mod image;
 mod image_pyramid;
 mod lens;
-mod map_pose;
+pub mod map_pose;
 mod map_state;
 pub mod meta;
 mod movable;
