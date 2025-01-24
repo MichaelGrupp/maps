@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use eframe::egui;
 use egui_file_dialog::FileDialog;
-use log::debug;
+use log::{debug, error, info};
 
 use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
@@ -42,7 +42,7 @@ impl AppState {
 
     fn load_meta(&mut self, yaml_path: PathBuf) -> Result<bool, Error> {
         match Meta::load_from_file(yaml_path) {
-            Ok(meta) => match self.load_image(meta) {
+            Ok(meta) => match self.load_map(meta) {
                 Ok(_) => Ok(true),
                 Err(e) => Err(e),
             },
@@ -63,28 +63,29 @@ impl AppState {
                 ui.ctx().request_repaint();
                 match self.load_meta(path.clone()) {
                     Ok(_) => {
-                        self.status.info = format!("Loaded metadata file: {:?}", path);
+                        info!("Loaded metadata file: {:?}", path);
                         // Start from the same path the next time.
                         self.load_meta_file_dialog.config_mut().initial_directory = path;
                     }
                     Err(e) => {
                         self.status.error = e.message;
+                        error!("{}", self.status.error);
                     }
                 }
             }
         }
     }
 
-    pub fn load_image(&mut self, meta: Meta) -> Result<(), Error> {
-        self.status.info = format!("Loading image: {:?}", meta.image_path);
+    pub fn load_map(&mut self, meta: Meta) -> Result<(), Error> {
         match load_image(&meta.image_path) {
             Ok(image) => {
                 self.tile_manager.add_pane(Pane {
                     id: meta.yaml_path.to_str().unwrap().to_owned(),
                 });
                 let image_pyramid = ImagePyramid::new(image);
+                let name = meta.yaml_path.to_str().unwrap().to_owned();
                 self.maps.insert(
-                    meta.yaml_path.to_str().unwrap().to_owned(),
+                    name.clone(),
                     MapState {
                         meta,
                         pose: MapPose::default(),
@@ -94,6 +95,7 @@ impl AppState {
                         tint: None,
                     },
                 );
+                info!("Loaded map: {}", name);
                 Ok(())
             }
             Err(e) => Err(Error {
@@ -140,7 +142,7 @@ impl AppState {
             debug!("Loading pose file: {:?}", path);
             match MapPose::from_yaml_file(&path) {
                 Ok(map_pose) => {
-                    self.status.info = format!("Loaded pose file: {:?}", path);
+                    info!("Loaded pose file: {:?}", path);
                     self.maps.get_mut(map_name).unwrap().pose = map_pose;
                     // Start from the same path the next time, also for saving.
                     self.load_map_pose_file_dialog
@@ -152,6 +154,7 @@ impl AppState {
                 }
                 Err(e) => {
                     self.status.error = format!("Error loading pose file: {}", e.message);
+                    error!("{}", self.status.error);
                 }
             }
         }
@@ -172,7 +175,7 @@ impl AppState {
             debug!("Saving pose file: {:?}", path);
             match self.maps.get(map_name).unwrap().pose.to_yaml_file(&path) {
                 Ok(_) => {
-                    self.status.info = format!("Saved pose file: {:?}", path);
+                    info!("Saved pose file: {:?}", path);
                     // Start from the same path the next time, also for loading.
                     self.save_map_pose_file_dialog
                         .config_mut()
@@ -183,6 +186,7 @@ impl AppState {
                 }
                 Err(e) => {
                     self.status.error = format!("Error saving pose file: {}", e.message);
+                    error!("{}", self.status.error);
                 }
             }
         }

@@ -58,8 +58,6 @@ pub struct AppOptions {
 #[derive(Default)]
 pub struct StatusInfo {
     pub error: String,
-    pub warning: String,
-    pub info: String,
     pub hover_position: Option<egui::Pos2>,
 }
 
@@ -92,7 +90,7 @@ impl AppState {
             // this is usually more handy than cwd when file are passed via CLI.
             default_dir = meta.yaml_path.parent().and_then(|p| Some(p.to_path_buf()));
 
-            state.load_image(meta)?;
+            state.load_map(meta)?;
         }
         for map in state.maps.values_mut() {
             map.tint = Some(state.options.tint_settings.tint_for_all);
