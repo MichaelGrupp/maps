@@ -1,3 +1,4 @@
+use std::env::current_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -16,7 +17,7 @@ use crate::app::{AppState, Error};
 use crate::map_pose::MapPose;
 
 impl AppState {
-    pub fn make_yaml_file_dialog() -> FileDialog {
+    pub fn make_yaml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
         FileDialog::new()
             .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
             .add_file_filter(
@@ -32,6 +33,11 @@ impl AppState {
                 }),
             )
             .default_file_filter("yaml")
+            .initial_directory(
+                initial_dir
+                    .clone()
+                    .unwrap_or(current_dir().expect("wtf no cwd??")),
+            )
     }
 
     fn load_meta(&mut self, yaml_path: PathBuf) -> Result<bool, Error> {

@@ -86,15 +86,20 @@ impl AppState {
         let mut state = AppState::default();
         state.options = options;
 
+        let mut default_dir = None;
         for meta in metas {
+            // Use the directory of a meta file as the file dialogs default,
+            // this is usually more handy than cwd when file are passed via CLI.
+            default_dir = meta.yaml_path.parent().and_then(|p| Some(p.to_path_buf()));
+
             state.load_image(meta)?;
         }
         for map in state.maps.values_mut() {
             map.tint = Some(state.options.tint_settings.tint_for_all);
         }
-        state.load_meta_file_dialog = Self::make_yaml_file_dialog();
-        state.load_map_pose_file_dialog = Self::make_yaml_file_dialog();
-        state.save_map_pose_file_dialog = Self::make_yaml_file_dialog()
+        state.load_meta_file_dialog = Self::make_yaml_file_dialog(&default_dir);
+        state.load_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir);
+        state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir)
             .allow_file_overwrite(true)
             .default_file_name("map_pose.yaml");
 
