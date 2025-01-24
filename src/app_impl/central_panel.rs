@@ -45,7 +45,7 @@ impl AppState {
         // Modify the grid with the mouse, but only if inside this panel rect.‚
         if ui.rect_contains_pointer(ui.available_rect_before_wrap()) {
             match self.options.active_tool {
-                ActiveTool::PlaceLens | ActiveTool::Measure => {
+                ActiveTool::PlaceLens | ActiveTool::Measure | ActiveTool::HoverLens => {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
                 }
                 _ => {
