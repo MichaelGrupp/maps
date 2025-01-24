@@ -32,8 +32,8 @@ pub enum ActiveMovable {
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum ActiveTool {
-    None,
     #[default]
+    None,
     HoverLens,
     PlaceLens,
     Measure,
