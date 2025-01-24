@@ -1,14 +1,11 @@
 use eframe::egui;
 
-use crate::app::{ActiveMovable, AppState};
+use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 impl AppState {
     pub fn menu_panel(&mut self, ui: &mut egui::Ui) {
         if !self.options.menu_visible {
-            // Automatically disable the map pose edit via keys if the menu is closed.
-            self.options.active_movable = ActiveMovable::Grid;
-            self.options.pose_edit.movable_amounts = Default::default();
             return;
         }
         egui::SidePanel::left("menu").show(ui.ctx(), |ui| {
