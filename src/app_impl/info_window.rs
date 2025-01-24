@@ -40,10 +40,16 @@ impl AppState {
                         ui.label("Move grid in 'Aligned' view. Move tabs/panes in 'Tiles' view.");
                         ui.end_row();
                         ui.label("scroll");
-                        ui.label("Zoom grid in 'Aligned' view or change lens size, if active.");
+                        ui.label(
+                            "Zoom grid in 'Aligned' view or change lens size in \
+                        'Tiles'/'Stacked' view, if active.",
+                        );
                         ui.end_row();
                         ui.label("left click / l");
                         ui.label("Toggle hovering lens.");
+                        ui.end_row();
+                        ui.label("g");
+                        ui.label("Toggle grid lines in 'Aligned' view.");
                         ui.end_row();
                         ui.end_row();
 
