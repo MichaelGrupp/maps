@@ -115,21 +115,33 @@ impl MapPose {
         emath::vec2(self.translation.x, self.translation.y)
     }
 
+    fn normalized(mut self) -> MapPose {
+        self.rotation.roll = emath::normalized_angle(self.rotation.roll);
+        self.rotation.pitch = emath::normalized_angle(self.rotation.pitch);
+        self.rotation.yaw = emath::normalized_angle(self.rotation.yaw);
+        self
+    }
+
     /// Loads a map pose from a YAML file.
     /// Note that angles are normalized to the range [-π, π] by this.
     pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
         match std::fs::File::open(resolve_symlink(yaml_path)) {
             Ok(file) => match serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file) {
-                Ok(mut map_pose) => {
-                    map_pose.rotation.roll = emath::normalized_angle(map_pose.rotation.roll);
-                    map_pose.rotation.pitch = emath::normalized_angle(map_pose.rotation.pitch);
-                    map_pose.rotation.yaw = emath::normalized_angle(map_pose.rotation.yaw);
-                    Ok(map_pose)
-                }
+                Ok(map_pose) => Ok(map_pose.normalized()),
                 Err(error) => Err(Error {
                     message: error.to_string(),
                 }),
             },
+            Err(error) => Err(Error {
+                message: error.to_string(),
+            }),
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub fn from_bytes(bytes: &[u8]) -> Result<MapPose, Error> {
+        match serde_yaml_ng::from_slice::<MapPose>(bytes) {
+            Ok(map_pose) => Ok(map_pose.normalized()),
             Err(error) => Err(Error {
                 message: error.to_string(),
             }),

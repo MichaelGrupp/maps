@@ -22,6 +22,11 @@ use crate::meta::Meta;
 use crate::persistence::{save_app_options, PersistenceOptions};
 use crate::tiles::Tiles;
 
+#[cfg(target_arch = "wasm32")]
+use crate::wasm::async_data::AsyncData;
+#[cfg(target_arch = "wasm32")]
+use std::sync::{Arc, Mutex};
+
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
 )]
@@ -86,6 +91,10 @@ pub struct SessionData {
     #[serde(skip)]
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
+
+    #[cfg(target_arch = "wasm32")]
+    #[serde(skip)]
+    pub(crate) wasm_io: Arc<Mutex<AsyncData>>,
 }
 
 /// Main application state, implements the `eframe::App` trait.
@@ -124,15 +133,19 @@ impl AppState {
         for map in state.data.maps.values_mut() {
             map.tint = Some(state.options.tint_settings.tint_for_all);
         }
-        state.load_meta_file_dialog = Self::make_yaml_file_dialog(&default_dir);
-        state.load_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir);
-        state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir)
-            .allow_file_overwrite(true)
-            .default_file_name("map_pose.yaml");
-        state.load_session_file_dialog = Self::make_toml_file_dialog(&default_dir);
-        state.save_session_file_dialog = Self::make_toml_file_dialog(&default_dir)
-            .allow_file_overwrite(true)
-            .default_file_name("maps_session.toml");
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            state.load_meta_file_dialog = Self::make_yaml_file_dialog(&default_dir);
+            state.load_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir);
+            state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir)
+                .allow_file_overwrite(true)
+                .default_file_name("map_pose.yaml");
+            state.load_session_file_dialog = Self::make_toml_file_dialog(&default_dir);
+            state.save_session_file_dialog = Self::make_toml_file_dialog(&default_dir)
+                .allow_file_overwrite(true)
+                .default_file_name("maps_session.toml");
+        }
 
         Ok(state)
     }
@@ -161,6 +174,9 @@ impl eframe::App for AppState {
             self.info_window(ui);
             self.debug_window(ctx, ui);
         });
+
+        #[cfg(target_arch = "wasm32")]
+        self.consume_wasm_io();
 
         if ctx.input(|i| i.viewport().close_requested())
             && self.status.unsaved_changes

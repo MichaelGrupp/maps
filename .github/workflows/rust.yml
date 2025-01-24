@@ -60,3 +60,13 @@ jobs:
       # Run tests without kittest_snapshots feature
       # (no wgpu support in CI runner).
       run: cargo test --profile kittest --verbose --no-default-features -- --show-output
+
+  wasm:
+    runs-on: [macos-latest]  # host irrelevant here, but mac is fastest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Only build without kittest on wasm.
+        lfs: false
+    - name: Build
+      run: cargo build --verbose --target wasm32-unknown-unknown

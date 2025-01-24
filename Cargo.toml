@@ -47,3 +47,19 @@ strum = "0.26.3"
 strum_macros = "0.26.3"
 toml = "0.8.19"
 uuid = { version = "1.11.0", features = ["v4"] }
+
+# Native only:
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+env_logger = "0.11.5"
+
+# Web only:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"
+web-sys = "0.3.70"
+console_error_panic_hook = "0.1.7"  # wasm error messages in the browser console
+# Transient dependency, needs js flag for wasm:
+getrandom = { version = "*", features = ["js"] }
+rfd = "0.15.2"
+
+[profile.release]
+opt-level = 2 # fast and small wasm

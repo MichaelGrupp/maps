@@ -260,6 +260,20 @@ impl AppState {
                         self.load_meta_button(ui);
                         ui.add_space(SPACE);
                         self.load_session_button(ui);
+
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            ui.add_space(SPACE * 4.);
+                            ui.label(
+                                egui::RichText::new(
+                                    "Filesystem IO is limited in the web assembly app.",
+                                )
+                                .color(egui::Color32::ORANGE),
+                            );
+                            ui.label(
+                                "Full functionality is available in the natively compiled app.",
+                            );
+                        }
                     });
                 });
             },
