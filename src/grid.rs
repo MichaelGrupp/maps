@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use eframe::egui;
 
@@ -112,7 +112,7 @@ impl Grid {
         map.texture_state.crop_and_put(ui, &request);
     }
 
-    pub fn show_maps(&self, ui: &mut egui::Ui, maps: &mut HashMap<String, MapState>) {
+    pub fn show_maps(&self, ui: &mut egui::Ui, maps: &mut BTreeMap<String, MapState>) {
         for (name, map) in maps.iter_mut() {
             self.show_map(ui, map, name);
         }

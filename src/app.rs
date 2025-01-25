@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::path::absolute;
 use std::vec::Vec;
 
@@ -66,7 +66,7 @@ pub struct StatusInfo {
 pub struct AppState {
     pub options: AppOptions,
     pub build_info: String,
-    pub maps: HashMap<String, MapState>,
+    pub maps: BTreeMap<String, MapState>,
     pub grid_lenses: HashMap<String, egui::Pos2>,
     pub status: StatusInfo,
     pub load_meta_file_dialog: FileDialog,

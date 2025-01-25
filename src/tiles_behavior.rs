@@ -1,5 +1,5 @@
 use log::debug;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use eframe::egui;
 
@@ -9,7 +9,7 @@ use crate::tiles::Pane;
 
 // Behavior for the tiles tree that displays maps.
 pub struct MapsTreeBehavior<'a> {
-    pub maps: &'a mut HashMap<String, MapState>,
+    pub maps: &'a mut BTreeMap<String, MapState>,
 }
 
 impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
