@@ -5,17 +5,27 @@ use crate::app_impl::constants::ICON_SIZE;
 
 impl AppState {
     fn tool_buttons(&mut self, ui: &mut egui::Ui) {
-        if self.options.view_mode != ViewMode::Aligned {
-            return;
-        }
         ui.horizontal_centered(|ui| {
             ui.selectable_value(&mut self.options.active_tool, ActiveTool::HoverLens, " ⬌🔍")
-                .on_hover_text("Hover over the grid to see the lens at that position.");
-            ui.selectable_value(&mut self.options.active_tool, ActiveTool::PlaceLens, "+🔍")
-                .on_hover_text("Click on a grid position to add a new lens window focussing it.");
-            ui.selectable_value(&mut self.options.active_tool, ActiveTool::Measure, "📏´")
-                .on_hover_text("Click two points on the grid to measure the distance.");
-            if self.options.active_tool != ActiveTool::None {
+                .on_hover_text("Hover above a map to see the lens at that position.");
+            if self.options.view_mode == ViewMode::Aligned {
+                ui.selectable_value(&mut self.options.active_tool, ActiveTool::PlaceLens, "+🔍")
+                    .on_hover_text(
+                        "Click on a grid position to add a new lens window focussing it.",
+                    );
+                ui.selectable_value(&mut self.options.active_tool, ActiveTool::Measure, "📏´")
+                    .on_hover_text("Click two points on the grid to measure the distance.");
+            }
+
+            let tool_usable = match self.options.active_tool {
+                ActiveTool::HoverLens => true, // Usable in all view modes.
+                ActiveTool::PlaceLens | ActiveTool::Measure => {
+                    self.options.view_mode == ViewMode::Aligned
+                }
+                ActiveTool::None => false,
+            };
+
+            if tool_usable {
                 ui.separator();
                 ui.selectable_value(&mut self.options.active_tool, ActiveTool::None, "❌")
                     .on_hover_text("Click to disable the active tool.");

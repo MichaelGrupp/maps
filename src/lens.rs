@@ -8,7 +8,6 @@ use crate::map_state::MapState;
 
 #[derive(Debug)]
 pub struct LensOptions {
-    pub enabled: bool,
     pub size_meters: f32,
     pub size_meters_min: f32,
     pub size_meters_max: f32,
@@ -18,7 +17,6 @@ pub struct LensOptions {
 impl default::Default for LensOptions {
     fn default() -> LensOptions {
         LensOptions {
-            enabled: false,
             size_meters: 5.,
             size_meters_min: 2.5,
             size_meters_max: 25.,
@@ -40,9 +38,6 @@ impl<'a> Lens<'a> {
 
     pub fn show_on_hover(&mut self, ui: &mut egui::Ui, map: &mut MapState, name: &str) -> bool {
         let options = &mut self.options;
-        if !options.enabled {
-            return false;
-        }
 
         let response = match &map.texture_state.image_response {
             Some(response) => response,

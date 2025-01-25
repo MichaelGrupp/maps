@@ -12,9 +12,6 @@ impl AppState {
         }
         ui.add_space(SPACE);
         ui.end_row();
-        ui.label("Show Lens");
-        ui.checkbox(&mut self.options.lens.enabled, "");
-        ui.end_row();
         ui.label("Lens size (meters)");
         ui.add(egui::Slider::new(
             &mut self.options.lens.size_meters,

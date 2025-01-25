@@ -24,11 +24,9 @@ impl AppState {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
                 self.options.settings_visible = false;
-                self.options.lens.enabled = false;
                 self.options.help_visible = false;
                 self.options.active_tool = ActiveTool::None;
             } else if i.key_released(egui::Key::L) || i.pointer.secondary_released() {
-                self.options.lens.enabled = !self.options.lens.enabled;
                 if self.options.active_tool == ActiveTool::HoverLens {
                     self.options.active_tool = ActiveTool::None;
                 } else {

@@ -160,11 +160,11 @@ impl AppState {
             // The "classic" lens is not shown in aligned mode, we add grids there.
             return;
         }
+        if self.options.active_tool != ActiveTool::HoverLens {
+            self.options.active_lens = None;
+            return;
+        }
         for (name, map) in &mut self.maps {
-            if !self.options.lens.enabled {
-                self.options.active_lens = None;
-                continue;
-            }
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name) {
                 if self.options.view_mode != ViewMode::Aligned {
                     self.options.active_lens = Some(name.clone());
