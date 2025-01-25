@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::path::absolute;
 use std::vec::Vec;
 
 use eframe::egui;
@@ -88,7 +89,7 @@ impl AppState {
         for meta in metas {
             // Use the directory of a meta file as the file dialogs default,
             // this is usually more handy than cwd when file are passed via CLI.
-            default_dir = meta.yaml_path.parent().and_then(|p| Some(p.to_path_buf()));
+            default_dir = absolute(meta.yaml_path.parent().expect("No parent dir?")).ok();
 
             state.load_map(meta)?;
         }
