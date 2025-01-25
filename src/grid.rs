@@ -32,16 +32,14 @@ impl GridMapRelation {
         );
         let scaled_size = original_size * scale_factor;
 
+        let rhs_to_lhs = egui::vec2(1., -1.); // Screen is a LHS system.
+
         // Meta origin is lower left corner of image in ROS.
-        let llc_to_origin_in_points = egui::Vec2::new(
-            map.meta.origin.translation.x as f32,
-            -map.meta.origin.translation.y as f32, // RHS to LHS
-        ) * points_per_meter
-            * scale_factor;
+        let llc_to_origin_in_points =
+            map.meta.origin_xy * rhs_to_lhs * points_per_meter * scale_factor;
         let ulc_to_origin_in_points = llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
 
-        let translation_in_points =
-            map.pose.vec2() * egui::vec2(1., -1.) * points_per_meter * scale_factor;
+        let translation_in_points = map.pose.vec2() * rhs_to_lhs * points_per_meter * scale_factor;
         let ulc_to_origin_in_points_translated = translation_in_points + ulc_to_origin_in_points;
 
         GridMapRelation {
@@ -101,11 +99,14 @@ impl Grid {
             relation.scaled_size,
         );
 
+        let pose_rotation = map.pose.rot2().inverse(); // RHS to LHS
+        let origin_rotation = map.meta.origin_theta.inverse();
+
         let uncropped = TextureRequest::new(name.to_string(), rect).with_tint(map.tint);
         let request = RotatedCropRequest::from_visible(
             ui,
             uncropped,
-            map.pose.rot2().inverse(), // RHS to LHS
+            pose_rotation * origin_rotation,
             relation.ulc_to_origin_in_points_translated - relation.ulc_to_origin_in_points,
             relation.ulc_to_origin_in_points,
         );

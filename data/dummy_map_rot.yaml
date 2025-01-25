@@ -1,0 +1,11 @@
+image: dummy_map_lores.png
+resolution: 0.1
+
+# Origin with angle, just for testing support/warnings for it.
+# "Many parts of the [ROS] system currently ignore yaw."
+# http://wiki.ros.org/map_server#YAML_format
+origin: [-9.75, -35.0, 0.31416]
+
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

@@ -21,7 +21,6 @@ env_logger = "0.11.5"
 fast_image_resize = { version = "5.1.1", features = ["image"] }
 image = { version = "0.25.5", features = ["jpeg", "png", "pnm"] }
 log = "0.4.22 "
-nalgebra = "0.33.2"
 serde = "1.0"
 serde_yml = "0.0.12"
 strum = "0.26.3"

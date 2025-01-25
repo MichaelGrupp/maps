@@ -1,4 +1,4 @@
-use nalgebra::Isometry2;
+use eframe::emath;
 use serde::Deserialize;
 use std::path::PathBuf;
 
@@ -6,11 +6,11 @@ use std::path::PathBuf;
 #[derive(Deserialize)]
 pub struct MetaYaml {
     pub image: PathBuf,
-    pub resolution: f64,
-    pub origin: [f64; 3], // x, y, theta
+    pub resolution: f32,
+    pub origin: [f32; 3], // x, y, theta
     pub negate: i32,
-    pub occupied_thresh: f64,
-    pub free_thresh: f64,
+    pub occupied_thresh: f32,
+    pub free_thresh: f32,
 }
 
 // Annotated yaml meta to keep track of the yaml file path.
@@ -48,8 +48,9 @@ impl MetaYamlAnnotated {
 pub struct Meta {
     pub image_path: PathBuf,
     pub yaml_path: PathBuf,
-    pub resolution: f64,
-    pub origin: Isometry2<f64>,
+    pub resolution: f32,
+    pub origin_xy: emath::Vec2,
+    pub origin_theta: emath::Rot2,
     // negate, occupied_thresh, free_thresh are not used
 }
 
@@ -69,10 +70,8 @@ impl From<MetaYamlAnnotated> for Meta {
             },
             yaml_path: meta_yaml_annotated.yaml_path,
             resolution: meta_yaml.resolution,
-            origin: Isometry2::new(
-                nalgebra::Vector2::new(meta_yaml.origin[0], meta_yaml.origin[1]),
-                meta_yaml.origin[2],
-            ),
+            origin_xy: emath::Vec2::new(meta_yaml.origin[0], meta_yaml.origin[1]),
+            origin_theta: emath::Rot2::from_angle(emath::normalized_angle(meta_yaml.origin[2])),
         }
     }
 }

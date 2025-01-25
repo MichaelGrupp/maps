@@ -21,7 +21,7 @@ impl AppState {
         ui.separator();
         let mut to_delete: Vec<String> = Vec::new();
         egui::Grid::new("maps_list")
-            .num_columns(2)
+            .num_columns(3)
             .striped(true)
             .show(ui, |ui| {
                 for (name, map) in &mut self.maps {
@@ -30,6 +30,19 @@ impl AppState {
                     }
                     if ui.button("🗑").on_hover_text("Delete Map").clicked() {
                         to_delete.push(name.clone());
+                    }
+                    if map.meta.origin_theta.angle() != 0. {
+                        ui.label(
+                            egui::RichText::new("⚠")
+                                .strong()
+                                .color(egui::Color32::ORANGE),
+                        )
+                        .on_hover_text(
+                            "This map has a non-zero origin rotation component in its metadata.\n\
+                            maps uses it, but it's not supported by most ROS tools.\n\n\
+                            It's recommended to save alignment transformations separately,\n\
+                            e.g. using the Pose editor here.",
+                        );
                     }
                     ui.end_row();
                 }
