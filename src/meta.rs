@@ -1,4 +1,5 @@
 use eframe::emath;
+use log::debug;
 use serde::Deserialize;
 use std::path::PathBuf;
 
@@ -79,7 +80,11 @@ impl From<MetaYamlAnnotated> for Meta {
 impl Meta {
     pub fn load_from_file(yaml_path: PathBuf) -> Result<Meta, Error> {
         match MetaYamlAnnotated::from(yaml_path) {
-            Ok(meta_yaml_annotated) => Ok(Meta::from(meta_yaml_annotated)),
+            Ok(meta_yaml_annotated) => {
+                let meta = Meta::from(meta_yaml_annotated);
+                debug!("Parsed metadata: {:?}", meta);
+                Ok(meta)
+            }
             Err(e) => Err(e),
         }
     }

@@ -111,6 +111,7 @@ impl AppState {
 
     pub fn delete(&mut self, to_delete: &Vec<String>) {
         for name in to_delete {
+            info!("Removing {}", name);
             self.maps.remove(name);
             self.tile_manager.remove_pane(name);
             if let Some(active_lens) = &self.options.active_lens {

@@ -1,7 +1,7 @@
 use std::option::Option;
 
 use eframe::egui;
-use log::debug;
+use log::trace;
 
 use crate::image::{color_to_alpha, fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
@@ -38,7 +38,7 @@ impl TextureState {
         self.desired_color_to_alpha = request.color_to_alpha;
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
-            debug!("Fitting and reloading texture for {:?}", request);
+            trace!("Fitting and reloading texture for {:?}", request);
             let mut image = fit_image(
                 self.image_pyramid.get_level(self.desired_size),
                 self.desired_size,
@@ -82,7 +82,7 @@ impl TextureState {
             return;
         }
 
-        debug!("Cropping and reloading texture for {:?}", request);
+        trace!("Cropping and reloading texture for {:?}", request);
         let uncropped = self.image_pyramid.get_level(self.desired_size);
 
         let uv_min = request.uv[0];
@@ -93,7 +93,7 @@ impl TextureState {
         let max_y = (uv_max.y * uncropped.height() as f32).round() as u32;
         let mut cropped_image = uncropped.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
         if cropped_image.width() == 0 || cropped_image.height() == 0 {
-            debug!("Crop resulted in empty image.");
+            trace!("Crop resulted in empty image.");
             self.texture_handle = None;
             return;
         }

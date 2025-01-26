@@ -2,7 +2,7 @@ use std::cmp::max;
 use std::collections::HashMap;
 
 use eframe::egui;
-use log::debug;
+use log::{debug, trace};
 
 use crate::image::{add_alpha_if_needed, fit_image};
 
@@ -67,11 +67,11 @@ impl ImagePyramid {
             .find(|&&s| s >= dim as u32 && self.levels_by_size.contains_key(&s))
         {
             Some(closest) => {
-                debug!("Returning pyramid level for size: {}", closest);
+                trace!("Returning pyramid level for size: {}", closest);
                 self.levels_by_size.get(closest).unwrap()
             }
             None => {
-                debug!(
+                trace!(
                     "No pyramid level larger or equal {} found, returning original.",
                     size
                 );

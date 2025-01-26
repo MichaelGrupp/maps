@@ -5,7 +5,7 @@ use std::vec::Vec;
 
 // CLI
 use clap::Parser;
-use log::{debug, error, info, Level};
+use log::{error, info, Level};
 
 // GUI
 use eframe::egui;
@@ -132,7 +132,6 @@ fn main() -> eframe::Result {
         }
         info!("Loading {}", yaml_path.to_str().unwrap());
         if let Ok(meta) = Meta::load_from_file(yaml_path.to_path_buf()) {
-            debug!("Parsed metadata: {:?}", meta);
             if !meta.image_path.exists() {
                 error!(
                     "Metadata from {} points to an image that does not exist: {}",

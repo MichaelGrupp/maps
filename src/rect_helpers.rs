@@ -14,9 +14,9 @@ pub fn rotate(rect: &egui::Rect, rot: egui::emath::Rot2, origin: egui::Vec2) -> 
     )
 }
 
-// Paints a rectangle with a color when debug logging is enabled.
+// Paints a rectangle with a color when trace logging is enabled.
 pub fn debug_paint(ui: &egui::Ui, rect: egui::Rect, color: egui::Color32) {
-    if !log_enabled!(Level::Debug) {
+    if !log_enabled!(Level::Trace) {
         return;
     }
     ui.painter().rect_stroke(rect, 0.0, (1.0, color));
