@@ -8,32 +8,44 @@ impl AppState {
             return;
         }
         egui::SidePanel::right("settings").show(ui.ctx(), |ui| {
-            egui::Grid::new("settings_grid")
-                .num_columns(2)
-                .striped(false)
-                .show(ui, |ui| {
-                    self.canvas_settings(ui);
-                    ui.end_row();
-                    ui.end_row();
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::Grid::new("settings_grid")
+                    .num_columns(2)
+                    .striped(false)
+                    .show(ui, |ui| {
+                        ui.heading("App");
+                        ui.end_row();
+                        ui.label("Autosave options").on_hover_text(
+                            "Save the app options when the window is closed.\n\
+                        The options are loaded when the app is started.",
+                        );
+                        ui.checkbox(&mut self.options.autosave, "");
+                        ui.end_row();
+                        ui.end_row();
 
-                    if !self.maps.is_empty() {
-                        self.tint_settings(ui);
+                        self.canvas_settings(ui);
                         ui.end_row();
                         ui.end_row();
-                    }
 
-                    if self.options.view_mode != ViewMode::Aligned {
-                        self.lens_settings(ui);
-                        ui.end_row();
-                        ui.end_row();
-                    }
+                        if !self.maps.is_empty() {
+                            self.tint_settings(ui);
+                            ui.end_row();
+                            ui.end_row();
+                        }
 
-                    if self.options.view_mode == ViewMode::Aligned {
-                        self.grid_settings(ui);
-                        ui.end_row();
-                        ui.end_row();
-                    }
-                });
+                        if self.options.view_mode != ViewMode::Aligned {
+                            self.lens_settings(ui);
+                            ui.end_row();
+                            ui.end_row();
+                        }
+
+                        if self.options.view_mode == ViewMode::Aligned {
+                            self.grid_settings(ui);
+                            ui.end_row();
+                            ui.end_row();
+                        }
+                    });
+            });
         });
     }
 }

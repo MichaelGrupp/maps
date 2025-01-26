@@ -75,7 +75,7 @@ impl AppState {
                         add_toggle_button(
                             ui,
                             "⚙",
-                            "Show app options. Automatically saved when the window is closed.",
+                            "Show app options.",
                             &mut self.options.settings_visible,
                         );
                         ui.add_space(ICON_SIZE);

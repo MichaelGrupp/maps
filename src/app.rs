@@ -46,6 +46,7 @@ pub enum ActiveTool {
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
+    pub autosave: bool,
     pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,
     pub settings_visible: bool,
@@ -132,6 +133,10 @@ impl eframe::App for AppState {
     }
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        if !self.options.autosave {
+            return;
+        }
+
         // Clear some settings that should not be saved.
         self.options.grid.measure_start = None;
         self.options.grid.measure_end = None;
