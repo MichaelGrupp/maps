@@ -185,7 +185,10 @@ impl AppState {
                         ui.add_space((ui.available_height() / 2. - 100.).max(SPACE));
                         ui.heading("No maps loaded.");
                         ui.add_space(SPACE);
+                        ui.add_space(SPACE);
                         self.load_meta_button(ui);
+                        ui.add_space(SPACE);
+                        self.load_session_button(ui);
                     });
                 });
             },

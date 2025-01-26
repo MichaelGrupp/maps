@@ -2337,6 +2337,7 @@ dependencies = [
  "serde_yml",
  "strum",
  "strum_macros",
+ "toml",
  "uuid",
 ]
 

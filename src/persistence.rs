@@ -1,12 +1,19 @@
-use std::path::PathBuf;
+use std::{collections::BTreeMap, path::PathBuf};
 
 use confy;
 use log::{error, info, warn};
+use toml;
 
 use crate::app::AppOptions;
+use crate::map_state::MapState;
 
 const APP_NAME: &str = "maps";
 const APP_OPTIONS_NAME: &str = "app_options";
+
+#[derive(Debug)]
+pub struct Error {
+    pub message: String,
+}
 
 fn resolve_path_or_die(custom_path: Option<PathBuf>) -> PathBuf {
     custom_path.unwrap_or_else(|| {
@@ -41,5 +48,42 @@ pub fn save_app_options(options: &AppOptions) {
     match confy::store_path(config_path, options) {
         Ok(_) => info!("Saved options."),
         Err(e) => error!("Error saving options: {}", e),
+    }
+}
+
+pub fn save_map_states(path: &PathBuf, maps: &BTreeMap<String, MapState>) -> Result<(), Error> {
+    match toml::to_string(maps) {
+        Ok(toml) => {
+            info!("Saving map states to {:?}", path);
+            match std::fs::write(path, toml) {
+                Ok(_) => (),
+                Err(e) => {
+                    return Err(Error {
+                        message: format!("Error saving map state: {}", e),
+                    });
+                }
+            }
+        }
+        Err(e) => {
+            return Err(Error {
+                message: format!("Error serializing map state: {}", e),
+            });
+        }
+    }
+    Ok(())
+}
+
+pub fn load_map_states(path: &PathBuf) -> Result<BTreeMap<String, MapState>, Error> {
+    info!("Loading map states from {:?}", path);
+    match std::fs::read_to_string(path) {
+        Ok(toml) => match toml::from_str(&toml) {
+            Ok(maps) => Ok(maps),
+            Err(e) => Err(Error {
+                message: format!("Error deserializing map state: {}", e),
+            }),
+        },
+        Err(e) => Err(Error {
+            message: format!("Error loading map state: {}", e),
+        }),
     }
 }

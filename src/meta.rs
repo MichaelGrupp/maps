@@ -1,6 +1,6 @@
 use eframe::emath;
 use log::debug;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 // Plain ROS map metadata yaml file format.
@@ -45,7 +45,7 @@ impl MetaYamlAnnotated {
 }
 
 // Internal representation of the metadata.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Meta {
     pub image_path: PathBuf,
     pub yaml_path: PathBuf,

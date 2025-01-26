@@ -79,6 +79,8 @@ pub struct AppState {
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
     pub save_map_pose_file_dialog: FileDialog,
+    pub load_session_file_dialog: FileDialog,
+    pub save_session_file_dialog: FileDialog,
     pub tile_manager: Tiles,
 }
 
@@ -108,6 +110,10 @@ impl AppState {
         state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir)
             .allow_file_overwrite(true)
             .default_file_name("map_pose.yaml");
+        state.load_session_file_dialog = Self::make_toml_file_dialog(&default_dir);
+        state.save_session_file_dialog = Self::make_toml_file_dialog(&default_dir)
+            .allow_file_overwrite(true)
+            .default_file_name("maps_session.toml");
 
         Ok(state)
     }

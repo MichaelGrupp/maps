@@ -17,7 +17,12 @@ impl AppState {
     fn menu_content(&mut self, ui: &mut egui::Ui) {
         ui.heading("Maps");
         ui.add_space(SPACE);
-        self.load_meta_button(ui);
+        ui.horizontal(|ui| {
+            self.load_meta_button(ui);
+            ui.separator();
+            self.load_session_button(ui);
+            self.save_session_button(ui);
+        });
         ui.separator();
         let mut to_delete: Vec<String> = Vec::new();
         egui::Grid::new("maps_list")
