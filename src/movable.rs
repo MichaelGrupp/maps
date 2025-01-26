@@ -1,4 +1,5 @@
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq)]
 pub enum DragDirection {
@@ -36,7 +37,7 @@ pub trait Rotatable {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MovableAmounts {
     pub drag: f32,
     pub rotate: f32,

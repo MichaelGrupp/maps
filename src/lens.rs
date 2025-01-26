@@ -2,11 +2,12 @@ use std::default;
 
 use eframe::egui;
 use log::debug;
+use serde::{Deserialize, Serialize};
 
 use crate::image::to_egui_image;
 use crate::map_state::MapState;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LensOptions {
     pub size_meters: f32,
     pub size_meters_min: f32,

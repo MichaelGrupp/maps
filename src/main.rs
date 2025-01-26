@@ -12,6 +12,7 @@ use eframe::egui;
 use maps::app::{AppOptions, AppState, ViewMode};
 use maps::map_pose::MapPose;
 use maps::meta::Meta;
+use maps::persistence::load_app_options;
 use strum::VariantNames;
 
 const MIN_SIZE: egui::Vec2 = egui::vec2(300., 200.);
@@ -140,10 +141,8 @@ fn main() -> eframe::Result {
         None => None,
     };
 
-    let mut options = AppOptions {
-        view_mode: args.view_mode,
-        ..Default::default()
-    };
+    let mut options: AppOptions = load_app_options();
+    options.view_mode = args.view_mode;
 
     // Looks like there is no faster way to edit just the alpha value of a Color32.
     let mut color = options.tint_settings.tint_for_all;

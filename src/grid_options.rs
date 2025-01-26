@@ -1,10 +1,11 @@
 use std::default;
 
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 
 use crate::movable::Draggable;
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum GridLineDimension {
     Screen,
     #[default]
@@ -12,7 +13,7 @@ pub enum GridLineDimension {
 }
 
 // Visualization options for the grid that are viewport-independent.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GridOptions {
     pub scale: f32,
     pub min_scale: f32,

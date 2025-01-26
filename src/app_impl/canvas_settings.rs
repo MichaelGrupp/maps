@@ -1,9 +1,10 @@
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CanvasOptions {
     pub background_color: egui::Color32,
 }

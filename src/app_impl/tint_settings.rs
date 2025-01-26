@@ -1,13 +1,14 @@
 use std::default;
 
 use eframe::egui;
+use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 use crate::texture_request::NO_TINT;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TintOptions {
     pub active_tint_selection: Option<String>,
     pub tint_for_all: egui::Color32,

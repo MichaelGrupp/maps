@@ -4,6 +4,7 @@ use std::vec::Vec;
 
 use eframe::egui;
 use egui_file_dialog::FileDialog;
+use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString, VariantNames};
 
 use crate::app_impl::canvas_settings::CanvasOptions;
@@ -13,9 +14,12 @@ use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
 use crate::meta::Meta;
+use crate::persistence::save_app_options;
 use crate::tiles::Tiles;
 
-#[derive(Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames)]
+#[derive(
+    Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
+)]
 pub enum ViewMode {
     Tiles,
     Stacked,
@@ -23,7 +27,7 @@ pub enum ViewMode {
     Aligned,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum ActiveMovable {
     None,
     MapPose,
@@ -31,7 +35,7 @@ pub enum ActiveMovable {
     Grid,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum ActiveTool {
     #[default]
     None,
@@ -40,7 +44,7 @@ pub enum ActiveTool {
     Measure,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
     pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,
@@ -125,5 +129,14 @@ impl eframe::App for AppState {
 
             self.info_window(ui);
         });
+    }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        // Clear some settings that should not be saved.
+        self.options.grid.measure_start = None;
+        self.options.grid.measure_end = None;
+        self.options.active_tool = ActiveTool::None;
+
+        save_app_options(&self.options);
     }
 }
