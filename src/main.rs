@@ -1,10 +1,11 @@
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::vec::Vec;
 
 // CLI
 use clap::Parser;
-use log::{debug, error, info};
+use log::{debug, error, info, Level};
 
 // GUI
 use eframe::egui;
@@ -57,6 +58,14 @@ struct Args {
         Will be created on startup with defaults if it does not exist."
     )]
     config: Option<PathBuf>,
+    #[clap(
+        short,
+        long,
+        default_value = "info",
+        help = "Log level. Possible values: trace, debug, info, warn, error.\n\
+        Has no effect if a RUST_LOG environment variable is already defined."
+    )]
+    log_level: Level,
 }
 
 // Gather build information from build.rs during compile time.
@@ -104,6 +113,12 @@ fn main() -> eframe::Result {
 
     // Use env_logger to log to stderr when executing: RUST_LOG=debug maps
     // To show only logs of this app: RUST_LOG=maps=debug maps
+    if !env::var("RUST_LOG").is_ok() {
+        env::set_var(
+            "RUST_LOG",
+            format!("maps={}", args.log_level.as_str().to_lowercase()),
+        );
+    }
     env_logger::init();
     info!("{}", build_info);
 
