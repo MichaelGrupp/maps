@@ -1,5 +1,5 @@
 use std::collections::{BTreeMap, HashMap};
-use std::path::absolute;
+use std::path::{absolute, PathBuf};
 use std::vec::Vec;
 
 use eframe::egui;
@@ -46,6 +46,8 @@ pub enum ActiveTool {
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
+    pub version: String,
+    pub custom_config_path: Option<PathBuf>,
     pub autosave: bool,
     pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,

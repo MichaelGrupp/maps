@@ -34,10 +34,9 @@ struct Args {
     #[clap(
         short,
         long,
-        default_value_t = ViewMode::default(),
         help = format!("Initial view mode. Possible values: {}", ViewMode::VARIANTS.join(", ")),
     )]
-    view_mode: ViewMode,
+    view_mode: Option<ViewMode>,
     #[clap(
         short,
         long,
@@ -51,6 +50,13 @@ struct Args {
         help = "Map pose YAML file that will be applied to all maps that are loaded via CLI."
     )]
     pose: Option<PathBuf>,
+    #[clap(
+        short,
+        long,
+        help = "Custom configuration file path for loading and saving app options.\n\
+        Will be created on startup with defaults if it does not exist."
+    )]
+    config: Option<PathBuf>,
 }
 
 // Gather build information from build.rs during compile time.
@@ -141,8 +147,10 @@ fn main() -> eframe::Result {
         None => None,
     };
 
-    let mut options: AppOptions = load_app_options();
-    options.view_mode = args.view_mode;
+    let mut options: AppOptions = load_app_options(&args.config);
+    options.version = built_info::PKG_VERSION.to_string();
+    options.custom_config_path = args.config;
+    options.view_mode = args.view_mode.unwrap_or(options.view_mode);
 
     // Looks like there is no faster way to edit just the alpha value of a Color32.
     let mut color = options.tint_settings.tint_for_all;
