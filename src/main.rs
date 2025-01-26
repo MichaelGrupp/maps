@@ -19,7 +19,7 @@ use strum::VariantNames;
 const MIN_SIZE: egui::Vec2 = egui::vec2(300., 200.);
 
 #[derive(Parser, Debug)]
-#[command(name = "maps", version, author = "Michael Grupp")]
+#[command(name = "maps", version, author = "Michael Grupp", about)]
 struct Args {
     #[clap(name = "yaml_files", help = "ROS map yaml files", required = false)]
     yaml_files: Vec<String>,
