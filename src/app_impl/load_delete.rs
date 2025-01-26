@@ -272,7 +272,6 @@ impl AppState {
         self.save_session_file_dialog.update(ui.ctx());
 
         if let Some(path) = self.save_session_file_dialog.take_picked() {
-            debug!("Saving session file: {:?}", path);
             match persistence::save_map_states(&path, &self.maps) {
                 Ok(_) => {
                     info!("Saved session file: {:?}", path);
