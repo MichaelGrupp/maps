@@ -160,6 +160,7 @@ impl AppState {
     fn show_lens(&mut self, ui: &mut egui::Ui) {
         if self.options.view_mode == ViewMode::Aligned {
             // The "classic" lens is not shown in aligned mode, we add grids there.
+            self.options.active_lens = None;
             return;
         }
         if self.options.active_tool != ActiveTool::HoverLens {
