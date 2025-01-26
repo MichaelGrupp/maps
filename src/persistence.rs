@@ -46,7 +46,7 @@ pub fn save_app_options(options: &AppOptions) {
     let config_path = resolve_path_or_die(options.custom_config_path.clone());
     info!("Saving options to {:?}", config_path);
     match confy::store_path(config_path, options) {
-        Ok(_) => info!("Saved options."),
+        Ok(_) => (),
         Err(e) => error!("Error saving options: {}", e),
     }
 }

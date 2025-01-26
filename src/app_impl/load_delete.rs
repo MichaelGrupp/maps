@@ -215,7 +215,6 @@ impl AppState {
     }
 
     pub fn load_session(&mut self, path: PathBuf) {
-        debug!("Loading session file: {:?}", path);
         match persistence::load_map_states(&path) {
             Ok(deserialized_map_states) => {
                 info!("Loaded session file: {:?}", path);
