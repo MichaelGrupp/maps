@@ -26,14 +26,19 @@ impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
         let mut tiles_response = egui_tiles::UiResponse::None;
         if let Some(map) = self.maps.get_mut(&pane.id) {
             egui::ScrollArea::both().show(ui, |ui| {
-                map.texture_state
-                    .update(ui, &TextureRequest::new(pane.id.clone(), ui.clip_rect()));
+                map.texture_state.update(
+                    ui,
+                    &TextureRequest::new(pane.id.clone(), ui.clip_rect())
+                        .with_color_to_alpha(map.color_to_alpha),
+                );
                 let texture = match &map.texture_state.texture_handle {
                     Some(texture) => texture,
                     None => {
                         panic!("Missing texture handle for image {}", pane.id);
                     }
                 };
+
+                // ?
                 let image = match map.tint {
                     Some(tint) => egui::Image::new(texture).tint(tint),
                     None => egui::Image::new(texture),

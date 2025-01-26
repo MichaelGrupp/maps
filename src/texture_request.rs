@@ -9,6 +9,7 @@ pub struct TextureRequest {
     pub client: String,
     pub desired_rect: egui::Rect,
     pub tint: egui::Color32,
+    pub color_to_alpha: Option<egui::Color32>,
 }
 
 impl TextureRequest {
@@ -17,6 +18,7 @@ impl TextureRequest {
             client,
             desired_rect,
             tint: NO_TINT,
+            color_to_alpha: None,
         }
     }
 
@@ -29,6 +31,11 @@ impl TextureRequest {
                 self.tint = NO_TINT;
             }
         }
+        self
+    }
+
+    pub fn with_color_to_alpha(mut self, color_to_alpha: Option<egui::Color32>) -> TextureRequest {
+        self.color_to_alpha = color_to_alpha;
         self
     }
 }

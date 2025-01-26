@@ -102,7 +102,9 @@ impl Grid {
         let pose_rotation = map.pose.rot2().inverse(); // RHS to LHS
         let origin_rotation = map.meta.origin_theta.inverse();
 
-        let uncropped = TextureRequest::new(name.to_string(), rect).with_tint(map.tint);
+        let uncropped = TextureRequest::new(name.to_string(), rect)
+            .with_tint(map.tint)
+            .with_color_to_alpha(map.color_to_alpha);
         let request = RotatedCropRequest::from_visible(
             ui,
             uncropped,

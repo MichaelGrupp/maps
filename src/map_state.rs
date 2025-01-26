@@ -13,4 +13,5 @@ pub struct MapState {
     pub texture_state: TextureState,
     pub overlay_texture: Option<egui::TextureHandle>,
     pub tint: Option<egui::Color32>,
+    pub color_to_alpha: Option<egui::Color32>,
 }

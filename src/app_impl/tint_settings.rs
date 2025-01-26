@@ -11,6 +11,8 @@ use crate::texture_request::NO_TINT;
 pub struct TintOptions {
     pub active_tint_selection: Option<String>,
     pub tint_for_all: egui::Color32,
+    pub edit_color_to_alpha: bool,
+    pub color_to_alpha_for_all: Option<egui::Color32>,
 }
 
 impl default::Default for TintOptions {
@@ -18,6 +20,8 @@ impl default::Default for TintOptions {
         Self {
             active_tint_selection: None,
             tint_for_all: NO_TINT,
+            edit_color_to_alpha: false,
+            color_to_alpha_for_all: None,
         }
     }
 }
@@ -46,27 +50,80 @@ impl AppState {
         let reset = ui.button("Reset").clicked();
         ui.end_row();
 
-        ui.label("Tint color / alpha");
+        if reset {
+            self.options.tint_settings.edit_color_to_alpha = false;
+        }
+
         if *selected == all_key {
             let tint = &mut self.options.tint_settings.tint_for_all;
-            if reset {
-                *tint = NO_TINT;
-            }
-            ui.color_edit_button_srgba(tint);
+            let color_to_alpha = &mut self.options.tint_settings.color_to_alpha_for_all;
+
+            pick(
+                ui,
+                reset,
+                tint,
+                color_to_alpha,
+                &mut self.options.tint_settings.edit_color_to_alpha,
+            );
+
             for map in self.maps.values_mut() {
                 map.tint = Some(*tint);
+                map.color_to_alpha = *color_to_alpha;
             }
         } else {
-            let tint = self
-                .maps
-                .get_mut(selected)
-                .unwrap()
-                .tint
-                .get_or_insert(NO_TINT);
-            if reset {
-                *tint = NO_TINT;
-            }
-            ui.color_edit_button_srgba(tint);
+            let map = self.maps.get_mut(selected).unwrap();
+            let tint = map.tint.get_or_insert(NO_TINT);
+            let color_to_alpha = &mut map.color_to_alpha;
+
+            pick(
+                ui,
+                reset,
+                tint,
+                color_to_alpha,
+                &mut self.options.tint_settings.edit_color_to_alpha,
+            );
         }
+    }
+}
+
+fn pick_color_to_alpha(ui: &mut egui::Ui, color_to_alpha: &mut Option<egui::Color32>) {
+    ui.label("Color for alpha mapping").on_hover_text(
+        "Select a pixel value (of the source image) that shall be shown as transparent.",
+    );
+    if let Some(color_to_alpha) = color_to_alpha {
+        ui.color_edit_button_srgba(color_to_alpha);
+    } else {
+        *color_to_alpha = Some(egui::Color32::from_gray(128));
+    }
+}
+
+fn pick_tint_color(ui: &mut egui::Ui, tint: &mut egui::Color32) {
+    ui.label("Tint color");
+    ui.color_edit_button_srgba(tint);
+}
+
+fn pick(
+    ui: &mut egui::Ui,
+    reset: bool,
+    tint: &mut egui::Color32,
+    color_to_alpha: &mut Option<egui::Color32>,
+    edit_color_to_alpha: &mut bool,
+) {
+    if reset {
+        *tint = NO_TINT;
+        *color_to_alpha = None;
+    }
+
+    pick_tint_color(ui, tint);
+    ui.end_row();
+
+    ui.label("Enable color to alpha")
+        .on_hover_text("Enable to select a pixel value that shall be shown as transparent.");
+    ui.checkbox(edit_color_to_alpha, "");
+    if *edit_color_to_alpha {
+        ui.end_row();
+        pick_color_to_alpha(ui, color_to_alpha);
+    } else {
+        *color_to_alpha = None;
     }
 }

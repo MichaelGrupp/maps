@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use eframe::egui;
 use log::debug;
 
-use crate::image::fit_image;
+use crate::image::{add_alpha_if_needed, fit_image};
 
 // Side lengths used for the image pyramid levels.
 // These shall correspond roughly to zoom levels w.r.t. original images.
@@ -22,6 +22,9 @@ pub struct ImagePyramid {
 
 impl ImagePyramid {
     pub fn new(original: image::DynamicImage) -> ImagePyramid {
+        // Always add an alpha channel, if not present, to support our image operations.
+        let original = add_alpha_if_needed(original);
+
         let original_size = egui::Vec2::new(original.width() as f32, original.height() as f32);
         ImagePyramid {
             levels_by_size: |original: &image::DynamicImage| -> HashMap<u32, image::DynamicImage> {

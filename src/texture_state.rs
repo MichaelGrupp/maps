@@ -3,7 +3,7 @@ use std::option::Option;
 use eframe::egui;
 use log::debug;
 
-use crate::image::{fit_image, to_egui_image};
+use crate::image::{color_to_alpha, fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
@@ -14,6 +14,7 @@ pub struct TextureState {
     pub texture_handle: Option<egui::TextureHandle>,
     pub desired_size: egui::Vec2,
     pub desired_uv: [egui::Pos2; 2],
+    pub desired_color_to_alpha: Option<egui::Color32>,
 }
 
 impl TextureState {
@@ -25,21 +26,27 @@ impl TextureState {
     }
 
     pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
-        if self.desired_size != request.desired_rect.size() {
+        let changed = self.desired_size != request.desired_rect.size()
+            || self.desired_color_to_alpha != request.color_to_alpha;
+
+        if changed {
             // Free the old texture if the size changed.
             self.texture_handle = None;
         }
         self.desired_size = request.desired_rect.size();
         self.desired_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
+        self.desired_color_to_alpha = request.color_to_alpha;
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
             debug!("Fitting and reloading texture for {:?}", request);
+            let mut image = fit_image(
+                self.image_pyramid.get_level(self.desired_size),
+                self.desired_size,
+            );
+            color_to_alpha(&mut image, request.color_to_alpha);
             ui.ctx().load_texture(
                 request.client.clone(),
-                to_egui_image(fit_image(
-                    self.image_pyramid.get_level(self.desired_size),
-                    self.desired_size,
-                )),
+                to_egui_image(image),
                 Default::default(),
             )
         });
@@ -60,11 +67,15 @@ impl TextureState {
 
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
-        if self.desired_size == desired_size && self.desired_uv == request.uv {
+
+        let mut unchanged = self.desired_size == desired_size && self.desired_uv == request.uv;
+        unchanged &= request.uncropped.color_to_alpha == self.desired_color_to_alpha;
+        if unchanged {
             return;
         }
         self.desired_size = desired_size;
         self.desired_uv = request.uv;
+        self.desired_color_to_alpha = request.uncropped.color_to_alpha;
 
         if request.visible_rect.is_negative() || request.uv[0] == request.uv[1] {
             self.texture_handle = None;
@@ -80,12 +91,13 @@ impl TextureState {
         let min_y = (uv_min.y * uncropped.height() as f32).round() as u32;
         let max_x = (uv_max.x * uncropped.width() as f32).round() as u32;
         let max_y = (uv_max.y * uncropped.height() as f32).round() as u32;
-        let cropped_image = uncropped.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        let mut cropped_image = uncropped.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
         if cropped_image.width() == 0 || cropped_image.height() == 0 {
             debug!("Crop resulted in empty image.");
             self.texture_handle = None;
             return;
         }
+        color_to_alpha(&mut cropped_image, request.uncropped.color_to_alpha);
 
         self.texture_handle = Some(ui.ctx().load_texture(
             request.uncropped.client.clone(),

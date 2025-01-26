@@ -93,6 +93,7 @@ impl AppState {
                         texture_state: TextureState::new(image_pyramid),
                         overlay_texture: None,
                         tint: None,
+                        color_to_alpha: None,
                     },
                 );
                 info!("Loaded map: {}", name);

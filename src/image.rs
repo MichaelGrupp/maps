@@ -4,6 +4,7 @@ use eframe::egui;
 use fast_image_resize::images::Image as ResizeImage;
 use fast_image_resize::{IntoImageView, ResizeOptions, Resizer};
 use image::{GenericImageView, ImageBuffer, ImageReader};
+use imageproc::map::map_colors_mut;
 use log::{debug, error, info};
 
 #[allow(unused_imports)]
@@ -98,4 +99,25 @@ pub fn fit_image(img: &image::DynamicImage, desired_size: egui::Vec2) -> image::
     };
 
     fast_resize(img, new_width, new_height)
+}
+
+// In-place conversion of all pixels with a color to alpha, if set.
+pub fn color_to_alpha(img: &mut image::DynamicImage, color: Option<egui::Color32>) {
+    if let Some(color) = color {
+        let color = image::Rgba([color.r(), color.g(), color.b(), color.a()]);
+        map_colors_mut(img, |c| match c == color {
+            true => image::Rgba([0, 0, 0, 0]),
+            false => c,
+        });
+    }
+}
+
+pub fn add_alpha_if_needed(img: image::DynamicImage) -> image::DynamicImage {
+    match img.color() {
+        image::ColorType::L8 => image::DynamicImage::from(img.to_luma_alpha8()),
+        image::ColorType::La8 => img,
+        image::ColorType::Rgb8 => image::DynamicImage::from(img.to_rgba8()),
+        image::ColorType::Rgba8 => img,
+        _ => panic!("Unsupported color type: {:?}", img.color()),
+    }
 }

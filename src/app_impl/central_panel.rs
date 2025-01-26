@@ -33,7 +33,9 @@ impl AppState {
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
                 map.texture_state.put(
                     ui,
-                    &TextureRequest::new(name.clone(), rect_per_image).with_tint(map.tint),
+                    &TextureRequest::new(name.clone(), rect_per_image)
+                        .with_tint(map.tint)
+                        .with_color_to_alpha(map.color_to_alpha),
                 );
             });
         }
