@@ -23,7 +23,7 @@ struct GridMapRelation {
 
 impl GridMapRelation {
     fn new(grid: &Grid, map: &MapState) -> GridMapRelation {
-        let points_per_meter = 1. / map.meta.resolution as f32;
+        let points_per_meter = 1. / map.meta.resolution;
         let scale_factor = grid.points_per_meter / points_per_meter;
 
         let original_size = egui::Vec2::new(

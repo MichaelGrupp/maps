@@ -87,7 +87,7 @@ impl<'a> Lens<'a> {
         );
 
         // Get crop for the overlay. The result can be smaller at the border.
-        let region_size_pixels = options.size_meters / map.meta.resolution as f32;
+        let region_size_pixels = options.size_meters / map.meta.resolution;
         let half_region_size = region_size_pixels / 2.;
         let min_x = (original_pos.x - half_region_size).max(0.) as u32;
         let min_y = (original_pos.y - half_region_size).max(0.) as u32;

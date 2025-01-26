@@ -127,7 +127,7 @@ impl AppState {
                 message: format!(
                     "Error loading image {:?}: {}",
                     &meta.image_path,
-                    e.to_string()
+                    e
                 ),
             }),
         }

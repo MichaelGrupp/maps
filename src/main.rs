@@ -113,7 +113,7 @@ fn main() -> eframe::Result {
 
     // Use env_logger to log to stderr when executing: RUST_LOG=debug maps
     // To show only logs of this app: RUST_LOG=maps=debug maps
-    if !env::var("RUST_LOG").is_ok() {
+    if env::var("RUST_LOG").is_err() {
         env::set_var(
             "RUST_LOG",
             format!("maps={}", args.log_level.as_str().to_lowercase()),
