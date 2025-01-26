@@ -168,7 +168,9 @@ impl AppState {
             return;
         }
         for (name, map) in &mut self.maps {
-            if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name) && self.options.view_mode != ViewMode::Aligned {
+            if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name)
+                && self.options.view_mode != ViewMode::Aligned
+            {
                 self.options.active_lens = Some(name.clone());
             }
         }

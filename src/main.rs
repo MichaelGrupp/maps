@@ -26,6 +26,12 @@ struct Args {
     #[clap(
         short,
         long,
+        help = "File path of a saved maps session that will be loaded on startup."
+    )]
+    session: Option<PathBuf>,
+    #[clap(
+        short,
+        long,
         num_args = 2,
         value_names = &["width", "height"],
         default_values_t = Vec::from(&[1500., 1000.]),
@@ -179,6 +185,10 @@ fn main() -> eframe::Result {
             exit(1);
         }
     };
+
+    if let Some(session) = args.session {
+        app_state.load_session(session);
+    }
 
     if let Some(pose) = map_pose {
         for (name, map) in app_state.maps.iter_mut() {
