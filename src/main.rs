@@ -32,6 +32,18 @@ struct Args {
     #[clap(
         short,
         long,
+        help = "Map pose YAML file that will be applied to all maps that are loaded via CLI."
+    )]
+    pose: Option<PathBuf>,
+    #[clap(
+        short,
+        long,
+        help = "Initial alpha value for all maps. 0. is transparent, 1.0 is opaque."
+    )]
+    alpha: Option<f32>,
+    #[clap(
+        short,
+        long,
         num_args = 2,
         value_names = &["width", "height"],
         default_values_t = Vec::from(&[1500., 1000.]),
@@ -44,18 +56,6 @@ struct Args {
         help = format!("Initial view mode. Possible values: {}", ViewMode::VARIANTS.join(", ")),
     )]
     view_mode: Option<ViewMode>,
-    #[clap(
-        short,
-        long,
-        help = "Initial alpha value for maps. 0. is transparent, 1.0 is opaque."
-    )]
-    alpha: Option<f32>,
-    #[clap(
-        short,
-        long,
-        help = "Map pose YAML file that will be applied to all maps that are loaded via CLI."
-    )]
-    pose: Option<PathBuf>,
     #[clap(
         short,
         long,
