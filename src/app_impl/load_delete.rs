@@ -121,6 +121,7 @@ impl AppState {
                     },
                 );
                 info!("Loaded map: {}", name);
+                self.status.unsaved_changes = true;
                 Ok(())
             }
             Err(e) => Err(Error {
@@ -147,6 +148,7 @@ impl AppState {
             if self.options.pose_edit.selected_map == *name {
                 self.options.pose_edit.selected_map = "".to_string();
             }
+            self.status.unsaved_changes = true;
         }
     }
 
@@ -173,6 +175,7 @@ impl AppState {
                     self.save_map_pose_file_dialog
                         .config_mut()
                         .initial_directory = path;
+                    self.status.unsaved_changes = true;
                 }
                 Err(e) => {
                     self.status.error = format!("Error loading pose file: {}", e.message);
@@ -231,6 +234,7 @@ impl AppState {
                             map_state.visible = map.visible;
                             map_state.tint = map.tint;
                             map_state.color_to_alpha = map.color_to_alpha;
+                            self.status.unsaved_changes = false;
                         }
                         Err(e) => {
                             self.status.error = e.message;
@@ -278,6 +282,7 @@ impl AppState {
                     // Start from the same path the next time.
                     self.save_session_file_dialog.config_mut().initial_directory = path.clone();
                     self.load_session_file_dialog.config_mut().initial_directory = path;
+                    self.status.unsaved_changes = false;
                 }
                 Err(e) => {
                     self.status.error = format!("Error saving session file: {}", e.message);

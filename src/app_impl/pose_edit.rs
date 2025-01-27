@@ -37,6 +37,7 @@ impl AppState {
             return;
         }
         let map_pose = map_pose.unwrap();
+        let original_map_pose = map_pose.clone();
 
         ui.add_space(SPACE);
         egui::Grid::new("pose_buttons_grid")
@@ -169,6 +170,10 @@ impl AppState {
             ui.add_space(SPACE);
         });
 
+        if original_map_pose != *map_pose {
+            self.status.unsaved_changes = true;
+        }
+
         egui::Grid::new("pose_io_grid")
             .num_columns(2)
             .striped(false)
@@ -205,6 +210,7 @@ impl AppState {
             return;
         }
 
+        self.status.unsaved_changes = true;
         let map_pose_to_copy = self.maps[&self.options.pose_edit.selected_map].pose.clone();
 
         for map_name in selected_maps {

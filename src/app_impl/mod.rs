@@ -11,5 +11,6 @@ mod lens_settings;
 pub mod load_delete;
 pub mod menu_panel;
 pub mod pose_edit;
+pub mod quit_modal;
 pub mod settings_panel;
 pub mod tint_settings;

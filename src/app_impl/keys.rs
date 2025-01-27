@@ -9,6 +9,10 @@ impl AppState {
         self.load_meta_file_dialog.state() == DialogState::Open
             || self.load_map_pose_file_dialog.state() == DialogState::Open
             || self.save_map_pose_file_dialog.state() == DialogState::Open
+            || self.load_session_file_dialog.state() == DialogState::Open
+            || self.save_session_file_dialog.state() == DialogState::Open
+            || self.status.quit_modal_active
+            || !self.status.error.is_empty()
     }
 
     fn text_editing(&self) -> bool {

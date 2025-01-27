@@ -67,6 +67,8 @@ pub struct AppOptions {
 pub struct StatusInfo {
     pub error: String,
     pub hover_position: Option<egui::Pos2>,
+    pub quit_modal_active: bool,
+    pub unsaved_changes: bool,
 }
 
 #[derive(Default)]
@@ -128,6 +130,7 @@ impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             self.error_modal(ui);
+            self.quit_modal(ui);
             self.handle_key_shortcuts(ui);
 
             self.header_panel(ui);
@@ -138,6 +141,13 @@ impl eframe::App for AppState {
 
             self.info_window(ui);
         });
+
+        if ctx.input(|i| i.viewport().close_requested()) {
+            if self.status.unsaved_changes {
+                ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+                self.status.quit_modal_active = true;
+            }
+        }
     }
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
