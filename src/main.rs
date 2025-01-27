@@ -168,7 +168,7 @@ fn main() -> eframe::Result {
 
     let mut options: AppOptions = load_app_options(&args.config);
     options.version = built_info::PKG_VERSION.to_string();
-    options.custom_config_path = args.config;
+    options.persistence.custom_config_path = args.config;
     options.view_mode = args.view_mode.unwrap_or(options.view_mode);
 
     // Looks like there is no faster way to edit just the alpha value of a Color32.

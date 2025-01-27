@@ -2,6 +2,7 @@ use std::{collections::BTreeMap, path::PathBuf};
 
 use confy;
 use log::{error, info, warn};
+use serde::{Deserialize, Serialize};
 use toml;
 
 use crate::app::AppOptions;
@@ -13,6 +14,21 @@ const APP_OPTIONS_NAME: &str = "app_options";
 #[derive(Debug)]
 pub struct Error {
     pub message: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PersistenceOptions {
+    pub custom_config_path: Option<PathBuf>,
+    pub autosave: bool,
+}
+
+impl Default for PersistenceOptions {
+    fn default() -> Self {
+        PersistenceOptions {
+            custom_config_path: None,
+            autosave: true,
+        }
+    }
 }
 
 fn resolve_path_or_die(custom_path: Option<PathBuf>) -> PathBuf {
@@ -35,7 +51,10 @@ pub fn load_app_options(custom_path: &Option<PathBuf>) -> AppOptions {
             // Don't use the custom path here, it might be from a different version
             // or an user typo pointing to some random file. So we shouldn't save to it later.
             AppOptions {
-                custom_config_path: None,
+                persistence: PersistenceOptions {
+                    custom_config_path: None,
+                    ..Default::default()
+                },
                 ..Default::default()
             }
         }
@@ -43,7 +62,7 @@ pub fn load_app_options(custom_path: &Option<PathBuf>) -> AppOptions {
 }
 
 pub fn save_app_options(options: &AppOptions) {
-    let config_path = resolve_path_or_die(options.custom_config_path.clone());
+    let config_path = resolve_path_or_die(options.persistence.custom_config_path.clone());
     info!("Saving options to {:?}", config_path);
     match confy::store_path(config_path, options) {
         Ok(_) => (),

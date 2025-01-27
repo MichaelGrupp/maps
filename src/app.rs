@@ -1,5 +1,5 @@
 use std::collections::{BTreeMap, HashMap};
-use std::path::{absolute, PathBuf};
+use std::path::absolute;
 use std::vec::Vec;
 
 use eframe::egui;
@@ -14,7 +14,7 @@ use crate::grid_options::GridOptions;
 use crate::lens::LensOptions;
 use crate::map_state::MapState;
 use crate::meta::Meta;
-use crate::persistence::save_app_options;
+use crate::persistence::{save_app_options, PersistenceOptions};
 use crate::tiles::Tiles;
 
 #[derive(
@@ -47,8 +47,7 @@ pub enum ActiveTool {
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
     pub version: String,
-    pub custom_config_path: Option<PathBuf>,
-    pub autosave: bool,
+    pub persistence: PersistenceOptions,
     pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,
     pub settings_visible: bool,
@@ -151,7 +150,7 @@ impl eframe::App for AppState {
     }
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
-        if !self.options.autosave {
+        if !self.options.persistence.autosave {
             return;
         }
 
