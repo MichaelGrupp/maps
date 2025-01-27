@@ -12,6 +12,21 @@ pub enum GridLineDimension {
     Metric,
 }
 
+#[derive(Debug, Default, PartialEq)]
+pub enum LineType {
+    #[default]
+    Main,
+    Sub,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+pub enum SubLineVisibility {
+    #[default]
+    OnlyLens,
+    Always,
+    Never,
+}
+
 // Visualization options for the grid that are viewport-independent.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GridOptions {
@@ -28,6 +43,9 @@ pub struct GridOptions {
     pub min_line_spacing_points: f32,
     pub max_line_spacing_points: f32,
     pub line_stroke: egui::Stroke,
+    pub sub_lines_visible: SubLineVisibility,
+    pub sub_lines_factor: i8,
+    pub sub_lines_stroke: egui::Stroke,
     pub scroll_delta_percent: f32,
     pub marker_visible: bool,
     pub marker_length_meters: f32,
@@ -59,6 +77,12 @@ impl default::Default for GridOptions {
             min_line_spacing_points: 1.,
             max_line_spacing_points: 1000.,
             line_stroke: egui::Stroke::new(1., egui::Color32::LIGHT_BLUE),
+            sub_lines_visible: SubLineVisibility::default(),
+            sub_lines_factor: 10,
+            sub_lines_stroke: egui::Stroke::new(
+                0.5,
+                egui::Color32::from_rgba_unmultiplied(200, 200, 200, 75),
+            ),
             scroll_delta_percent: 1.,
             marker_visible: true,
             marker_length_meters: 1.,

@@ -2,7 +2,7 @@ use eframe::egui;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
-use crate::grid_options::{GridLineDimension, GridOptions};
+use crate::grid_options::{GridLineDimension, GridOptions, SubLineVisibility};
 
 impl AppState {
     pub fn grid_settings(&mut self, ui: &mut egui::Ui) {
@@ -12,11 +12,36 @@ impl AppState {
         }
         ui.add_space(SPACE);
         ui.end_row();
-        ui.label("Show Grid Lines");
+        ui.label("Show grid lines");
         ui.checkbox(&mut self.options.grid.lines_visible, "");
         ui.end_row();
+        ui.label("Show sub grid lines")
+            .on_hover_text("Show sub lines between main grid lines.");
+        ui.horizontal(|ui| {
+            ui.selectable_value(
+                &mut self.options.grid.sub_lines_visible,
+                SubLineVisibility::OnlyLens,
+                "In Lens",
+            );
+            ui.selectable_value(
+                &mut self.options.grid.sub_lines_visible,
+                SubLineVisibility::Always,
+                "Always",
+            );
+            ui.selectable_value(
+                &mut self.options.grid.sub_lines_visible,
+                SubLineVisibility::Never,
+                "Never",
+            );
+        });
+        ui.end_row();
         ui.label("Grid color");
-        ui.color_edit_button_srgba(&mut self.options.grid.line_stroke.color);
+        ui.horizontal(|ui| {
+            ui.color_edit_button_srgba(&mut self.options.grid.line_stroke.color);
+            if self.options.grid.sub_lines_visible != SubLineVisibility::Never {
+                ui.color_edit_button_srgba(&mut self.options.grid.sub_lines_stroke.color);
+            }
+        });
         ui.end_row();
         ui.label("Grid spacing dimension");
         ui.horizontal(|ui| {
@@ -49,6 +74,17 @@ impl AppState {
                         ..=self.options.grid.max_line_spacing_meters,
                 ));
             }
+        }
+        if self.options.grid.sub_lines_visible != SubLineVisibility::Never {
+            ui.end_row();
+            ui.label("Sub grid lines factor").on_hover_text(
+                "The multiplier for sub lines between main grid lines.\n\
+                1 means no sub lines, 2 means one sub line between main lines, etc.",
+            );
+            ui.add(egui::Slider::new(
+                &mut self.options.grid.sub_lines_factor,
+                1..=10,
+            ));
         }
         ui.end_row();
         ui.end_row();

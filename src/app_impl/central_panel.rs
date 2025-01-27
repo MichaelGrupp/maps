@@ -4,6 +4,7 @@ use uuid::Uuid;
 use crate::app::{ActiveTool, AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
 use crate::grid::Grid;
+use crate::grid_options::{LineType, SubLineVisibility};
 use crate::lens::Lens;
 use crate::movable::Draggable;
 use crate::texture_request::TextureRequest;
@@ -70,7 +71,10 @@ impl AppState {
         let grid = Grid::new(ui, options.scale).with_origin_offset(options.offset);
         grid.show_maps(ui, &mut self.maps);
         if options.lines_visible {
-            grid.draw(ui, options);
+            grid.draw(ui, options, LineType::Main);
+        }
+        if options.sub_lines_visible == SubLineVisibility::Always {
+            grid.draw(ui, options, LineType::Sub);
         }
         if options.marker_visible {
             grid.draw_axes(ui, options);
@@ -143,7 +147,12 @@ impl AppState {
                 let mini_grid = Grid::new(ui, grid_lens_scale).centered_at(center_pos);
                 mini_grid.show_maps(ui, &mut self.maps);
                 if options.lines_visible {
-                    mini_grid.draw(ui, options);
+                    mini_grid.draw(ui, options, LineType::Main);
+                }
+                if options.sub_lines_visible == SubLineVisibility::Always
+                    || options.sub_lines_visible == SubLineVisibility::OnlyLens
+                {
+                    mini_grid.draw(ui, options, LineType::Sub);
                 }
                 if options.marker_visible {
                     mini_grid.draw_axes(ui, options);
