@@ -13,13 +13,13 @@ use crate::tiles_behavior::MapsTreeBehavior;
 impl AppState {
     fn show_tiles(&mut self, ui: &mut egui::Ui) {
         let mut behavior = MapsTreeBehavior {
-            maps: &mut self.maps,
+            maps: &mut self.data.maps,
         };
         self.tile_manager.tree.ui(&mut behavior, ui);
     }
 
     fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
-        let num_visible = self.maps.values().filter(|m| m.visible).count();
+        let num_visible = self.data.maps.values().filter(|m| m.visible).count();
         let rect_per_image = egui::Rect::from_min_max(
             egui::Pos2::ZERO,
             egui::pos2(
@@ -27,7 +27,7 @@ impl AppState {
                 ui.available_height() / num_visible as f32,
             ),
         );
-        for (name, map) in self.maps.iter_mut() {
+        for (name, map) in self.data.maps.iter_mut() {
             if !map.visible {
                 continue;
             }
@@ -69,7 +69,7 @@ impl AppState {
         }
 
         let grid = Grid::new(ui, options.scale).with_origin_offset(options.offset);
-        grid.show_maps(ui, &mut self.maps);
+        grid.show_maps(ui, &mut self.data.maps);
         if options.lines_visible {
             grid.draw(ui, options, LineType::Main);
         }
@@ -107,15 +107,15 @@ impl AppState {
         }
 
         if clicked && self.options.active_tool == ActiveTool::PlaceLens {
-            self.grid_lenses.insert(
+            self.data.grid_lenses.insert(
                 Uuid::new_v4().to_string(),
                 self.status.hover_position.unwrap(),
             );
             self.options.active_tool = ActiveTool::None;
         }
-        let ids = self.grid_lenses.keys().cloned().collect::<Vec<_>>();
+        let ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
         for id in ids {
-            if let Some(pos) = self.grid_lenses.get(&id) {
+            if let Some(pos) = self.data.grid_lenses.get(&id) {
                 self.show_grid_lens(ui, Some(*pos), id.clone().as_str(), true);
             }
         }
@@ -138,14 +138,16 @@ impl AppState {
             .resizable(true)
             .collapsible(true)
             .default_size(egui::vec2(250., 250.))
-            .default_pos(ui.clip_rect().min + egui::vec2(20., 20.) * self.grid_lenses.len() as f32);
+            .default_pos(
+                ui.clip_rect().min + egui::vec2(20., 20.) * self.data.grid_lenses.len() as f32,
+            );
         if closable {
             window = window.open(&mut open);
         }
         window.show(ui.ctx(), |ui| {
             if let Some(center_pos) = center_pos {
                 let mini_grid = Grid::new(ui, grid_lens_scale).centered_at(center_pos);
-                mini_grid.show_maps(ui, &mut self.maps);
+                mini_grid.show_maps(ui, &mut self.data.maps);
                 if options.lines_visible {
                     mini_grid.draw(ui, options, LineType::Main);
                 }
@@ -162,7 +164,7 @@ impl AppState {
             ui.allocate_exact_size(ui.available_size(), egui::Sense::hover());
         });
         if !open {
-            self.grid_lenses.remove(id);
+            self.data.grid_lenses.remove(id);
         }
     }
 
@@ -176,7 +178,7 @@ impl AppState {
             self.options.active_lens = None;
             return;
         }
-        for (name, map) in &mut self.maps {
+        for (name, map) in &mut self.data.maps {
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name)
                 && self.options.view_mode != ViewMode::Aligned
             {
@@ -208,7 +210,7 @@ impl AppState {
         egui::CentralPanel::default()
             .frame(egui::Frame::default().fill(self.options.canvas_settings.background_color))
             .show(ui.ctx(), |ui| {
-                if self.maps.is_empty() {
+                if self.data.maps.is_empty() {
                     self.show_empty(ui);
                     return;
                 }

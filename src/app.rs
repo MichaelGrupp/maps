@@ -70,12 +70,17 @@ pub struct StatusInfo {
     pub unsaved_changes: bool,
 }
 
+#[derive(Default, Serialize, Deserialize)]
+pub struct SessionData {
+    pub maps: BTreeMap<String, MapState>,
+    pub grid_lenses: HashMap<String, egui::Pos2>,
+}
+
 #[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,
     pub build_info: String,
-    pub maps: BTreeMap<String, MapState>,
-    pub grid_lenses: HashMap<String, egui::Pos2>,
+    pub data: SessionData,
     pub status: StatusInfo,
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
@@ -103,7 +108,7 @@ impl AppState {
 
             state.load_map(meta)?;
         }
-        for map in state.maps.values_mut() {
+        for map in state.data.maps.values_mut() {
             map.tint = Some(state.options.tint_settings.tint_for_all);
         }
         state.load_meta_file_dialog = Self::make_yaml_file_dialog(&default_dir);

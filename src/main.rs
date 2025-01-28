@@ -192,7 +192,7 @@ fn main() -> eframe::Result {
     }
 
     if let Some(pose) = map_pose {
-        for (name, map) in app_state.maps.iter_mut() {
+        for (name, map) in app_state.data.maps.iter_mut() {
             info!("Applying pose to map: {}", name);
             map.pose = pose.clone();
         }

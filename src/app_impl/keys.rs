@@ -51,6 +51,7 @@ impl AppState {
             let draggable: Option<&mut dyn Draggable> = match self.options.active_movable {
                 ActiveMovable::MapPose => {
                     match self
+                        .data
                         .maps
                         .get_mut(self.options.pose_edit.selected_map.as_str())
                     {
@@ -81,6 +82,7 @@ impl AppState {
             let rotatable: Option<&mut dyn Rotatable> = match self.options.active_movable {
                 ActiveMovable::MapPose => {
                     match self
+                        .data
                         .maps
                         .get_mut(self.options.pose_edit.selected_map.as_str())
                     {

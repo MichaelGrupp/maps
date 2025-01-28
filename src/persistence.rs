@@ -1,12 +1,11 @@
-use std::{collections::BTreeMap, path::PathBuf};
+use std::path::PathBuf;
 
 use confy;
 use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
 use toml;
 
-use crate::app::AppOptions;
-use crate::map_state::MapState;
+use crate::app::{AppOptions, SessionData};
 
 const APP_NAME: &str = "maps";
 const APP_OPTIONS_NAME: &str = "app_options";
@@ -70,39 +69,39 @@ pub fn save_app_options(options: &AppOptions) {
     }
 }
 
-pub fn save_map_states(path: &PathBuf, maps: &BTreeMap<String, MapState>) -> Result<(), Error> {
-    match toml::to_string(maps) {
+pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<(), Error> {
+    match toml::to_string(&session) {
         Ok(toml) => {
-            info!("Saving map states to {:?}", path);
+            info!("Saving session to {:?}", path);
             match std::fs::write(path, toml) {
                 Ok(_) => (),
                 Err(e) => {
                     return Err(Error {
-                        message: format!("Error saving map state: {}", e),
+                        message: format!("Error saving session: {}", e),
                     });
                 }
             }
         }
         Err(e) => {
             return Err(Error {
-                message: format!("Error serializing map state: {}", e),
+                message: format!("Error serializing session: {}", e),
             });
         }
     }
     Ok(())
 }
 
-pub fn load_map_states(path: &PathBuf) -> Result<BTreeMap<String, MapState>, Error> {
-    info!("Loading map states from {:?}", path);
+pub fn load_session(path: &PathBuf) -> Result<SessionData, Error> {
+    info!("Loading session from {:?}", path);
     match std::fs::read_to_string(path) {
         Ok(toml) => match toml::from_str(&toml) {
             Ok(maps) => Ok(maps),
             Err(e) => Err(Error {
-                message: format!("Error deserializing map state: {}", e),
+                message: format!("Error deserializing session: {}", e),
             }),
         },
         Err(e) => Err(Error {
-            message: format!("Error loading map state: {}", e),
+            message: format!("Error loading session: {}", e),
         }),
     }
 }

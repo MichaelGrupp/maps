@@ -108,7 +108,7 @@ impl AppState {
                 });
                 let image_pyramid = ImagePyramid::new(image);
                 let name = meta.yaml_path.to_str().unwrap().to_owned();
-                self.maps.insert(
+                self.data.maps.insert(
                     name.clone(),
                     MapState {
                         meta,
@@ -133,7 +133,7 @@ impl AppState {
     pub fn delete(&mut self, to_delete: &Vec<String>) {
         for name in to_delete {
             info!("Removing {}", name);
-            self.maps.remove(name);
+            self.data.maps.remove(name);
             self.tile_manager.remove_pane(name);
             if let Some(active_lens) = &self.options.active_lens {
                 if active_lens == name {
@@ -167,7 +167,7 @@ impl AppState {
             match MapPose::from_yaml_file(&path) {
                 Ok(map_pose) => {
                     info!("Loaded pose file: {:?}", path);
-                    self.maps.get_mut(map_name).unwrap().pose = map_pose;
+                    self.data.maps.get_mut(map_name).unwrap().pose = map_pose;
                     // Start from the same path the next time, also for saving.
                     self.load_map_pose_file_dialog
                         .config_mut()
@@ -198,7 +198,14 @@ impl AppState {
         if let Some(path) = self.save_map_pose_file_dialog.take_picked() {
             ui.ctx().request_repaint();
             debug!("Saving pose file: {:?}", path);
-            match self.maps.get(map_name).unwrap().pose.to_yaml_file(&path) {
+            match self
+                .data
+                .maps
+                .get(map_name)
+                .unwrap()
+                .pose
+                .to_yaml_file(&path)
+            {
                 Ok(_) => {
                     info!("Saved pose file: {:?}", path);
                     // Start from the same path the next time, also for loading.
@@ -218,25 +225,25 @@ impl AppState {
     }
 
     pub fn load_session(&mut self, path: PathBuf) {
-        match persistence::load_map_states(&path) {
-            Ok(deserialized_map_states) => {
-                info!("Loaded session file: {:?}", path);
+        match persistence::load_session(&path) {
+            Ok(deserialized_session) => {
                 // Start from the same path the next time.
                 self.load_session_file_dialog.config_mut().initial_directory = path.clone();
                 self.save_session_file_dialog.config_mut().initial_directory = path;
                 // Not everything gets serialized. Load actual data.
-                for (name, map) in deserialized_map_states {
+                for (name, map) in deserialized_session.maps {
                     debug!("Restoring map state: {}", name);
                     match self.load_map(map.meta) {
                         Ok(_) => {
-                            let map_state = self.maps.get_mut(&name).unwrap();
+                            let map_state = self.data.maps.get_mut(&name).unwrap();
                             map_state.pose = map.pose;
                             map_state.visible = map.visible;
                             map_state.tint = map.tint;
                             if map_state.tint.is_some() {
                                 // We need to set this because we would lose this map's tint
                                 // in the next frame if "All" is selected in the settings panel.
-                                self.options.tint_settings.active_tint_selection = Some(name.clone());
+                                self.options.tint_settings.active_tint_selection =
+                                    Some(name.clone());
                             }
                             map_state.color_to_alpha = map.color_to_alpha;
                             self.status.unsaved_changes = false;
@@ -246,6 +253,10 @@ impl AppState {
                             error!("{}", self.status.error);
                         }
                     }
+                }
+                for (id, lens_pos) in deserialized_session.grid_lenses {
+                    debug!("Restoring lens {}", id);
+                    self.data.grid_lenses.insert(id, lens_pos);
                 }
             }
             Err(e) => {
@@ -281,9 +292,8 @@ impl AppState {
         self.save_session_file_dialog.update(ui.ctx());
 
         if let Some(path) = self.save_session_file_dialog.take_picked() {
-            match persistence::save_map_states(&path, &self.maps) {
+            match persistence::save_session(&path, &self.data) {
                 Ok(_) => {
-                    info!("Saved session file: {:?}", path);
                     // Start from the same path the next time.
                     self.save_session_file_dialog.config_mut().initial_directory = path.clone();
                     self.load_session_file_dialog.config_mut().initial_directory = path;

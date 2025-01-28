@@ -29,7 +29,7 @@ impl AppState {
             .num_columns(3)
             .striped(true)
             .show(ui, |ui| {
-                for (name, map) in &mut self.maps {
+                for (name, map) in &mut self.data.maps {
                     if ui.checkbox(&mut map.visible, name).changed() {
                         self.tile_manager.set_visible(name, map.visible);
                     }
@@ -54,7 +54,7 @@ impl AppState {
             });
         self.delete(&to_delete);
 
-        if self.maps.is_empty() {
+        if self.data.maps.is_empty() {
             return;
         }
 
@@ -63,7 +63,7 @@ impl AppState {
         ui.heading("Pose");
         ui.add_space(SPACE);
         self.pose_edit(ui);
-        if !self.options.pose_edit.selected_map.is_empty() && self.maps.len() > 1 {
+        if !self.options.pose_edit.selected_map.is_empty() && self.data.maps.len() > 1 {
             ui.separator();
             ui.add_space(SPACE);
             self.apply_pose_to_other_maps(ui);

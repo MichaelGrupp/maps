@@ -20,7 +20,7 @@ impl AppState {
         egui::ComboBox::from_label("")
             .selected_text(self.options.pose_edit.selected_map.clone())
             .show_ui(ui, |ui| {
-                for name in self.maps.keys() {
+                for name in self.data.maps.keys() {
                     ui.selectable_value(
                         &mut self.options.pose_edit.selected_map,
                         name.clone(),
@@ -30,7 +30,7 @@ impl AppState {
             });
 
         let map_name = self.options.pose_edit.selected_map.clone();
-        let map_pose = self.maps.get_mut(&map_name).map(|m| &mut m.pose);
+        let map_pose = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose);
         if map_pose.is_none() {
             ui.label("Select a map to edit its pose.");
             self.options.active_movable = ActiveMovable::Grid;
@@ -191,7 +191,7 @@ impl AppState {
             .num_columns(2)
             .striped(false)
             .show(ui, |ui| {
-                for name in self.maps.keys() {
+                for name in self.data.maps.keys() {
                     if name == &self.options.pose_edit.selected_map {
                         continue;
                     }
@@ -211,10 +211,12 @@ impl AppState {
         }
 
         self.status.unsaved_changes = true;
-        let map_pose_to_copy = self.maps[&self.options.pose_edit.selected_map].pose.clone();
+        let map_pose_to_copy = self.data.maps[&self.options.pose_edit.selected_map]
+            .pose
+            .clone();
 
         for map_name in selected_maps {
-            let map_pose = self.maps.get_mut(&map_name).map(|m| &mut m.pose);
+            let map_pose = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose);
             if map_pose.is_none() {
                 continue;
             }

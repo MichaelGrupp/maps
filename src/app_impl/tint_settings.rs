@@ -44,7 +44,7 @@ impl AppState {
             .selected_text(selected.to_string())
             .show_ui(ui, |ui| {
                 ui.selectable_value(selected, all_key.clone(), &all_key);
-                for name in self.maps.keys() {
+                for name in self.data.maps.keys() {
                     ui.selectable_value(selected, name.to_string(), name);
                 }
             });
@@ -68,11 +68,11 @@ impl AppState {
                 &mut self.options.tint_settings.edit_color_to_alpha,
             );
 
-            for map in self.maps.values_mut() {
+            for map in self.data.maps.values_mut() {
                 map.tint = Some(*tint);
                 map.color_to_alpha = *color_to_alpha;
             }
-        } else if let Some(map) = self.maps.get_mut(selected) {
+        } else if let Some(map) = self.data.maps.get_mut(selected) {
             let tint = map.tint.get_or_insert(NO_TINT);
             let color_to_alpha = &mut map.color_to_alpha;
 
