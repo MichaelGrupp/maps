@@ -28,7 +28,7 @@ pub struct Error {
 impl MetaYamlAnnotated {
     fn from(yaml_path: PathBuf) -> Result<MetaYamlAnnotated, Error> {
         match std::fs::read_to_string(&yaml_path) {
-            Ok(buffer) => match serde_yml::from_str::<MetaYaml>(&buffer) {
+            Ok(buffer) => match serde_yaml_ng::from_str::<MetaYaml>(&buffer) {
                 Ok(meta_yaml) => Ok(MetaYamlAnnotated {
                     meta_yaml,
                     yaml_path,
