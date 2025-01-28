@@ -82,7 +82,7 @@ impl AppState {
         self.status.hover_position = grid.hover_pos_metric(ui);
 
         if self.options.active_tool == ActiveTool::HoverLens {
-            self.show_grid_lens(ui, self.status.hover_position, "hover_lens", false);
+            self.show_grid_lens(ui, self.status.hover_position, "hover_lens", false, None);
             // Don't show the other fixed lenses too not get too messy.
             return;
         }
@@ -111,12 +111,20 @@ impl AppState {
                 Uuid::new_v4().to_string(),
                 self.status.hover_position.unwrap(),
             );
+            self.status.unsaved_changes = true;
             self.options.active_tool = ActiveTool::None;
         }
-        let ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
-        for id in ids {
-            if let Some(pos) = self.data.grid_lenses.get(&id) {
-                self.show_grid_lens(ui, Some(*pos), id.clone().as_str(), true);
+        let lens_ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
+        for (i, lens_id) in lens_ids.iter().enumerate() {
+            if let Some(pos) = self.data.grid_lenses.get(lens_id) {
+                self.show_grid_lens(
+                    ui,
+                    Some(*pos),
+                    lens_id.clone().as_str(),
+                    true,
+                    // Offset each new lens window a bit.
+                    Some(i as f32 * egui::vec2(20., 20.)),
+                );
             }
         }
     }
@@ -127,6 +135,7 @@ impl AppState {
         center_pos: Option<egui::Pos2>,
         id: &str,
         closable: bool,
+        default_offset: Option<egui::Vec2>,
     ) {
         let options = &self.options.grid;
         let grid_lens_scale = options.scale * options.lens_magnification;
@@ -138,9 +147,7 @@ impl AppState {
             .resizable(true)
             .collapsible(true)
             .default_size(egui::vec2(250., 250.))
-            .default_pos(
-                ui.clip_rect().min + egui::vec2(20., 20.) * self.data.grid_lenses.len() as f32,
-            );
+            .default_pos(ui.clip_rect().min + default_offset.unwrap_or(egui::vec2(0., 0.)));
         if closable {
             window = window.open(&mut open);
         }
