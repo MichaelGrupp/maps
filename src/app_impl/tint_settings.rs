@@ -10,6 +10,7 @@ use crate::texture_request::NO_TINT;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TintOptions {
+    #[serde(skip)]
     pub active_tint_selection: Option<String>,
     pub tint_for_all: egui::Color32,
     pub edit_color_to_alpha: bool,
@@ -71,8 +72,7 @@ impl AppState {
                 map.tint = Some(*tint);
                 map.color_to_alpha = *color_to_alpha;
             }
-        } else {
-            let map = self.maps.get_mut(selected).unwrap();
+        } else if let Some(map) = self.maps.get_mut(selected) {
             let tint = map.tint.get_or_insert(NO_TINT);
             let color_to_alpha = &mut map.color_to_alpha;
 
@@ -83,6 +83,8 @@ impl AppState {
                 color_to_alpha,
                 &mut self.options.tint_settings.edit_color_to_alpha,
             );
+        } else {
+            self.options.tint_settings.active_tint_selection = None;
         }
     }
 }
