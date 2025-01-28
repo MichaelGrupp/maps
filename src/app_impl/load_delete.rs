@@ -233,6 +233,11 @@ impl AppState {
                             map_state.pose = map.pose;
                             map_state.visible = map.visible;
                             map_state.tint = map.tint;
+                            if map_state.tint.is_some() {
+                                // We need to set this because we would lose this map's tint
+                                // in the next frame if "All" is selected in the settings panel.
+                                self.options.tint_settings.active_tint_selection = Some(name.clone());
+                            }
                             map_state.color_to_alpha = map.color_to_alpha;
                             self.status.unsaved_changes = false;
                         }
