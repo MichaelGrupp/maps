@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::option::Option;
+use std::sync::Arc;
 
 use eframe::egui;
 
+use crate::image_pyramid::ImagePyramid;
 use crate::map_pose::MapPose;
 use crate::meta::Meta;
 use crate::texture_state::TextureState;
@@ -12,6 +14,8 @@ pub struct MapState {
     pub meta: Meta,
     pub pose: MapPose,
     pub visible: bool,
+    #[serde(skip_serializing, skip_deserializing)]
+    pub image_pyramid: Arc<ImagePyramid>,
     #[serde(skip_serializing, skip_deserializing)]
     pub texture_state: TextureState,
     #[serde(skip_serializing, skip_deserializing)]

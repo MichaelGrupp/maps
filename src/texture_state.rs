@@ -1,4 +1,5 @@
 use std::option::Option;
+use std::sync::Arc;
 
 use eframe::egui;
 use log::trace;
@@ -9,7 +10,9 @@ use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
 #[derive(Default)]
 pub struct TextureState {
-    pub image_pyramid: ImagePyramid,
+    // Image pyramid is shared to avoid duplicating it.
+    // Use init() to set it.
+    pub image_pyramid: Arc<ImagePyramid>,
     pub image_response: Option<egui::Response>,
     pub texture_handle: Option<egui::TextureHandle>,
     pub desired_size: egui::Vec2,
@@ -18,7 +21,7 @@ pub struct TextureState {
 }
 
 impl TextureState {
-    pub fn new(image_pyramid: ImagePyramid) -> TextureState {
+    pub fn new(image_pyramid: Arc<ImagePyramid>) -> TextureState {
         TextureState {
             image_pyramid,
             ..Default::default()

@@ -7,6 +7,7 @@ use crate::map_state::MapState;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
 pub struct Grid {
+    pub name: String,
     pub ui_offset: egui::Vec2,
     pub metric_extent: egui::Vec2,
     pub points_per_meter: f32,
@@ -56,7 +57,7 @@ struct LabelTextOptions {
 }
 
 impl Grid {
-    pub fn new(ui: &egui::Ui, points_per_meter: f32) -> Grid {
+    pub fn new(ui: &egui::Ui, name: &str, points_per_meter: f32) -> Grid {
         // Where are we with this UI in the global context?
         // Required to offset the origin because we paint at manual positions.
         let ui_offset = ui.clip_rect().min.to_vec2();
@@ -66,6 +67,7 @@ impl Grid {
         // TODO: offset is a hack to avoid wrong drawing when a left side menu is expanded.
         let left_offset = egui::vec2(ui.cursor().min.x, 0.);
         Grid {
+            name: name.to_string(),
             ui_offset,
             metric_extent,
             points_per_meter,
@@ -92,7 +94,7 @@ impl Grid {
         *metric * self.points_per_meter + self.origin_in_points.to_vec2()
     }
 
-    pub fn show_map(&self, ui: &mut egui::Ui, map: &mut MapState, name: &str) {
+    pub fn show_map(&self, ui: &mut egui::Ui, map: &mut MapState, map_name: &str) {
         if !map.visible {
             return;
         }
@@ -107,7 +109,7 @@ impl Grid {
         let pose_rotation = map.pose.rot2().inverse(); // RHS to LHS
         let origin_rotation = map.meta.origin_theta.inverse();
 
-        let uncropped = TextureRequest::new(name.to_string(), rect)
+        let uncropped = TextureRequest::new(self.name.clone() + "_" + map_name, rect)
             .with_tint(map.tint)
             .with_color_to_alpha(map.color_to_alpha);
         let request = RotatedCropRequest::from_visible(

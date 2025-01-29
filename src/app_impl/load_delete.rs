@@ -106,7 +106,7 @@ impl AppState {
                 self.tile_manager.add_pane(Pane {
                     id: meta.yaml_path.to_str().unwrap().to_owned(),
                 });
-                let image_pyramid = ImagePyramid::new(image);
+                let image_pyramid = Arc::new(ImagePyramid::new(image));
                 let name = meta.yaml_path.to_str().unwrap().to_owned();
                 self.data.maps.insert(
                     name.clone(),
@@ -114,7 +114,8 @@ impl AppState {
                         meta,
                         pose: MapPose::default(),
                         visible: true,
-                        texture_state: TextureState::new(image_pyramid),
+                        image_pyramid: image_pyramid.clone(),
+                        texture_state: TextureState::new(image_pyramid.clone()),
                         overlay_texture: None,
                         tint: None,
                         color_to_alpha: None,
@@ -229,7 +230,7 @@ impl AppState {
             Ok(deserialized_session) => {
                 // Start from the same path the next time.
                 self.load_session_file_dialog.config_mut().initial_directory = path.clone();
-                self.save_session_file_dialog.config_mut().initial_directory = path;
+                self.save_session_file_dialog.config_mut().initial_directory = path.clone();
                 // Not everything gets serialized. Load actual data.
                 for (name, map) in deserialized_session.maps {
                     debug!("Restoring map state: {}", name);
