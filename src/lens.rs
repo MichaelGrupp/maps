@@ -38,12 +38,17 @@ impl<'a> Lens<'a> {
         Lens { options }
     }
 
-    pub fn show_on_hover(&mut self, ui: &mut egui::Ui, map: &mut MapState, name: &str) -> bool {
+    pub fn show_on_hover(
+        &mut self,
+        ui: &mut egui::Ui,
+        map: &mut MapState,
+        texture_state_id: &str,
+    ) -> bool {
         let options = &mut self.options;
 
         let texture_state = map
             .texture_states
-            .entry("lens".to_string())
+            .entry(texture_state_id.to_string())
             .or_insert(TextureState::new(map.image_pyramid.clone()));
 
         let response = match &texture_state.image_response {
@@ -55,8 +60,6 @@ impl<'a> Lens<'a> {
         };
 
         let Some(pointer_pos) = response.hover_pos() else {
-            // Clear the overlay texture if the mouse is not hovering over the image.
-            map.overlay_texture = None;
             return false;
         };
 
@@ -107,7 +110,7 @@ impl<'a> Lens<'a> {
         let cropped_size = egui::vec2(cropped_image.width() as f32, cropped_image.height() as f32);
 
         let overlay_texture_handle = ui.ctx().load_texture(
-            "overlay_".to_owned() + name,
+            "overlay_".to_owned() + texture_state_id,
             to_egui_image(cropped_image),
             Default::default(),
         );
@@ -136,7 +139,6 @@ impl<'a> Lens<'a> {
 
         ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
 
-        map.overlay_texture = Some(overlay_texture_handle);
         true
     }
 

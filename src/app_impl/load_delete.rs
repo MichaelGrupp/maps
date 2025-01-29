@@ -116,7 +116,6 @@ impl AppState {
                         visible: true,
                         image_pyramid: image_pyramid.clone(),
                         texture_states: HashMap::new(),
-                        overlay_texture: None,
                         tint: None,
                         color_to_alpha: None,
                     },

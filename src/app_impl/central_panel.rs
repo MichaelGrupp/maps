@@ -10,12 +10,24 @@ use crate::movable::Draggable;
 use crate::texture_request::TextureRequest;
 use crate::tiles_behavior::MapsTreeBehavior;
 
+const STACKED_TEXTURE_ID: &str = "stack";
+
 impl AppState {
-    fn show_tiles<'a>(&'a mut self, ui: &'a mut egui::Ui) {
-        let mut behavior = MapsTreeBehavior {
-            maps: &mut self.data.maps,
-        };
-        self.tile_manager.tree.ui(&mut behavior, ui);
+    fn show_tiles(&mut self, ui: &mut egui::Ui) {
+        let hovered_id = (|| {
+            let mut behavior = MapsTreeBehavior {
+                maps: &mut self.data.maps,
+                hovered_id: None,
+            };
+            self.tile_manager.tree.ui(&mut behavior, ui);
+            behavior.hovered_id
+        })();
+
+        if let Some(hovered_id) = hovered_id {
+            self.show_lens(ui, &hovered_id, &hovered_id);
+        } else {
+            self.options.active_lens = None;
+        }
     }
 
     fn show_stacked_images(&mut self, ui: &mut egui::Ui) {
@@ -27,6 +39,7 @@ impl AppState {
                 ui.available_height() / num_visible as f32,
             ),
         );
+        self.options.active_lens = None;
         for (name, map) in self.data.maps.iter_mut() {
             if !map.visible {
                 continue;
@@ -35,8 +48,20 @@ impl AppState {
                 let request = &TextureRequest::new(name.clone(), rect_per_image)
                     .with_tint(map.tint)
                     .with_color_to_alpha(map.color_to_alpha);
-                map.get_or_create_texture_state("stack").put(ui, request);
+                map.get_or_create_texture_state(STACKED_TEXTURE_ID)
+                    .put(ui, request);
+                if let Some(response) = &map
+                    .get_or_create_texture_state(STACKED_TEXTURE_ID)
+                    .image_response
+                {
+                    if response.hovered() {
+                        self.options.active_lens = Some(name.clone());
+                    }
+                }
             });
+        }
+        if let Some(hovered_map) = &self.options.active_lens {
+            self.show_lens(ui, hovered_map.clone().as_str(), STACKED_TEXTURE_ID);
         }
     }
 
@@ -173,7 +198,7 @@ impl AppState {
         }
     }
 
-    fn show_lens(&mut self, ui: &mut egui::Ui) {
+    fn show_lens(&mut self, ui: &mut egui::Ui, map_id: &str, texture_id: &str) {
         if self.options.view_mode == ViewMode::Aligned {
             // The "classic" lens is not shown in aligned mode, we add grids there.
             self.options.active_lens = None;
@@ -183,11 +208,12 @@ impl AppState {
             self.options.active_lens = None;
             return;
         }
-        for (name, map) in &mut self.data.maps {
-            if Lens::with(&mut self.options.lens).show_on_hover(ui, map, name)
+
+        if let Some(map) = self.data.maps.get_mut(map_id) {
+            if Lens::with(&mut self.options.lens).show_on_hover(ui, map, texture_id)
                 && self.options.view_mode != ViewMode::Aligned
             {
-                self.options.active_lens = Some(name.clone());
+                self.options.active_lens = Some(map.meta.yaml_path.to_str().unwrap().to_string());
             }
         }
     }
@@ -235,7 +261,6 @@ impl AppState {
                         self.show_grid(ui);
                     }
                 }
-                self.show_lens(ui);
             });
     }
 }

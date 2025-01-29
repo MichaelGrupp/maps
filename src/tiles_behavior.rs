@@ -10,6 +10,7 @@ use crate::tiles::Pane;
 // Behavior for the tiles tree that displays maps.
 pub struct MapsTreeBehavior<'a> {
     pub maps: &'a mut BTreeMap<String, MapState>,
+    pub hovered_id: Option<String>,
 }
 
 impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
@@ -40,6 +41,8 @@ impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
                     if image_response.drag_started_by(egui::PointerButton::Primary) {
                         debug!("Dragging image {}", pane.id);
                         tiles_response = egui_tiles::UiResponse::DragStarted;
+                    } else if image_response.hovered() {
+                        self.hovered_id = Some(pane.id.clone());
                     }
                 }
             });

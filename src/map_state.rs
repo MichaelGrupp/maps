@@ -23,8 +23,6 @@ pub struct MapState {
     pub image_pyramid: Arc<ImagePyramid>,
     #[serde(skip_serializing, skip_deserializing)]
     pub texture_states: HashMap<String, TextureState>,
-    #[serde(skip_serializing, skip_deserializing)]
-    pub overlay_texture: Option<egui::TextureHandle>,
 }
 
 impl MapState {
