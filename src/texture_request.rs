@@ -10,6 +10,7 @@ pub struct TextureRequest {
     pub desired_rect: egui::Rect,
     pub tint: egui::Color32,
     pub color_to_alpha: Option<egui::Color32>,
+    pub sense: egui::Sense,
 }
 
 impl TextureRequest {
@@ -19,7 +20,13 @@ impl TextureRequest {
             desired_rect,
             tint: NO_TINT,
             color_to_alpha: None,
+            sense: egui::Sense::hover(),
         }
+    }
+
+    pub fn with_sense(mut self, sense: egui::Sense) -> TextureRequest {
+        self.sense = sense;
+        self
     }
 
     pub fn with_tint(mut self, tint: Option<egui::Color32>) -> TextureRequest {

@@ -60,7 +60,10 @@ impl TextureState {
 
         match &self.texture_handle {
             Some(texture) => {
-                self.image_response = Some(ui.add(egui::Image::new(texture).tint(request.tint)));
+                self.image_response = Some(
+                    ui.add(egui::Image::new(texture).tint(request.tint))
+                        .interact(request.sense),
+                );
             }
             None => {
                 panic!("Missing texture handle for {}", request.client)

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env::current_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -11,7 +12,6 @@ use crate::image_pyramid::ImagePyramid;
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::persistence;
-use crate::texture_state::TextureState;
 use crate::tiles::Pane;
 
 use crate::app::{AppState, Error};
@@ -115,7 +115,7 @@ impl AppState {
                         pose: MapPose::default(),
                         visible: true,
                         image_pyramid: image_pyramid.clone(),
-                        texture_state: TextureState::new(image_pyramid.clone()),
+                        texture_states: HashMap::new(),
                         overlay_texture: None,
                         tint: None,
                         color_to_alpha: None,

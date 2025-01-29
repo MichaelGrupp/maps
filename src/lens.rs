@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::image::to_egui_image;
 use crate::map_state::MapState;
+use crate::texture_state::TextureState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LensOptions {
@@ -40,7 +41,12 @@ impl<'a> Lens<'a> {
     pub fn show_on_hover(&mut self, ui: &mut egui::Ui, map: &mut MapState, name: &str) -> bool {
         let options = &mut self.options;
 
-        let response = match &map.texture_state.image_response {
+        let texture_state = map
+            .texture_states
+            .entry("lens".to_string())
+            .or_insert(TextureState::new(map.image_pyramid.clone()));
+
+        let response = match &texture_state.image_response {
             Some(response) => response,
             None => {
                 // Can be missing e.g. if a tab is not visible yet.
@@ -74,9 +80,9 @@ impl<'a> Lens<'a> {
         );
 
         // When partially visible, we deal with a UV rect inside an UV rect.
-        let texture_uv = map.texture_state.desired_uv;
+        let texture_uv = texture_state.desired_uv;
 
-        let original_image = &map.texture_state.image_pyramid.original;
+        let original_image = &texture_state.image_pyramid.original;
         let original_width = original_image.width() as f32;
         let original_height = original_image.height() as f32;
         let crop_width = original_width * (texture_uv[1].x - texture_uv[0].x);
@@ -107,7 +113,7 @@ impl<'a> Lens<'a> {
         );
 
         // Show the crop area also in the scaled texture coordinates as a small rectangle.
-        let small_rect_ratio = original_width / map.texture_state.desired_size.x;
+        let small_rect_ratio = original_width / texture_state.desired_size.x;
         self.lens_rect(
             ui,
             egui::Rect::from_min_size(

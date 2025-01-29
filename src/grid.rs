@@ -23,13 +23,15 @@ struct GridMapRelation {
 }
 
 impl GridMapRelation {
-    fn new(grid: &Grid, map: &MapState) -> GridMapRelation {
+    fn new(grid: &Grid, map: &mut MapState, id: &str) -> GridMapRelation {
         let points_per_meter = 1. / map.meta.resolution;
         let scale_factor = grid.points_per_meter / points_per_meter;
 
+        let texture_state = map.get_or_create_texture_state(id);
+
         let original_size = egui::Vec2::new(
-            map.texture_state.image_pyramid.original.width() as f32,
-            map.texture_state.image_pyramid.original.height() as f32,
+            texture_state.image_pyramid.original.width() as f32,
+            texture_state.image_pyramid.original.height() as f32,
         );
         let scaled_size = original_size * scale_factor;
 
@@ -99,7 +101,7 @@ impl Grid {
             return;
         }
 
-        let relation = GridMapRelation::new(self, map);
+        let relation = GridMapRelation::new(self, map, self.name.as_str());
 
         let rect = egui::Rect::from_min_size(
             self.origin_in_points + relation.ulc_to_origin_in_points,
@@ -109,7 +111,7 @@ impl Grid {
         let pose_rotation = map.pose.rot2().inverse(); // RHS to LHS
         let origin_rotation = map.meta.origin_theta.inverse();
 
-        let uncropped = TextureRequest::new(self.name.clone() + "_" + map_name, rect)
+        let uncropped = TextureRequest::new(map_name.to_string(), rect)
             .with_tint(map.tint)
             .with_color_to_alpha(map.color_to_alpha);
         let request = RotatedCropRequest::from_visible(
@@ -119,7 +121,8 @@ impl Grid {
             relation.ulc_to_origin_in_points_translated - relation.ulc_to_origin_in_points,
             relation.ulc_to_origin_in_points,
         );
-        map.texture_state.crop_and_put(ui, &request);
+        map.get_or_create_texture_state(self.name.as_str())
+            .crop_and_put(ui, &request);
     }
 
     pub fn show_maps(&self, ui: &mut egui::Ui, maps: &mut BTreeMap<String, MapState>) {
