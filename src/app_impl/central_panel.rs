@@ -1,4 +1,5 @@
 use eframe::egui;
+use log::debug;
 use uuid::Uuid;
 
 use crate::app::{ActiveTool, AppState, ViewMode};
@@ -130,12 +131,13 @@ impl AppState {
         }
 
         if clicked && self.options.active_tool == ActiveTool::PlaceLens {
-            self.data.grid_lenses.insert(
-                Uuid::new_v4().to_string(),
-                self.status.hover_position.unwrap(),
-            );
-            self.status.unsaved_changes = true;
-            self.options.active_tool = ActiveTool::None;
+            if let Some(pos) = self.status.hover_position {
+                let id = Uuid::new_v4().to_string();
+                debug!("Placing lens {} focussing {:?}.", id, pos);
+                self.data.grid_lenses.insert(id, pos);
+                self.status.unsaved_changes = true;
+                self.options.active_tool = ActiveTool::None;
+            }
         }
         let lens_ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
         for (i, lens_id) in lens_ids.iter().enumerate() {
@@ -195,6 +197,13 @@ impl AppState {
         });
         if !open {
             self.data.grid_lenses.remove(id);
+            for (name, map) in self.data.maps.iter_mut() {
+                debug!(
+                    "Removing lens texture state with ID {} from map {}.",
+                    id, name
+                );
+                map.texture_states.remove(id);
+            }
         }
     }
 
