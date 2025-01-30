@@ -14,16 +14,8 @@ impl AppState {
             });
         });
     }
-    fn menu_content(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Maps");
-        ui.add_space(SPACE);
-        ui.horizontal(|ui| {
-            self.load_meta_button(ui);
-            ui.separator();
-            self.load_session_button(ui);
-            self.save_session_button(ui);
-        });
-        ui.separator();
+
+    fn maps_list(&mut self, ui: &mut egui::Ui) {
         let mut to_delete: Vec<String> = Vec::new();
         egui::Grid::new("maps_list")
             .num_columns(3)
@@ -53,6 +45,25 @@ impl AppState {
                 }
             });
         self.delete(&to_delete);
+    }
+
+    fn menu_content(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Maps");
+        ui.add_space(SPACE);
+        ui.horizontal(|ui| {
+            self.load_meta_button(ui);
+            ui.separator();
+            self.load_session_button(ui);
+            self.save_session_button(ui);
+        });
+        ui.separator();
+
+        // Allow to hide list to resize panel smaller, e.g. with long paths.
+        egui::CollapsingHeader::new("List")
+            .default_open(true)
+            .show(ui, |ui| {
+                self.maps_list(ui);
+            });
 
         if self.data.maps.is_empty() {
             return;
@@ -66,7 +77,10 @@ impl AppState {
         if !self.options.pose_edit.selected_map.is_empty() && self.data.maps.len() > 1 {
             ui.separator();
             ui.add_space(SPACE);
-            self.apply_pose_to_other_maps(ui);
+            egui::ScrollArea::horizontal().show(ui, |ui| {
+                // In scroll area to not take too much space for long paths.
+                self.apply_pose_to_other_maps(ui);
+            });
         }
     }
 }

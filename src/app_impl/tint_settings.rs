@@ -40,14 +40,19 @@ impl AppState {
             .tint_settings
             .active_tint_selection
             .get_or_insert(all_key.clone());
-        egui::ComboBox::from_label("")
-            .selected_text(selected.to_string())
-            .show_ui(ui, |ui| {
-                ui.selectable_value(selected, all_key.clone(), &all_key);
-                for name in self.data.maps.keys() {
-                    ui.selectable_value(selected, name.to_string(), name);
-                }
-            });
+
+        // ComboBox is in a horizontal scroll to not take too much space for long paths.
+        // Waiting for: https://github.com/emilk/egui/discussions/1829
+        egui::ScrollArea::horizontal().show(ui, |ui| {
+            egui::ComboBox::from_label("")
+                .selected_text(selected.to_string())
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(selected, all_key.clone(), &all_key);
+                    for name in self.data.maps.keys() {
+                        ui.selectable_value(selected, name.to_string(), name);
+                    }
+                });
+        });
 
         let reset = ui.button("Reset").clicked();
         ui.end_row();

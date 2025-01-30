@@ -17,17 +17,21 @@ pub struct PoseEditOptions {
 
 impl AppState {
     pub fn pose_edit(&mut self, ui: &mut egui::Ui) {
-        egui::ComboBox::from_label("")
-            .selected_text(self.options.pose_edit.selected_map.clone())
-            .show_ui(ui, |ui| {
-                for name in self.data.maps.keys() {
-                    ui.selectable_value(
-                        &mut self.options.pose_edit.selected_map,
-                        name.clone(),
-                        name,
-                    );
-                }
-            });
+        // ComboBox is in a horizontal scroll to not take too much space for long paths.
+        // Waiting for: https://github.com/emilk/egui/discussions/1829
+        egui::ScrollArea::horizontal().show(ui, |ui| {
+            egui::ComboBox::from_label("")
+                .selected_text(self.options.pose_edit.selected_map.clone())
+                .show_ui(ui, |ui| {
+                    for name in self.data.maps.keys() {
+                        ui.selectable_value(
+                            &mut self.options.pose_edit.selected_map,
+                            name.clone(),
+                            name,
+                        );
+                    }
+                });
+        });
 
         let map_name = self.options.pose_edit.selected_map.clone();
         let map_pose = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose);
