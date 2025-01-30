@@ -13,17 +13,18 @@ impl AppState {
             ui.vertical_centered(|ui| {
                 ui.label(egui::RichText::new("⚠").size(50.));
                 ui.label("There seem to be unsaved changes. Are you sure you want to quit?");
-                ui.label("You can save the session in the menu.");
             });
             ui.add_space(SPACE);
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button("Cancel").clicked() {
+                if ui.button("🚫 Cancel").clicked() {
                     self.status.quit_modal_active = false;
-                } else if ui.button("Quit").clicked() {
+                } else if ui.button("💣 Quit").clicked() {
                     ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
                     self.status.quit_modal_active = false;
                     self.status.unsaved_changes = false;
                 }
+                ui.separator();
+                self.save_session_button(ui, true);
             });
         });
     }

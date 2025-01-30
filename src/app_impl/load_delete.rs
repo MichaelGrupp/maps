@@ -281,13 +281,23 @@ impl AppState {
         }
     }
 
-    pub fn save_session_button(&mut self, ui: &mut egui::Ui) {
+    pub fn save_session_button(&mut self, ui: &mut egui::Ui, quit_after_save: bool) {
+        let text = if quit_after_save {
+            "💾 Save Session and Quit"
+        } else {
+            "💾 Save Session"
+        };
         if ui
-            .button("💾 Save Session")
+            .button(text.to_owned())
             .on_hover_text("Save the current session to a file.")
             .clicked()
         {
             self.save_session_file_dialog.save_file();
+            self.status.quit_after_save = quit_after_save;
+            self.status.quit_modal_active = false;
+            // TODO: Why is the dialog not visible when no button is visible?
+            // Make sure the menu is visible from the menu panel.
+            self.options.menu_visible = true;
         }
         self.save_session_file_dialog.update(ui.ctx());
 
@@ -298,6 +308,9 @@ impl AppState {
                     self.save_session_file_dialog.config_mut().initial_directory = path.clone();
                     self.load_session_file_dialog.config_mut().initial_directory = path;
                     self.status.unsaved_changes = false;
+                    if self.status.quit_after_save {
+                        ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                    }
                 }
                 Err(e) => {
                     self.status.error = format!("Error saving session file: {}", e.message);

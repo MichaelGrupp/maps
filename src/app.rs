@@ -68,6 +68,7 @@ pub struct StatusInfo {
     pub hover_position: Option<egui::Pos2>,
     pub quit_modal_active: bool,
     pub unsaved_changes: bool,
+    pub quit_after_save: bool,
 }
 
 #[derive(Default, Serialize, Deserialize)]

@@ -54,7 +54,7 @@ impl AppState {
             self.load_meta_button(ui);
             ui.separator();
             self.load_session_button(ui);
-            self.save_session_button(ui);
+            self.save_session_button(ui, false);
         });
         ui.separator();
 
