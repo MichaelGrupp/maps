@@ -9,6 +9,7 @@ use crate::movable::MovableAmounts;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct PoseEditOptions {
+    #[serde(skip_serializing, skip_deserializing)]
     pub selected_map: String,
     pub edit_root_frame: bool,
     pub edit_map_frame: bool,
