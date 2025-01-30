@@ -4,7 +4,7 @@ use eframe::egui;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::image::to_egui_image;
+use crate::image::{color_to_alpha, to_egui_image};
 use crate::map_state::MapState;
 use crate::texture_state::TextureState;
 
@@ -106,7 +106,8 @@ impl<'a> Lens<'a> {
             debug!("Ignoring hover because region would be empty.");
             return false;
         }
-        let cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        let mut cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        color_to_alpha(&mut cropped_image, map.color_to_alpha);
         let cropped_size = egui::vec2(cropped_image.width() as f32, cropped_image.height() as f32);
 
         let overlay_texture_handle = ui.ctx().load_texture(
@@ -134,10 +135,20 @@ impl<'a> Lens<'a> {
 
         // Draw rectangle around the overlay, a bit wider than the overlay itself.
         let stroke = egui::Stroke::new(5., egui::Rgba::from_rgb(0., 0., 0.));
+        ui.painter().add(egui::Shape::rect_filled(
+            overlay_rect,
+            1.,
+            ui.visuals().extreme_bg_color,
+        ));
         ui.painter()
             .add(egui::Shape::rect_stroke(overlay_rect, 1., stroke));
 
-        ui.put(overlay_rect, egui::Image::new(&overlay_texture_handle));
+        // TODO: use TextureRequest to load the overlay image.
+        ui.put(
+            overlay_rect,
+            egui::Image::new(&overlay_texture_handle)
+                .tint(map.tint.unwrap_or(egui::Color32::WHITE)),
+        );
 
         true
     }
