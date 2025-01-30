@@ -116,15 +116,15 @@ impl<'a> Lens<'a> {
         );
 
         // Show the crop area also in the scaled texture coordinates as a small rectangle.
-        let small_rect_ratio = original_width / texture_state.desired_size.x;
+        let small_rect_ratio = texture_size.x / original_width;
         self.lens_rect(
             ui,
             egui::Rect::from_min_size(
                 // Clamp to the texture bounds to show correctly at borders.
-                (pointer_pos - (cropped_size / small_rect_ratio) / 2.)
+                (pointer_pos - (cropped_size * small_rect_ratio) / 2.)
                     .max(response.rect.min)
-                    .min(response.rect.max - cropped_size / small_rect_ratio),
-                cropped_size / small_rect_ratio,
+                    .min(response.rect.max - cropped_size * small_rect_ratio),
+                cropped_size * small_rect_ratio,
             ),
         );
 
