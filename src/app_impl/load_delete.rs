@@ -135,9 +135,9 @@ impl AppState {
             info!("Removing {}", name);
             self.data.maps.remove(name);
             self.tile_manager.remove_pane(name);
-            if let Some(active_lens) = &self.options.active_lens {
-                if active_lens == name {
-                    self.options.active_lens = None;
+            if let Some(active_tool) = &self.status.active_tool {
+                if active_tool == name {
+                    self.status.active_tool = None;
                 }
             }
             if let Some(active_tint_selection) = &self.options.tint_settings.active_tint_selection {

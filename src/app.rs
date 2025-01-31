@@ -55,7 +55,6 @@ pub struct AppOptions {
     pub view_mode: ViewMode,
     pub lens: LensOptions,
     pub grid: GridOptions,
-    pub active_lens: Option<String>,
     pub tint_settings: TintOptions,
     pub pose_edit: PoseEditOptions,
     pub active_movable: ActiveMovable,
@@ -70,6 +69,7 @@ pub struct StatusInfo {
     pub unsaved_changes: bool,
     pub quit_after_save: bool,
     pub move_action: Option<String>,
+    pub active_tool: Option<String>,
 }
 
 #[derive(Default, Serialize, Deserialize)]

@@ -43,7 +43,7 @@ impl AppState {
             ui.selectable_value(&mut self.options.view_mode, ViewMode::Aligned, "Aligned")
                 .on_hover_text("Show the maps in a shared coordinate system.");
             if previous_view_mode != self.options.view_mode {
-                self.options.active_lens = None;
+                self.status.active_tool = None;
             }
         });
     }

@@ -8,15 +8,15 @@ impl AppState {
             ui.ctx(),
             |ui| {
                 ui.horizontal(|ui| {
-                    if let Some(active_lens) = self.options.active_lens.as_ref() {
+                    if let Some(active_tool) = self.status.active_tool.as_ref() {
                         if self.options.view_mode == ViewMode::Aligned {
-                            ui.label(active_lens).on_hover_text(
+                            ui.label(active_tool).on_hover_text(
                                 "Magnification can be changed in the options side menu.",
                             );
                         } else {
                             ui.label(format!(
                                 "🔍 ({:.1}m) {}",
-                                self.options.lens.size_meters, active_lens
+                                self.options.lens.size_meters, active_tool
                             ));
                         }
                         ui.separator();

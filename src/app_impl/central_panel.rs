@@ -27,7 +27,7 @@ impl AppState {
         if let Some(hovered_id) = hovered_id {
             self.show_lens(ui, &hovered_id, &hovered_id);
         } else {
-            self.options.active_lens = None;
+            self.status.active_tool = None;
         }
     }
 
@@ -40,7 +40,7 @@ impl AppState {
                 ui.available_height() / num_visible as f32,
             ),
         );
-        self.options.active_lens = None;
+        self.status.active_tool = None;
         for (name, map) in self.data.maps.iter_mut() {
             if !map.visible {
                 continue;
@@ -56,12 +56,12 @@ impl AppState {
                     .image_response
                 {
                     if response.hovered() {
-                        self.options.active_lens = Some(name.clone());
+                        self.status.active_tool = Some(name.clone());
                     }
                 }
             });
         }
-        if let Some(hovered_map) = &self.options.active_lens {
+        if let Some(hovered_map) = &self.status.active_tool {
             self.show_lens(ui, hovered_map.clone().as_str(), STACKED_TEXTURE_ID);
         }
     }
@@ -106,10 +106,10 @@ impl AppState {
         self.status.hover_position = grid.hover_pos_metric(ui);
 
         if self.options.active_tool == ActiveTool::None {
-            self.options.active_lens = None;
+            self.status.active_tool = None;
         }
         if self.options.active_tool == ActiveTool::HoverLens {
-            self.options.active_lens =
+            self.status.active_tool =
                 Some(format!("🔍 {}x magnification", options.lens_magnification));
         }
         if self.options.active_tool == ActiveTool::HoverLens {
@@ -119,7 +119,7 @@ impl AppState {
         }
 
         if self.options.active_tool == ActiveTool::Measure {
-            self.options.active_lens = Some("📏 Measurement tool active.".to_string());
+            self.status.active_tool = Some("📏 Measurement tool active".to_string());
             if !clicked {
                 grid.draw_measure(ui, options, self.status.hover_position);
                 return;
@@ -148,8 +148,8 @@ impl AppState {
             }
         }
         let lens_ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
-        if !lens_ids.is_empty() {
-            self.options.active_lens = Some(format!(
+        if self.options.active_tool == ActiveTool::PlaceLens || !lens_ids.is_empty() {
+            self.status.active_tool = Some(format!(
                 "🔍 {} fixed lenses active at {}x magnification",
                 self.data.grid_lenses.len(),
                 options.lens_magnification
@@ -228,7 +228,7 @@ impl AppState {
             return;
         }
         if self.options.active_tool != ActiveTool::HoverLens {
-            self.options.active_lens = None;
+            self.status.active_tool = None;
             return;
         }
 
@@ -236,7 +236,7 @@ impl AppState {
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, texture_id)
                 && self.options.view_mode != ViewMode::Aligned
             {
-                self.options.active_lens = Some(map.meta.yaml_path.to_str().unwrap().to_string());
+                self.status.active_tool = Some(map.meta.yaml_path.to_str().unwrap().to_string());
             }
         }
     }
