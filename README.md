@@ -2,6 +2,10 @@
 
 **Inspect, compare and align multiple grid maps in an intuitive & fast GUI**
 
+<img src="data/doc/screenshot_0.png" height="100" />
+<img src="data/doc/screenshot_1.png" height="100" />
+<img src="data/doc/screenshot_2.png" height="100" />
+
 ## Audience
 
 `maps` can be useful for you if ...
@@ -62,9 +66,13 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 ### Measurements
 
+<img src="data/doc/tool_measure.png" height="25" />
+
 Does exactly what you think: activate the tool and click two points in the aligned grid view to measure their distance.
 
 ### Lens
+
+<img src="data/doc/tool_hover_lens.png" height="25" />
 
 The lens tool magnifies a region below the mouse cursor with a magnification factor (in Aligned view) or to the original image size (in Tiles / Stacked view). This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
 
@@ -74,6 +82,8 @@ The lens tool magnifies a region below the mouse cursor with a magnification fac
   * in Tiles/Stacked view: scroll to adjust the size of the lens.
 
 ### Fixed Lens
+
+<img src="data/doc/tool_fixed_lens.png" height="25" />
 
 In the Aligned view, you can add multiple lenses that are looking at a fixed coordinate each. They stay centered at the coordinate that was clicked, even if the main grid is moved.
 
@@ -86,6 +96,11 @@ You can change the pose of a map relative to the global origin in the aligned gr
 * Select the map that you want to move in the menu sidebar.
 * Enter values or move the map with the keyboard.
 * Poses can be exported to YAML files.
+* Optionally, use tools to make alignment easier, for example:
+   * make the texture of the maps transparent/colored using the blend settings
+   * add fixed lenses in different areas of a large map
+
+<img src="/data/doc/alignment.gif" height="250" />
 
 > 👉 maps doesn't touch the `origin` of your `map.yaml` file, but writes a separate file.
 > Many ROS tools don't support rotations in the map yaml file, and it's anyway cleaner to separate the alignment pose from the map origin.
@@ -99,6 +114,8 @@ You can change the pose of a map relative to the global origin in the aligned gr
 ### Session files
 
 You can save your session and reload it later using the menu. maps also asks you if you want to save before quitting or when there are unsaved changes.
+
+Note that `maps` never overwrites your input map files.
 
 > ⚠️ The files that are written are not self-contained. They just contain the relevant config and point to the map file paths.
 
