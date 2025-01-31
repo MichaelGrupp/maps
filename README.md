@@ -70,8 +70,8 @@ The lens tool magnifies a region below the mouse cursor with a magnification fac
 
 * Right-click the mouse on a map to enable/disable the lens (or press L).
 * Adjust it...
- * in Aligned view: use the options side bar to set the magnification factor.
- * in Tiles/Stacked view: scroll to adjust the size of the lens.
+  * in Aligned view: use the options side bar to set the magnification factor.
+  * in Tiles/Stacked view: scroll to adjust the size of the lens.
 
 ### Fixed Lens
 
