@@ -6,6 +6,10 @@
 |---|---|---|
 | <img src="data/doc/screenshot_0.png" width="250" />  | <img src="data/doc/screenshot_1.png" width="250" />  | <img src="data/doc/screenshot_2.png" width="250" /> |
 
+```
+cargo install maps
+```
+
 ## Audience
 
 `maps` can be useful for you if ...
@@ -56,6 +60,8 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 `maps` provides three different main view modes.
 
+<img src="data/doc/view_selection.png" width="150" />
+
 * `Aligned`:
   * Maps are shown in a metric grid, with their origin at zero.
   * The grid can be dragged and zoomed, grid lines can be shown etc.
@@ -66,13 +72,13 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 ### Measurements
 
-<img src="data/doc/tool_measure.png" height="25" />
+<img src="data/doc/tool_measure.png" width="125" />
 
 Does exactly what you think: activate the tool and click two points in the aligned grid view to measure their distance.
 
 ### Lens
 
-<img src="data/doc/tool_hover_lens.png" height="25" />
+<img src="data/doc/tool_hover_lens.png" width="125" />
 
 The lens tool magnifies a region below the mouse cursor with a magnification factor (in Aligned view) or to the original image size (in Tiles / Stacked view). This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
 
@@ -83,7 +89,7 @@ The lens tool magnifies a region below the mouse cursor with a magnification fac
 
 ### Fixed Lens
 
-<img src="data/doc/tool_fixed_lens.png" height="25" />
+<img src="data/doc/tool_fixed_lens.png" width="125" />
 
 In the Aligned view, you can add multiple lenses that are looking at a fixed coordinate each. They stay centered at the coordinate that was clicked, even if the main grid is moved.
 
@@ -124,7 +130,10 @@ Note that `maps` never overwrites your input map files.
 First, you need to [install the Rust toolchain](https://www.rust-lang.org/tools/install) if you don't have it already.
 
 Then you can install the latest release from [crates.io](https://crates.io/):
-> ⚠️ TODO
+
+```
+cargo install maps
+```
 
 ---
 
