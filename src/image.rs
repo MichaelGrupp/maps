@@ -10,9 +10,12 @@ use log::{debug, error, info};
 #[allow(unused_imports)]
 use fast_image_resize::CpuExtensions;
 
+use crate::path_helpers::resolve_symlink;
+
 pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageError> {
+    let path = resolve_symlink(path);
     info!("Loading image: {:?}", path);
-    match ImageReader::open(path) {
+    match ImageReader::open(&path) {
         Ok(reader) => match reader.decode() {
             Ok(img) => {
                 debug!("Loaded image: {:?} {:?}", path, img.dimensions());

@@ -136,7 +136,7 @@ fn main() -> eframe::Result {
             exit(1);
         }
         info!("Loading {}", yaml_path.to_str().unwrap());
-        if let Ok(meta) = Meta::load_from_file(yaml_path.to_path_buf()) {
+        if let Ok(meta) = Meta::load_from_file(&yaml_path.to_path_buf()) {
             if !meta.image_path.exists() {
                 error!(
                     "Metadata from {} points to an image that does not exist: {}",

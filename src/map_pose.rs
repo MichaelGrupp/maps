@@ -4,6 +4,7 @@ use eframe::emath;
 use serde::{Deserialize, Serialize};
 
 use crate::movable::{Draggable, Rotatable};
+use crate::path_helpers::resolve_symlink;
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct MapPose {
@@ -88,7 +89,7 @@ impl MapPose {
     }
 
     pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
-        match std::fs::File::open(yaml_path) {
+        match std::fs::File::open(resolve_symlink(yaml_path)) {
             Ok(file) => match serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file) {
                 Ok(mut map_pose) => {
                     map_pose.rotation.roll = emath::normalized_angle(map_pose.rotation.roll);

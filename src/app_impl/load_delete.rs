@@ -64,8 +64,8 @@ impl AppState {
             )
     }
 
-    fn load_meta(&mut self, yaml_path: PathBuf) -> Result<bool, Error> {
-        match Meta::load_from_file(yaml_path) {
+    fn load_meta(&mut self, yaml_path: &PathBuf) -> Result<bool, Error> {
+        match Meta::load_from_file(&yaml_path) {
             Ok(meta) => match self.load_map(meta) {
                 Ok(_) => Ok(true),
                 Err(e) => Err(e),
@@ -85,7 +85,7 @@ impl AppState {
         if let Some(paths) = self.load_meta_file_dialog.take_picked_multiple() {
             for path in paths {
                 ui.ctx().request_repaint();
-                match self.load_meta(path.clone()) {
+                match self.load_meta(&path) {
                     Ok(_) => {
                         info!("Loaded metadata file: {:?}", path);
                         // Start from the same path the next time.
