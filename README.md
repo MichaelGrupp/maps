@@ -2,16 +2,16 @@
 
 **Inspect, compare and align multiple grid maps in an intuitive & fast GUI**
 
-<img src="data/doc/screenshot_0.png" height="100" />
-<img src="data/doc/screenshot_1.png" height="100" />
-<img src="data/doc/screenshot_2.png" height="100" />
+|   |   |   |
+|---|---|---|
+| <img src="data/doc/screenshot_0.png" width="250" />  | <img src="data/doc/screenshot_1.png" width="250" />  | <img src="data/doc/screenshot_2.png" width="250" /> |
 
 ## Audience
 
 `maps` can be useful for you if ...
 
 * ...you work on mobile robot SLAM or navigation.
-* ...your SLAM or navigation system supports exporting maps as grid map images.
+* ...your SLAM or navigation system supports exporting maps as 2D grid map images.
 * ...you want to quickly work with the map files, but other tools are either...
   * ...better suited for live data streams (e.g. RViz, Rerun, Foxglove etc)
   * ...not supporting grid coordinates (most image viewers)
@@ -162,3 +162,20 @@ See `maps --help` for all command line options.
 ## License
 
 Apache 2.0
+
+<details>
+  <summary>
+    Cite
+  </summary>
+  <p>
+If you want to cite this repository, you can either use a footnote linking <code>https://github.com/MichaelGrupp/maps</code> or:
+  </p>
+
+<pre><code>@misc{grupp2025maps,
+  title={maps: Inspect, compare and align multiple grid maps in an intuitive & fast GUI.},
+  author={Grupp, Michael},
+  howpublished={\url{https://github.com/MichaelGrupp/maps}},
+  year={2025}
+}</code></pre>
+
+</details>
