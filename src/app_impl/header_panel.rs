@@ -35,12 +35,16 @@ impl AppState {
 
     fn view_buttons(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_centered(|ui| {
+            let previous_view_mode = self.options.view_mode.clone();
             ui.selectable_value(&mut self.options.view_mode, ViewMode::Tiles, "Tiles")
                 .on_hover_text("Show the maps in separate tab tiles that can be rearranged.");
             ui.selectable_value(&mut self.options.view_mode, ViewMode::Stacked, "Stacked")
                 .on_hover_text("Show the maps stacked on top of each other.");
             ui.selectable_value(&mut self.options.view_mode, ViewMode::Aligned, "Aligned")
                 .on_hover_text("Show the maps in a shared coordinate system.");
+            if previous_view_mode != self.options.view_mode {
+                self.options.active_lens = None;
+            }
         });
     }
 

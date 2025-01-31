@@ -1,6 +1,6 @@
 use eframe::egui;
 
-use crate::app::AppState;
+use crate::app::{AppState, ViewMode};
 
 impl AppState {
     pub fn footer_panel(&mut self, ui: &mut egui::Ui) {
@@ -8,15 +8,21 @@ impl AppState {
             ui.ctx(),
             |ui| {
                 ui.horizontal(|ui| {
-                    if let Some(pos) = self.status.hover_position {
-                        ui.label(format!("x: {:.3}m  y: {:.3}m", pos.x, pos.y,));
+                    if let Some(active_lens) = self.options.active_lens.as_ref() {
+                        if self.options.view_mode == ViewMode::Aligned {
+                            ui.label(active_lens).on_hover_text(
+                                "Magnification can be changed in the options side menu.",
+                            );
+                        } else {
+                            ui.label(format!(
+                                "🔍 ({:.1}m) {}",
+                                self.options.lens.size_meters, active_lens
+                            ));
+                        }
                         ui.separator();
                     }
-                    if let Some(active_lens) = self.options.active_lens.as_ref() {
-                        ui.label(format!(
-                            "🔍 ({:.1}m) {}",
-                            self.options.lens.size_meters, active_lens
-                        ));
+                    if let Some(pos) = self.status.hover_position {
+                        ui.label(format!("⌖ x: {:.3}m  y: {:.3}m", pos.x, pos.y,));
                         ui.separator();
                     }
 

@@ -105,6 +105,13 @@ impl AppState {
         }
         self.status.hover_position = grid.hover_pos_metric(ui);
 
+        if self.options.active_tool == ActiveTool::None {
+            self.options.active_lens = None;
+        }
+        if self.options.active_tool == ActiveTool::HoverLens {
+            self.options.active_lens =
+                Some(format!("🔍 {}x magnification", options.lens_magnification));
+        }
         if self.options.active_tool == ActiveTool::HoverLens {
             self.show_grid_lens(ui, self.status.hover_position, "hover_lens", false, None);
             // Don't show the other fixed lenses too not get too messy.
@@ -112,6 +119,7 @@ impl AppState {
         }
 
         if self.options.active_tool == ActiveTool::Measure {
+            self.options.active_lens = Some("📏 Measurement tool active.".to_string());
             if !clicked {
                 grid.draw_measure(ui, options, self.status.hover_position);
                 return;
@@ -140,6 +148,13 @@ impl AppState {
             }
         }
         let lens_ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
+        if !lens_ids.is_empty() {
+            self.options.active_lens = Some(format!(
+                "🔍 {} fixed lenses active at {}x magnification",
+                self.data.grid_lenses.len(),
+                options.lens_magnification
+            ));
+        }
         for (i, lens_id) in lens_ids.iter().enumerate() {
             if let Some(pos) = self.data.grid_lenses.get(lens_id) {
                 self.show_grid_lens(
@@ -210,7 +225,6 @@ impl AppState {
     fn show_lens(&mut self, ui: &mut egui::Ui, map_id: &str, texture_id: &str) {
         if self.options.view_mode == ViewMode::Aligned {
             // The "classic" lens is not shown in aligned mode, we add grids there.
-            self.options.active_lens = None;
             return;
         }
         if self.options.active_tool != ActiveTool::HoverLens {
