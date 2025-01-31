@@ -5,12 +5,8 @@ authors = ["Michael Grupp"]
 license = "Apache-2.0"
 repository = "https://www.github.com/MichaelGrupp/maps"
 homepage = "https://www.github.com/MichaelGrupp/maps"
-categories = ["science:robotics", "visualization", "gui", "multimedia::images"]
-keywords = [
-  "map", "grid", "occupancy",
-  "SLAM", "navigation", "robotics", 
-  "ROS", "visualization", "egui"
-]
+categories = ["science::robotics", "visualization", "gui", "multimedia::images"]
+keywords = ["map", "navigation", "SLAM", "ROS", "egui"]
 version = "1.0.0"
 edition = "2021"
 readme = "README.md"
