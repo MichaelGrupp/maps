@@ -35,8 +35,8 @@ At its core, `maps` is an image viewer that is aware of the metric properties of
   * Details of large maps can be quickly inspected using a lens tool without zooming & dragging.
   * Several keybindings make it fast to use, e.g. `W A S D` for moving and `Q E` for rotating.
   * Files can be loaded both via GUI and CLI.
-  * Sessions can be saved and loaded at a later point to continue working.
-  * Settings are autosaved by default.
+  * Sessions can be saved and loaded at a later point to continue working, settings are autosaved by default.
+  * No context menus or other hidden UI.
 
 ### Fast
   * Interaction should be fast and responsive, also with very large high resolution maps.
@@ -100,9 +100,9 @@ This can be useful when aligning large maps, where you need to watch different a
 You can change the pose of a map relative to the global origin in the aligned grid view.
 
 * Select the map that you want to move in the menu sidebar.
-* Enter values or move the map with the keyboard.
+* Enter values or move the map with the keyboard (after enabling "Move Map")
 * Poses can be exported to YAML files.
-* Optionally, use tools to make alignment easier, for example:
+* Optionally, use the tools to make alignment easier, for example:
    * make the texture of the maps transparent/colored using the blend settings
    * add fixed lenses in different areas of a large map
 
