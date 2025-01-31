@@ -140,8 +140,8 @@ impl eframe::App for AppState {
 
             self.header_panel(ui);
             self.menu_panel(ui);
-            self.settings_panel(ui);
             self.footer_panel(ui);
+            self.settings_panel(ui);
             self.central_panel(ui);
 
             self.info_window(ui);
