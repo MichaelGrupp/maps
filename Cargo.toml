@@ -3,7 +3,15 @@ name = "maps"
 description = "Inspect, compare and align multiple grid maps in an intuitive & fast GUI"
 authors = ["Michael Grupp"]
 license = "Apache-2.0"
-version = "0.1.0"
+repository = "https://www.github.com/MichaelGrupp/maps"
+homepage = "https://www.github.com/MichaelGrupp/maps"
+categories = ["science:robotics", "visualization", "gui", "multimedia::images"]
+keywords = [
+  "map", "grid", "occupancy",
+  "SLAM", "navigation", "robotics", 
+  "ROS", "visualization", "egui"
+]
+version = "1.0.0"
 edition = "2021"
 readme = "README.md"
 build = "build.rs"
