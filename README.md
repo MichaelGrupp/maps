@@ -7,10 +7,10 @@
 `maps` can be useful for you if ...
 
 * ...you work on mobile robot SLAM or navigation.
-* ...your SLAM or navigation system supports exporting maps as grid map files.
-* ...you want to quickly view the maps, but other viewers are either...
-  * ...tedious to spin up (e.g. ROS nodes/topics + RViz).
-  * ...not supporting grid coordinates (most image viewers).
+* ...your SLAM or navigation system supports exporting maps as grid map images.
+* ...you want to quickly work with the map files, but other tools are either...
+  * ...better suited for live data streams (e.g. RViz, Rerun, Foxglove etc)
+  * ...not supporting grid coordinates (most image viewers)
 * ...you want to display in a shared coordinate system, take measurements etc.
 * ...you want to align multiple, potentially very large maps.
 
@@ -25,12 +25,15 @@ At its core, `maps` is an image viewer that is aware of the metric properties of
 ### Intuitive
   * Maps of different resolutions can be displayed in a shared coordinate system with correct scale and position.
   * Details of large maps can be quickly inspected using a lens tool without zooming & dragging.
+  * Several keybindings make it fast to use, e.g. `W A S D` for moving and `Q E` for rotating.
   * Files can be loaded both via GUI and CLI.
+  * Sessions can be saved and loaded at a later point to continue working.
+  * Settings are autosaved by default.
+
 ### Fast
   * Interaction should be fast and responsive, also with very large high resolution maps.
+  * maps is optimized to allow dragging / rotating images also at high zoom levels in real-time, with efficient resource usage.
   * Built with [Rust](https://www.rust-lang.org/) using [egui](https://github.com/emilk/egui) + [wgpu](https://github.com/gfx-rs/wgpu).
-
-> ⚠️ `maps` is ready to use, but also under active development. Some features may be added or changed in upcoming versions.
 
 ## Input
 
@@ -57,21 +60,48 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
   * The tab tiles can be freely rearranged, for example to view images side by side.
 * `Stacked`: Map images are shown stacked in a scrollable view.
 
+### Measurements
+
+Does exactly what you think: activate the tool and click two points in the aligned grid view to measure their distance.
+
 ### Lens
 
 The lens tool magnifies a region below the mouse cursor to the original image size. This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
 
 * Right-click the mouse on a map to enable/disable the lens (or press L).
-* Scroll to adjust the size of the lens.
+* Adjust it...
+ * in Aligned view: use the options side bar to set the magnification factor.
+ * in Tiles/Stacked view: scroll to adjust the size of the lens.
+
+### Fixed Lens
+
+In the Aligned view, you can add multiple lenses that are looking at a fixed coordinate each. They stay centered at the coordinate that was clicked, even if the main grid is moved.
+
+This can be useful when aligning large maps, where you need to watch different areas in detail to check how well they fit while moving the map.
+
+### Pose Alignment
+
+You can change the pose of a map relative to the global origin in the aligned grid view.
+
+* Select the map that you want to move in the menu sidebar.
+* Enter values or move the map with the keyboard.
+* Poses can be exported to YAML files.
 
 ### Menu & Settings
 
 * Click `☰` to open the sidebar to manage maps and their visibility.
 * Click `⚙` to open the sidebar for settings.
+* Click the ℹ️ button in the lower right corner to display version & keybindings.
+
+### Session files
+
+You can save your session and reload it later using the menu. maps also asks you if you want to save before quitting or when there are unsaved changes.
+
+> ⚠️ The files that are written are not self-contained. The just contain the relevant config and point to the map file paths.
 
 ## Install
 
-First, you need to [install the Rust toolchain](https://www.rust-lang.org/tools/install).
+First, you need to [install the Rust toolchain](https://www.rust-lang.org/tools/install) if you don't have it already.
 
 Then you can install the latest release from [crates.io](https://crates.io/):
 > ⚠️ TODO
@@ -106,6 +136,8 @@ You can also already pass map file paths from the command line:
 ```bash
 maps some/map.yaml some/other/map.yaml
 ```
+
+See `maps --help` for all command line options.
 
 ## License
 
