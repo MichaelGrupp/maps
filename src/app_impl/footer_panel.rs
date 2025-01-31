@@ -25,6 +25,12 @@ impl AppState {
                         ui.label(format!("⌖ x: {:.3}m  y: {:.3}m", pos.x, pos.y,));
                         ui.separator();
                     }
+                    if let Some(move_action) = &self.status.move_action {
+                        if self.options.view_mode == ViewMode::Aligned {
+                            ui.label(move_action);
+                            ui.separator();
+                        }
+                    }
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if ui

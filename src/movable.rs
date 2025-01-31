@@ -10,6 +10,9 @@ pub enum DragDirection {
 }
 
 pub trait Draggable {
+    // Offset in a RHS coordinate system.
+    fn offset_rhs(&self) -> egui::Vec2;
+
     fn drag(&mut self, delta: egui::Vec2);
 
     fn drag_directed(&mut self, amount: f32, direction: DragDirection) {

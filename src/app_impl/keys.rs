@@ -21,6 +21,7 @@ impl AppState {
 
     pub fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
         if self.dialogs_open() || self.text_editing() {
+            self.status.move_action = None;
             return;
         }
 
@@ -65,6 +66,7 @@ impl AppState {
 
             let drag_amount = self.options.pose_edit.movable_amounts.drag;
             if let Some(draggable) = draggable {
+                let previous_offset = draggable.offset_rhs();
                 if i.key_down(egui::Key::W) {
                     draggable.drag_directed(drag_amount, DragDirection::Up);
                 }
@@ -76,6 +78,22 @@ impl AppState {
                 }
                 if i.key_down(egui::Key::D) {
                     draggable.drag_directed(drag_amount, DragDirection::Right);
+                }
+                let delta = draggable.offset_rhs() - previous_offset;
+                if delta.x != 0. && delta.y == 0. {
+                    self.status.move_action = Some("⬌".to_string());
+                } else if delta.x == 0. && delta.y != 0. {
+                    self.status.move_action = Some("⬍".to_string());
+                } else if delta.x > 0. && delta.y > 0. {
+                    self.status.move_action = Some("⬈".to_string());
+                } else if delta.x < 0. && delta.y > 0. {
+                    self.status.move_action = Some("⬉".to_string());
+                } else if delta.x < 0. && delta.y < 0. {
+                    self.status.move_action = Some("⬋".to_string());
+                } else if delta.x > 0. && delta.y < 0. {
+                    self.status.move_action = Some("⬊".to_string());
+                } else {
+                    self.status.move_action = None;
                 }
             }
 
@@ -97,9 +115,10 @@ impl AppState {
             if let Some(rotatable) = rotatable {
                 if i.key_down(egui::Key::Q) {
                     rotatable.rotate_directed(rotation_amount, DragDirection::Left);
-                }
-                if i.key_down(egui::Key::E) {
+                    self.status.move_action = Some("⟲".to_string());
+                } else if i.key_down(egui::Key::E) {
                     rotatable.rotate_directed(rotation_amount, DragDirection::Right);
+                    self.status.move_action = Some("⟳".to_string());
                 }
             }
 
@@ -107,11 +126,13 @@ impl AppState {
                 self.options
                     .grid
                     .zoom(-self.options.grid.scroll_delta_percent);
+                self.status.move_action = Some("-".to_string());
             }
             if i.key_down(egui::Key::Plus) {
                 self.options
                     .grid
                     .zoom(self.options.grid.scroll_delta_percent);
+                self.status.move_action = Some("+".to_string());
             }
         });
     }

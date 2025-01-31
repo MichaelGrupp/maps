@@ -33,6 +33,10 @@ pub struct Error {
 }
 
 impl Draggable for MapPose {
+    fn offset_rhs(&self) -> emath::Vec2 {
+        emath::vec2(self.translation.x, self.translation.y)
+    }
+
     fn drag(&mut self, delta: emath::Vec2) {
         self.translation.x += delta.x;
         self.translation.y -= delta.y;

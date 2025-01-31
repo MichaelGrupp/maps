@@ -112,6 +112,10 @@ impl GridOptions {
 }
 
 impl Draggable for GridOptions {
+    fn offset_rhs(&self) -> egui::Vec2 {
+        self.offset * egui::vec2(1., -1.) // LHS to RHS
+    }
+
     // Assumes that drag delta is in meters.
     fn drag(&mut self, delta: egui::Vec2) {
         self.offset += delta * self.scale;

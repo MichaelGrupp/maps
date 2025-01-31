@@ -69,6 +69,7 @@ pub struct StatusInfo {
     pub quit_modal_active: bool,
     pub unsaved_changes: bool,
     pub quit_after_save: bool,
+    pub move_action: Option<String>,
 }
 
 #[derive(Default, Serialize, Deserialize)]
