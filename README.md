@@ -87,6 +87,9 @@ You can change the pose of a map relative to the global origin in the aligned gr
 * Enter values or move the map with the keyboard.
 * Poses can be exported to YAML files.
 
+> 👉 maps doesn't touch the `origin` of your `map.yaml` file, but writes a separate file.
+> Many ROS tools don't support rotations in the map yaml file, and it's anyway cleaner to separate the alignment pose from the map origin.
+
 ### Menu & Settings
 
 * Click `☰` to open the sidebar to manage maps and their visibility.
