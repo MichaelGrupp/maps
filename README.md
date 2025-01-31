@@ -11,7 +11,12 @@
 * ...you want to quickly view the maps, but other viewers are either...
   * ...tedious to spin up (e.g. ROS nodes/topics + RViz).
   * ...not supporting grid coordinates (most image viewers).
+* ...you want to display in a shared coordinate system, take measurements etc.
+* ...you want to align multiple, potentially very large maps.
 
+The features are best summarized in a video:
+
+https://github.com/user-attachments/assets/391e8e02-77da-42ac-991d-02578a3cdaa0
 
 ## Goals
 
