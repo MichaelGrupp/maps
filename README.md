@@ -66,7 +66,7 @@ Does exactly what you think: activate the tool and click two points in the align
 
 ### Lens
 
-The lens tool magnifies a region below the mouse cursor to the original image size. This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
+The lens tool magnifies a region below the mouse cursor with a magnification factor (in Aligned view) or to the original image size (in Tiles / Stacked view). This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
 
 * Right-click the mouse on a map to enable/disable the lens (or press L).
 * Adjust it...
@@ -100,7 +100,7 @@ You can change the pose of a map relative to the global origin in the aligned gr
 
 You can save your session and reload it later using the menu. maps also asks you if you want to save before quitting or when there are unsaved changes.
 
-> ⚠️ The files that are written are not self-contained. The just contain the relevant config and point to the map file paths.
+> ⚠️ The files that are written are not self-contained. They just contain the relevant config and point to the map file paths.
 
 ## Install
 
