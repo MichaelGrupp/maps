@@ -106,7 +106,7 @@ You can change the pose of a map relative to the global origin in the aligned gr
    * make the texture of the maps transparent/colored using the blend settings
    * add fixed lenses in different areas of a large map
 
-<img src="/data/doc/alignment.gif" height="250" />
+<img src="/data/doc/alignment.gif" height="150" />
 
 > 👉 maps doesn't touch the `origin` of your `map.yaml` file, but writes a separate file.
 > Many ROS tools don't support rotations in the map yaml file, and it's anyway cleaner to separate the alignment pose from the map origin.
