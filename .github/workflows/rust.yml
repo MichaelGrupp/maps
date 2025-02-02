@@ -22,12 +22,20 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Upload kittest snapshots
+    - name: Upload new kittest snapshots
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: kittest-snapshots
         path: |
-          tests/snapshots/*png
+          tests/snapshots/*.new.png
+    - name: Upload kittest snapshot diffs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: kittest-diff-snapshots
+        path: |
+          tests/snapshots/*.diff.png
 
   macos:
     runs-on: [macos-latest]
@@ -41,12 +49,21 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Upload kittest snapshots
+    - name: Upload new kittest snapshots
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: kittest-snapshots
         path: |
-          tests/snapshots/*png
+          tests/snapshots/*.new.png
+    - name: Upload kittest snapshot diffs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: kittest-diff-snapshots
+        path: |
+          tests/snapshots/*.diff.png
+    
 
   windows:
     runs-on: [windows-latest]
@@ -60,9 +77,17 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Upload kittest snapshots
+    - name: Upload new kittest snapshots
       uses: actions/upload-artifact@v4
+      if: always()
       with:
-        name: kittest-snapshots
+        name: kittest-diff-snapshots
         path: |
-          tests/snapshots/*png
+          tests/snapshots/*.new.png
+    - name: Upload kittest snapshot diffs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: kittest-diff-snapshots
+        path: |
+          tests/snapshots/*.diff.png

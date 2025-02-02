@@ -17,7 +17,7 @@ fn main() {
         ],
         AppOptions {
             tint_settings: TintOptions {
-                tint_for_all: egui::Color32::from_rgba_unmultiplied(255, 255, 255, 127),
+                tint_for_all: egui::Color32::from_rgba_unmultiplied(255, 255, 25, 127),
                 ..Default::default()
             },
             ..Default::default()
