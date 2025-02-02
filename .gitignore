@@ -1,2 +1,4 @@
 /target
 /assets
+
+/tests/snapshots/*new.png
