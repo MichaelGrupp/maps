@@ -168,6 +168,28 @@ maps some/map.yaml some/other/map.yaml
 
 See `maps --help` for all command line options.
 
+## Development / Testing
+
+There are integration tests in the `tests/` directory that are run in pull requests.
+These include kit tests that check if the UI stays consistent, using the snapshot diff feature of `egui_kittest`.
+
+<details>
+<summary>How to run locally</summary>
+
+Run with snapshot diff check enabled (default feature `kittest_snapshots` of this crate):
+```
+cargo test --verbose -- --show-output
+```
+
+To update the baseline snapshots (e.g. when changing the UI intentionally as part of the UI), set the `UPDATE_SNAPSHOTS=1` environment variable before the test command.
+
+Run without snapshot checks:
+```
+cargo test --verbose --no-default-features -- --show-output
+```
+
+</details>
+
 ## License
 
 Apache 2.0
