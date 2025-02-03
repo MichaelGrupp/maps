@@ -10,6 +10,8 @@ use maps::meta::Meta;
 
 #[test]
 fn main() {
+    env_logger::init();
+
     let app_state = AppState::init(
         vec![
             Meta::load_from_file(&PathBuf::from(TEST_META_0)).expect("Failed to load map"),

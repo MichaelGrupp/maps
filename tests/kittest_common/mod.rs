@@ -12,7 +12,8 @@ pub const TEST_META_1: &str = "data/dummy_maps/dummy_map_rot.yaml";
 
 const PIXELS_PER_POINT: f32 = 1.;
 
-/// Does a snapshot diff test of a frame of the full app state.
+/// Spins up the full app state UI.
+/// Does a snapshot diff test unless the "kittest_snapshots" feature is disabled.
 /// To create/update baseline snapshots, run: UPDATE_SNAPSHOTS=1 cargo test
 pub fn snapshot_full_app(mut app_state: AppState, test_name: &str, size: egui::Vec2) {
     let app_closure = |ctx: &Context| {
@@ -48,5 +49,13 @@ pub fn snapshot_full_app(mut app_state: AppState, test_name: &str, size: egui::V
         .build(app_closure);
     harness.run();
 
+    #[cfg(feature = "kittest_snapshots")]
     harness.wgpu_snapshot(test_name);
+
+    #[cfg(not(feature = "kittest_snapshots"))]
+    println!(
+        "Snapshot diff test for {} skipped. \
+        Enable the 'kittest_snapshots' feature to run it.",
+        test_name
+    );
 }

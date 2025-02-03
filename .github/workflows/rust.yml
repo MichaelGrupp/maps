@@ -7,36 +7,10 @@ on:
     branches: [ "master" ]
 
 env:
+  RUST_LOG: "maps=trace"
   CARGO_TERM_COLOR: always
 
 jobs:
-  ubuntu:
-    runs-on: [ubuntu-latest]
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        lfs: true
-    - name: Format check
-      run: cargo fmt --all -- --check
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Upload new kittest snapshots
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: kittest-snapshots
-        path: |
-          tests/snapshots/*.new.png
-    - name: Upload kittest snapshot diffs
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: kittest-diff-snapshots
-        path: |
-          tests/snapshots/*.diff.png
-
   macos:
     runs-on: [macos-latest]
     steps:
@@ -48,7 +22,7 @@ jobs:
     - name: Build
       run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose -- --show-output 
     - name: Upload new kittest snapshots
       uses: actions/upload-artifact@v4
       if: always()
@@ -63,7 +37,21 @@ jobs:
         name: kittest-diff-snapshots
         path: |
           tests/snapshots/*.diff.png
-    
+
+  ubuntu:
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: true
+    - name: Format check
+      run: cargo fmt --all -- --check
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      # Run tests without kittest_snapshots feature
+      # (no wgpu support in CI runner).
+      run: cargo test --verbose --no-default-features -- --show-output
 
   windows:
     runs-on: [windows-latest]
@@ -76,18 +64,6 @@ jobs:
     - name: Build
       run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
-    - name: Upload new kittest snapshots
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: kittest-diff-snapshots
-        path: |
-          tests/snapshots/*.new.png
-    - name: Upload kittest snapshot diffs
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: kittest-diff-snapshots
-        path: |
-          tests/snapshots/*.diff.png
+      # Run tests without kittest_snapshots feature
+      # (no wgpu support in CI runner).
+      run: cargo test --verbose --no-default-features -- --show-output

@@ -7,6 +7,8 @@ use maps::app::{AppOptions, AppState};
 
 #[test]
 fn empty_start() {
+    env_logger::init();
+
     let app_state = AppState::init(
         vec![],
         AppOptions {

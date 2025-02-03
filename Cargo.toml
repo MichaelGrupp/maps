@@ -12,6 +12,12 @@ edition = "2021"
 readme = "README.md"
 build = "build.rs"
 
+[features]
+# kittest snapshot diff tests are enabled by default (see tests/).
+# Disable when testing on a runner without wgpu support.
+kittest_snapshots = []
+default = ["kittest_snapshots"]
+
 [build-dependencies]
 built = { version = "0.7.5", features = ["git2"] }
 
