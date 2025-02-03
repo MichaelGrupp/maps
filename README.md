@@ -60,7 +60,7 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 `maps` provides three different main view modes.
 
-<img src="data/doc/view_selection.png" width="150" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/view_selection.png" width="150" />
 
 * `Aligned`:
   * Maps are shown in a metric grid, with their origin at zero.
@@ -72,13 +72,13 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 ### Measurements
 
-<img src="data/doc/tool_measure.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/tool_measure.png" width="125" />
 
 Does exactly what you think: activate the tool and click two points in the aligned grid view to measure their distance.
 
 ### Lens
 
-<img src="data/doc/tool_hover_lens.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/tool_hover_lens.png" width="125" />
 
 The lens tool magnifies a region below the mouse cursor with a magnification factor (in Aligned view) or to the original image size (in Tiles / Stacked view). This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
 
@@ -89,7 +89,7 @@ The lens tool magnifies a region below the mouse cursor with a magnification fac
 
 ### Fixed Lens
 
-<img src="data/doc/tool_fixed_lens.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/tool_fixed_lens.png" width="125" />
 
 In the Aligned view, you can add multiple lenses that are looking at a fixed coordinate each. They stay centered at the coordinate that was clicked, even if the main grid is moved.
 
@@ -106,7 +106,7 @@ You can change the pose of a map relative to the global origin in the aligned gr
    * make the texture of the maps transparent/colored using the blend settings
    * add fixed lenses in different areas of a large map
 
-<img src="/data/doc/alignment.gif" height="150" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/alignment.gif" height="150" />
 
 > 👉 maps doesn't touch the `origin` of your `map.yaml` file, but writes a separate file.
 > Many ROS tools don't support rotations in the map yaml file, and it's anyway cleaner to separate the alignment pose from the map origin.
