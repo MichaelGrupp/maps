@@ -1,2 +1,5 @@
 /target
 /assets
+
+/tests/snapshots/*new.png
+/tests/snapshots/*diff.png

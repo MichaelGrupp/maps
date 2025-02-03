@@ -12,6 +12,12 @@ edition = "2021"
 readme = "README.md"
 build = "build.rs"
 
+[features]
+# kittest snapshot diff tests are enabled by default (see tests/).
+# Disable when testing on a runner without wgpu support.
+kittest_snapshots = []
+default = ["kittest_snapshots"]
+
 [build-dependencies]
 built = { version = "0.7.5", features = ["git2"] }
 
@@ -21,6 +27,7 @@ confy = "0.6.1"
 eframe = {version = "0.30.0", features = ["wgpu"]}
 egui_extras = { version = "0.30.0", features = ["all_loaders"] }
 egui-file-dialog = "0.8.0"
+egui_kittest = { version = "0.30.0", features = ["wgpu", "snapshot"] }
 egui_tiles = "0.11.0"
 env_logger = "0.11.5"
 fast_image_resize = { version = "5.1.1", features = ["image"] }

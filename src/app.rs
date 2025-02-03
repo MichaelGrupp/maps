@@ -7,11 +7,12 @@ use egui_file_dialog::FileDialog;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString, VariantNames};
 
-use crate::app_impl::canvas_settings::CanvasOptions;
-use crate::app_impl::pose_edit::PoseEditOptions;
-use crate::app_impl::tint_settings::TintOptions;
-use crate::grid_options::GridOptions;
-use crate::lens::LensOptions;
+pub use crate::app_impl::canvas_settings::CanvasOptions;
+pub use crate::app_impl::pose_edit::PoseEditOptions;
+pub use crate::app_impl::tint_settings::TintOptions;
+pub use crate::grid_options::GridOptions;
+pub use crate::lens::LensOptions;
+
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::persistence::{save_app_options, PersistenceOptions};
