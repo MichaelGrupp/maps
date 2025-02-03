@@ -1,8 +1,11 @@
+use std::path::PathBuf;
+
 use eframe::egui;
 use eframe::egui::Context;
 use egui_kittest::Harness;
 
 use maps::app::AppState;
+use maps::meta::Meta;
 
 // Expects that cargo test is run from the root of the repository.
 #[allow(dead_code)]
@@ -58,4 +61,13 @@ pub fn snapshot_full_app(mut app_state: AppState, test_name: &str, size: egui::V
         Enable the 'kittest_snapshots' feature to run it.",
         test_name
     );
+}
+
+/// Load the metadata with faked absolute YAML path.
+/// Allows to have runner-agnostic snapshots when paths are shown in the UI.
+pub fn load_meta_with_fake_path(meta_path: &str) -> Meta {
+    let mut meta = Meta::load_from_file(&PathBuf::from(meta_path)).expect("Failed to load map");
+    let fake_parent = PathBuf::from("/fake_path_for_testing/");
+    meta.yaml_path = fake_parent.join(meta.yaml_path.file_name().unwrap());
+    meta
 }

@@ -1,13 +1,10 @@
 mod kittest_common;
 
-use std::path::PathBuf;
-
 use eframe::egui;
 use env_logger;
 
 use kittest_common::*;
 use maps::app::{AppOptions, AppState, TintOptions};
-use maps::meta::Meta;
 
 #[test]
 fn main() {
@@ -15,8 +12,8 @@ fn main() {
 
     let app_state = AppState::init(
         vec![
-            Meta::load_from_file(&PathBuf::from(TEST_META_0)).expect("Failed to load map"),
-            Meta::load_from_file(&PathBuf::from(TEST_META_1)).expect("Failed to load map"),
+            load_meta_with_fake_path(TEST_META_0),
+            load_meta_with_fake_path(TEST_META_1),
         ],
         AppOptions {
             tint_settings: TintOptions {
