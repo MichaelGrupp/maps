@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 env:
-  RUST_LOG: "maps=trace"
+  RUST_LOG: "maps=debug"
   CARGO_TERM_COLOR: always
 
 jobs:
@@ -29,14 +29,7 @@ jobs:
       with:
         name: kittest-snapshots
         path: |
-          tests/snapshots/*.new.png
-    - name: Upload kittest snapshot diffs
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: kittest-diff-snapshots
-        path: |
-          tests/snapshots/*.diff.png
+          tests/snapshots/
 
   ubuntu:
     runs-on: [ubuntu-latest]
