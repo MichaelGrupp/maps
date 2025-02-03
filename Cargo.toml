@@ -11,6 +11,7 @@ version = "1.0.1"
 edition = "2021"
 readme = "README.md"
 build = "build.rs"
+exclude = ["data/doc", "test/snapshots"]
 
 [features]
 # kittest snapshot diff tests are enabled by default (see tests/).
