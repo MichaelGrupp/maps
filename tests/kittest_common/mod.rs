@@ -65,7 +65,7 @@ pub fn snapshot_full_app(mut app_state: AppState, test_name: &str, size: egui::V
 
 /// Load the metadata with faked absolute YAML path.
 /// Allows to have runner-agnostic snapshots when paths are shown in the UI.
-pub fn load_meta_with_fake_path(meta_path: &str) -> Meta {
+pub fn _load_meta_with_fake_path(meta_path: &str) -> Meta {
     let mut meta = Meta::load_from_file(&PathBuf::from(meta_path)).expect("Failed to load map");
     let fake_parent = PathBuf::from("/fake_path_for_testing/");
     meta.yaml_path = fake_parent.join(meta.yaml_path.file_name().unwrap());

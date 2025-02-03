@@ -11,8 +11,8 @@ fn main() {
 
     let app_state = AppState::init(
         vec![
-            load_meta_with_fake_path(TEST_META_0),
-            load_meta_with_fake_path(TEST_META_1),
+            _load_meta_with_fake_path(TEST_META_0),
+            _load_meta_with_fake_path(TEST_META_1),
         ],
         AppOptions {
             view_mode: ViewMode::Tiles,
