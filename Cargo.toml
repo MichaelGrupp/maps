@@ -22,6 +22,10 @@ default = ["kittest_snapshots"]
 [build-dependencies]
 built = { version = "0.7.5", features = ["git2"] }
 
+[profile.kittest]
+# kittests would be a bit too slow without optimizations.
+inherits = "release"
+
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
 confy = "0.6.1"
