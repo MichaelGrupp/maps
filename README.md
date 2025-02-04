@@ -99,12 +99,16 @@ This can be useful when aligning large maps, where you need to watch different a
 
 You can change the pose of a map relative to the global origin in the aligned grid view.
 
+This can be used when you have multiple maps with different origins (e.g. different floors, different origin due to remapping),
+or to align with a fixed layout, etc.
+
 * Select the map that you want to move in the menu sidebar.
 * Enter values or move the map with the keyboard (after enabling "Move Map")
 * Poses can be exported to YAML files.
 * Optionally, use the tools to make alignment easier, for example:
    * make the texture of the maps transparent/colored using the blend settings
    * add fixed lenses in different areas of a large map
+   * adjust the movement step size for the WASD/QE keybindings to the sensitivity you need
 
 <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/alignment.gif" height="150" />
 
@@ -124,6 +128,27 @@ You can save your session and reload it later using the menu. maps also asks you
 Note that `maps` never overwrites your input map files.
 
 > ⚠️ The files that are written are not self-contained. They just contain the relevant config and point to the map file paths.
+
+### Configuration files
+
+#### Autosave
+
+The general options are autosaved by default.
+So for example, if you change the grid color and spacing, you will automatically have the same setting the next time you open maps.
+
+If you don't want this, you can disable this for the active session in the options side bar of the app.
+All options can be reset with the respective reset buttons in the UI.
+
+#### Custom
+
+If you want to use a custom configuration file path instead of the autosaved default for a session:
+
+```
+maps --config my_custom_config.toml
+```
+
+If the file doesn't exist yet, it opens `maps` with default options, creates the file and saves your changes there on exit.
+You can then reload these settings again anytime you want using the same command.
 
 ## Install
 
