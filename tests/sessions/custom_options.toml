@@ -1,0 +1,124 @@
+version = "1.0.1"
+menu_visible = false
+settings_visible = false
+help_visible = false
+view_mode = "Aligned"
+active_movable = "MapPose"
+active_tool = "None"
+
+[persistence]
+custom_config_path = "tests/sessions/custom_options.toml"
+autosave = true
+
+[canvas_settings]
+background_color = [
+    153,
+    144,
+    144,
+    0,
+]
+
+[lens]
+size_meters = 14.599995613098145
+size_meters_min = 2.5
+size_meters_max = 25.0
+scroll_speed_factor = 0.20000000298023224
+
+[grid]
+scale = 6.834917068481445
+min_scale = 1.0
+max_scale = 500.0
+lines_visible = true
+line_dimension = "Metric"
+line_spacing_meters = 20.0
+min_line_spacing_meters = 0.10000000149011612
+max_line_spacing_meters = 100.0
+line_spacing_points = 200.0
+min_line_spacing_points = 1.0
+max_line_spacing_points = 1000.0
+sub_lines_visible = "Always"
+sub_lines_factor = 10
+scroll_delta_percent = 1.0
+marker_visible = true
+marker_length_meters = 16.5
+marker_width_meters = 1.25
+marker_x_color = [
+    166,
+    71,
+    71,
+    127,
+]
+marker_y_color = [
+    57,
+    166,
+    57,
+    127,
+]
+marker_z_color = [
+    45,
+    45,
+    175,
+    127,
+]
+tick_labels_visible = true
+tick_labels_color = [
+    0,
+    70,
+    186,
+    255,
+]
+lens_magnification = 2.5
+
+[grid.offset]
+x = -348.57421875
+y = 22.46875
+
+[grid.line_stroke]
+width = 1.0
+color = [
+    13,
+    30,
+    34,
+    142,
+]
+
+[grid.sub_lines_stroke]
+width = 0.5
+color = [
+    59,
+    59,
+    59,
+    39,
+]
+
+[grid.measure_stroke]
+width = 2.0
+color = [
+    255,
+    165,
+    0,
+    255,
+]
+
+[tint_settings]
+tint_for_all = [
+    202,
+    231,
+    85,
+    255,
+]
+edit_color_to_alpha = true
+color_to_alpha_for_all = [
+    128,
+    128,
+    128,
+    255,
+]
+
+[pose_edit]
+edit_root_frame = false
+edit_map_frame = false
+
+[pose_edit.movable_amounts]
+drag = 1.0
+rotate = 0.10000000149011612

@@ -1,0 +1,67 @@
+[maps."data/dummy_maps/dummy_map_lores.yaml"]
+visible = true
+tint = [218, 68, 68, 255]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."data/dummy_maps/dummy_map_lores.yaml".meta]
+image_path = "data/dummy_maps/dummy_map_lores.png"
+yaml_path = "data/dummy_maps/dummy_map_lores.yaml"
+resolution = 0.10000000149011612
+
+[maps."data/dummy_maps/dummy_map_lores.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."data/dummy_maps/dummy_map_lores.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."data/dummy_maps/dummy_map_lores.yaml".pose]
+root_frame = "foo"
+map_frame = "bar"
+
+[maps."data/dummy_maps/dummy_map_lores.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."data/dummy_maps/dummy_map_lores.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.25
+
+[maps."data/dummy_maps/dummy_map_rot.yaml"]
+visible = true
+tint = [154, 177, 63, 141]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."data/dummy_maps/dummy_map_rot.yaml".meta]
+image_path = "data/dummy_maps/dummy_map_lores.png"
+yaml_path = "data/dummy_maps/dummy_map_rot.yaml"
+resolution = 0.10000000149011612
+
+[maps."data/dummy_maps/dummy_map_rot.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."data/dummy_maps/dummy_map_rot.yaml".meta.origin_theta]
+s = 0.30901768803596497
+c = 0.9510563015937805
+
+[maps."data/dummy_maps/dummy_map_rot.yaml".pose]
+root_frame = "root"
+map_frame = "map"
+
+[maps."data/dummy_maps/dummy_map_rot.yaml".pose.translation]
+x = 1.0
+y = 2.0
+z = 0.0
+
+[maps."data/dummy_maps/dummy_map_rot.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -0.04999999701976776
+
+[grid_lenses.4926c6ea-2ca7-427a-bfb1-6bbb2f172f02]
+x = 5.52825403213501
+y = 0.675529420375824
