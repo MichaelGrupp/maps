@@ -140,8 +140,12 @@ impl<'a> Lens<'a> {
             1.,
             ui.visuals().extreme_bg_color,
         ));
-        ui.painter()
-            .add(egui::Shape::rect_stroke(overlay_rect, 1., stroke));
+        ui.painter().add(egui::Shape::rect_stroke(
+            overlay_rect,
+            1.,
+            stroke,
+            egui::StrokeKind::Middle,
+        ));
 
         // TODO: use TextureRequest to load the overlay image.
         ui.put(
@@ -157,7 +161,12 @@ impl<'a> Lens<'a> {
         let stroke = egui::Stroke::new(2., egui::Rgba::from_rgb(0., 0., 0.));
         let fill = egui::Rgba::from_black_alpha(0.25);
         ui.painter().add(egui::Shape::rect_filled(rect, 0., fill));
-        ui.painter().add(egui::Shape::rect_stroke(rect, 1., stroke));
+        ui.painter().add(egui::Shape::rect_stroke(
+            rect,
+            1.,
+            stroke,
+            egui::StrokeKind::Middle,
+        ));
     }
 
     fn bounce_pos(ui: &egui::Ui, pointer_pos: egui::Pos2, overlay_size: egui::Vec2) -> egui::Pos2 {

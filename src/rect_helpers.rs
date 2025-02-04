@@ -19,5 +19,6 @@ pub fn debug_paint(ui: &egui::Ui, rect: egui::Rect, color: egui::Color32) {
     if !log_enabled!(Level::Trace) {
         return;
     }
-    ui.painter().rect_stroke(rect, 0.0, (1.0, color));
+    ui.painter()
+        .rect_stroke(rect, 0.0, (1.0, color), egui::StrokeKind::Middle);
 }
