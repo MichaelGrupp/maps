@@ -1,0 +1,10 @@
+# DON'T EDIT THIS FILE! Map alignment is done via: map_pose.yaml
+#
+# Created from: b1-2014-09-25-10-11-12.bag.pbstream
+
+image: map_3.png
+resolution: 0.025
+origin: [-48.1752, -37.2598, 0.0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

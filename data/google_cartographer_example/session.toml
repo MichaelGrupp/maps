@@ -1,0 +1,161 @@
+[maps."map_0.yaml"]
+visible = true
+tint = [90, 0, 0, 28]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."map_0.yaml".meta]
+image_path = "map_0.png"
+yaml_path = "map_0.yaml"
+resolution = 0.02500000037252903
+
+[maps."map_0.yaml".meta.origin_xy]
+x = -57.97560119628906
+y = -34.346099853515625
+
+[maps."map_0.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."map_0.yaml".pose]
+root_frame = "root"
+map_frame = "map_0"
+
+[maps."map_0.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."map_0.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -1.4381903409957886
+
+[maps."map_1.yaml"]
+visible = true
+tint = [36, 83, 36, 28]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."map_1.yaml".meta]
+image_path = "map_1.png"
+yaml_path = "map_1.yaml"
+resolution = 0.02500000037252903
+
+[maps."map_1.yaml".meta.origin_xy]
+x = -172.75100708007813
+y = -127.9000015258789
+
+[maps."map_1.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."map_1.yaml".pose]
+root_frame = "root"
+map_frame = "map_1"
+
+[maps."map_1.yaml".pose.translation]
+x = -10.850006103515625
+y = 18.400035858154297
+z = 0.0
+
+[maps."map_1.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 2.4665026664733887
+
+[maps."map_2.yaml"]
+visible = true
+tint = [93, 46, 72, 28]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."map_2.yaml".meta]
+image_path = "map_2.png"
+yaml_path = "map_2.yaml"
+resolution = 0.02500000037252903
+
+[maps."map_2.yaml".meta.origin_xy]
+x = -57.926700592041016
+y = -11.934399604797363
+
+[maps."map_2.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."map_2.yaml".pose]
+root_frame = "root"
+map_frame = "map_2"
+
+[maps."map_2.yaml".pose.translation]
+x = -6.949980735778809
+y = 18.52018928527832
+z = 0.0
+
+[maps."map_2.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -1.5293792486190796
+
+[maps."map_3.yaml"]
+visible = false
+tint = [59, 59, 59, 11]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."map_3.yaml".meta]
+image_path = "map_3.png"
+yaml_path = "map_3.yaml"
+resolution = 0.02500000037252903
+
+[maps."map_3.yaml".meta.origin_xy]
+x = -48.175201416015625
+y = -37.25979995727539
+
+[maps."map_3.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."map_3.yaml".pose]
+root_frame = "root"
+map_frame = "map_3"
+
+[maps."map_3.yaml".pose.translation]
+x = 128.11033630371094
+y = 4.049995422363281
+z = 0.0
+
+[maps."map_3.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 1.1452771425247192
+
+[maps."map_4.yaml"]
+visible = false
+tint = [59, 59, 59, 11]
+color_to_alpha = [128, 128, 128, 255]
+
+[maps."map_4.yaml".meta]
+image_path = "map_4.png"
+yaml_path = "map_4.yaml"
+resolution = 0.02500000037252903
+
+[maps."map_4.yaml".meta.origin_xy]
+x = -79.39910125732422
+y = -12.390700340270996
+
+[maps."map_4.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."map_4.yaml".pose]
+root_frame = "root"
+map_frame = "map_4"
+
+[maps."map_4.yaml".pose.translation]
+x = -8.159992218017578
+y = 17.729990005493164
+z = 0.0
+
+[maps."map_4.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -1.3285009860992432
+
+[grid_lenses]
