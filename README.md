@@ -201,6 +201,9 @@ These include kit tests that check if the UI stays consistent, using the snapsho
 <details>
 <summary>How to run locally</summary>
 
+First, install [Git LFS](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage) and `git lfs pull`.
+The snapshot image blobs are versioned with it instead of normal Git.
+
 Run with snapshot diff check enabled (default feature `kittest_snapshots` of this crate):
 ```
 cargo test --verbose -- --show-output
