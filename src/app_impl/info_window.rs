@@ -65,6 +65,15 @@ impl AppState {
                             "Close open sidebars or child windows. Deactivate lens if active.",
                         );
                         ui.end_row();
+                        ui.label("Ctrl + (Cmd +)");
+                        ui.label("Increase the global zoom level of the UI.");
+                        ui.end_row();
+                        ui.label("Ctrl - (Cmd -)");
+                        ui.label("Decrease the global zoom level of the UI.");
+                        ui.end_row();
+                        ui.label("Ctrl 0 (Cmd 0)");
+                        ui.label("Reset the global zoom level of the UI.");
+                        ui.end_row();
                     });
             });
     }
