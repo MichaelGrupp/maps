@@ -152,7 +152,7 @@ impl eframe::App for AppState {
         });
 
         if ctx.input(|i| i.viewport().close_requested()) {
-            if self.status.unsaved_changes {
+            if self.status.unsaved_changes && !self.data.maps.is_empty() {
                 ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
                 self.status.quit_modal_active = true;
             }
