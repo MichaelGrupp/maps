@@ -1,4 +1,5 @@
 use eframe::egui;
+use log::log_enabled;
 
 use crate::app::{AppState, ViewMode};
 
@@ -41,6 +42,16 @@ impl AppState {
                             self.options.help_visible = !self.options.help_visible;
                         }
                         ui.separator();
+                        if log_enabled!(log::Level::Debug) {
+                            if ui
+                                .add(egui::Button::new("🛠").fill(ui.visuals().window_fill()))
+                                .on_hover_text("Open the debug window.")
+                                .clicked()
+                            {
+                                self.status.debug_window_active = !self.status.debug_window_active;
+                            }
+                            ui.separator();
+                        }
                     });
                 });
             },

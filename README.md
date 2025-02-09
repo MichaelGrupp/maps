@@ -217,6 +217,12 @@ RUST_LOG=maps=debug cargo test --profile kittest --verbose --no-default-features
 
 </details>
 
+---
+
+With `-log-level debug` or `trace`, a debug window can be opened through a ⚒️ button in the footer panel.
+
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/debug_button.png" width="125" />
+
 ## License
 
 Apache 2.0
