@@ -4,15 +4,23 @@ use serde::{Deserialize, Serialize};
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
+fn default_theme_pref() -> egui::ThemePreference {
+    // TODO: add default() to egui::ThemePreference
+    egui::ThemePreference::System
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CanvasOptions {
     pub background_color: egui::Color32,
+    #[serde(default = "default_theme_pref")]
+    pub theme_preference: egui::ThemePreference,
 }
 
 impl Default for CanvasOptions {
     fn default() -> Self {
         Self {
             background_color: egui::Visuals::default().faint_bg_color,
+            theme_preference: default_theme_pref(),
         }
     }
 }
@@ -26,7 +34,11 @@ impl AppState {
         ui.add_space(SPACE);
         ui.end_row();
         ui.label("Dark / Light mode");
-        egui::widgets::global_theme_preference_switch(ui);
+        // Theme is applied in main update(), to ensure it's also applied when this ui is hidden.
+        self.options
+            .canvas_settings
+            .theme_preference
+            .radio_buttons(ui);
         ui.end_row();
         ui.label("Background color");
         ui.color_edit_button_srgba(&mut self.options.canvas_settings.background_color);
