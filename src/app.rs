@@ -67,6 +67,7 @@ pub struct StatusInfo {
     pub error: String,
     pub hover_position: Option<egui::Pos2>,
     pub quit_modal_active: bool,
+    pub debug_window_active: bool,
     pub unsaved_changes: bool,
     pub quit_after_save: bool,
     pub move_action: Option<String>,
@@ -147,6 +148,7 @@ impl eframe::App for AppState {
             self.central_panel(ui);
 
             self.info_window(ui);
+            self.debug_window(ctx, ui);
         });
 
         if ctx.input(|i| i.viewport().close_requested()) {

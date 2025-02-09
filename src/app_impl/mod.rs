@@ -1,6 +1,7 @@
 pub mod canvas_settings;
 pub mod central_panel;
 mod constants;
+pub mod debug_window;
 pub mod error_modal;
 pub mod footer_panel;
 mod grid_settings;
