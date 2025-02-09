@@ -2,9 +2,8 @@
 
 **Inspect, compare and align multiple grid maps in an intuitive & fast GUI**
 
-|   |   |   |
-|---|---|---|
 | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_0.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_1.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_2.png" width="250" /> |
+|---|---|---|
 
 ```
 cargo install maps
