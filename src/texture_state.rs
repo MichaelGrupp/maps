@@ -7,6 +7,7 @@ use log::trace;
 use crate::image::{color_to_alpha, fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
+use crate::value_interpretation::ValueInterpretation;
 
 #[derive(Default)]
 pub struct TextureState {
@@ -18,6 +19,7 @@ pub struct TextureState {
     pub desired_size: egui::Vec2,
     pub desired_uv: [egui::Pos2; 2],
     pub desired_color_to_alpha: Option<egui::Color32>,
+    pub desired_thresholding: Option<ValueInterpretation>,
 }
 
 impl TextureState {
@@ -30,7 +32,8 @@ impl TextureState {
 
     pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
         let changed = self.desired_size != request.desired_rect.size()
-            || self.desired_color_to_alpha != request.color_to_alpha;
+            || self.desired_color_to_alpha != request.color_to_alpha
+            || self.desired_thresholding != request.thresholding;
 
         if changed {
             // Free the old texture if the size changed.
@@ -39,6 +42,7 @@ impl TextureState {
         self.desired_size = request.desired_rect.size();
         self.desired_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
         self.desired_color_to_alpha = request.color_to_alpha;
+        self.desired_thresholding = request.thresholding;
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
             trace!("Fitting and reloading texture for {:?}", request);
@@ -79,12 +83,15 @@ impl TextureState {
 
         let mut unchanged = self.desired_size == desired_size && self.desired_uv == request.uv;
         unchanged &= request.uncropped.color_to_alpha == self.desired_color_to_alpha;
+        unchanged &= self.desired_thresholding.unwrap_or_default()
+            == request.uncropped.thresholding.unwrap_or_default();
         if unchanged {
             return;
         }
         self.desired_size = desired_size;
         self.desired_uv = request.uv;
         self.desired_color_to_alpha = request.uncropped.color_to_alpha;
+        self.desired_thresholding = request.uncropped.thresholding;
 
         if request.visible_rect.is_negative() || request.uv[0] == request.uv[1] {
             self.texture_handle = None;

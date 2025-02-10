@@ -49,7 +49,7 @@ impl AppState {
                 let request = &TextureRequest::new(name.clone(), rect_per_image)
                     .with_tint(map.tint)
                     .with_color_to_alpha(map.color_to_alpha)
-                    .with_thresholding(map.meta.value_interpretation);
+                    .with_thresholding(map.get_value_interpretation());
                 map.get_or_create_texture_state(STACKED_TEXTURE_ID)
                     .put(ui, request);
                 if let Some(response) = &map

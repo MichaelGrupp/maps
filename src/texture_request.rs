@@ -49,8 +49,11 @@ impl TextureRequest {
         self
     }
 
-    pub fn with_thresholding(mut self, thresholding: ValueInterpretation) -> TextureRequest {
-        self.thresholding = Some(thresholding);
+    pub fn with_thresholding(
+        mut self,
+        thresholding: Option<&ValueInterpretation>,
+    ) -> TextureRequest {
+        self.thresholding = thresholding.copied();
         self
     }
 }

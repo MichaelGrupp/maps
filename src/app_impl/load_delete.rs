@@ -16,6 +16,7 @@ use crate::tiles::Pane;
 
 use crate::app::{AppState, Error};
 use crate::map_pose::MapPose;
+use crate::value_interpretation;
 
 impl AppState {
     pub fn make_yaml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
@@ -108,6 +109,12 @@ impl AppState {
                 });
                 let image_pyramid = Arc::new(ImagePyramid::new(image));
                 let name = meta.yaml_path.to_str().unwrap().to_owned();
+                let use_interpretation =
+                    meta.value_interpretation.mode != value_interpretation::Mode::Raw;
+                if use_interpretation {
+                    // We need to set this to not loose the values in the next frame.
+                    self.options.tint_settings.active_tint_selection = Some(name.clone());
+                }
                 self.data.maps.insert(
                     name.clone(),
                     MapState {
@@ -118,6 +125,7 @@ impl AppState {
                         texture_states: HashMap::new(),
                         tint: None,
                         color_to_alpha: None,
+                        use_value_interpretation: use_interpretation,
                     },
                 );
                 info!("Loaded map: {}", name);
@@ -239,7 +247,10 @@ impl AppState {
                             map_state.pose = map.pose;
                             map_state.visible = map.visible;
                             map_state.tint = map.tint;
-                            if map_state.tint.is_some() {
+                            if map_state.tint.is_some()
+                                || map_state.meta.value_interpretation.mode
+                                    != value_interpretation::Mode::Raw
+                            {
                                 // We need to set this because we would lose this map's tint
                                 // in the next frame if "All" is selected in the settings panel.
                                 self.options.tint_settings.active_tint_selection =
