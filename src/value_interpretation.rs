@@ -6,10 +6,8 @@ const TRINARY_FREE: u8 = 0;
 const TRINARY_OCCUPIED: u8 = 100;
 const TRINARY_UNKNOWN: u8 = 255;
 
-const SCALE_MAGIC: f32 = 99.;
-
 use image::{DynamicImage, Rgba};
-use imageproc::map::map_colors_mut;
+use imageproc::{integral_image::ArrayData, map::map_colors_mut};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -20,12 +18,21 @@ pub enum Mode {
     Scale,
 }
 
-#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub enum Quirks {
+    #[default]
+    Ros1Wiki, // Interpret values as documented in ROS 1 Wiki.
+    Ros1MapServer, // ROS 1 map_server behaves differently than documented.
+    Ros2MapServer, // TODO
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct ValueInterpretation {
-    free: f32,
-    occupied: f32,
-    negate: bool,
-    mode: Mode,
+    pub free: f32,
+    pub occupied: f32,
+    pub negate: bool,
+    pub mode: Mode,
+    pub quirks: Quirks,
 }
 
 impl ValueInterpretation {
@@ -35,7 +42,14 @@ impl ValueInterpretation {
             occupied,
             negate,
             mode: mode.unwrap_or(Mode::default()),
+            quirks: Quirks::default(),
         }
+    }
+
+    /// Allows to mimic the wonderful undocumented behaviors of map_server.
+    pub fn with_quirks(mut self, quirks: Quirks) -> Self {
+        self.quirks = quirks;
+        self
     }
 
     /// Modifies the image according to the value interpretation.
@@ -51,7 +65,25 @@ impl ValueInterpretation {
     }
 
     fn to_avg_float(&self, pixel: &Rgba<u8>) -> f32 {
-        let avg = (pixel[0] as f32 + pixel[1] as f32 + pixel[2] as f32) / 3.0;
+        let num_channels = match self.quirks {
+            // Nothing documented about alpha averaging in ROS 1 Wiki.
+            Quirks::Ros1Wiki => 3,
+            // "Alpha will be averaged in with color channels when using trinary mode."
+            // ROS 1: https://github.com/ros-planning/navigation/blob/9ad644198e132d0e950579a3bc72c29da46e60b0/map_server/src/image_loader.cpp#L106C3-L106C76
+            // ROS 2: https://github.com/ros-navigation/navigation2/blob/088c423deb97a76f5a5f4ca133cb122338576fe1/nav2_map_server/src/map_io.cpp#L236
+            Quirks::Ros1MapServer | Quirks::Ros2MapServer => {
+                if self.mode == Mode::Trinary {
+                    4
+                } else {
+                    3
+                }
+            }
+        };
+        let sum = pixel.data()[0..num_channels]
+            .iter()
+            .map(|&v| v as f32)
+            .sum::<f32>();
+        let avg = sum / num_channels as f32;
         if self.negate {
             return avg / 255.;
         }
@@ -60,22 +92,34 @@ impl ValueInterpretation {
 
     fn interpret(&self, pixel: &Rgba<u8>) -> Rgba<u8> {
         let p = self.to_avg_float(pixel);
-        if p > self.occupied {
-            Rgba([
-                TRINARY_OCCUPIED,
-                TRINARY_OCCUPIED,
-                TRINARY_OCCUPIED,
-                pixel[3],
-            ])
-        } else if p < self.free {
-            Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, pixel[3]])
-        } else if self.mode == Mode::Trinary || pixel[3] != 255 {
-            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, pixel[3]])
+        let alpha = pixel[3];
+
+        // In scale mode, any pixel with transparency is considered unknown.
+        let scale_unknown = self.mode == Mode::Scale && alpha != 255;
+
+        if p > self.occupied && !scale_unknown {
+            Rgba([TRINARY_OCCUPIED, TRINARY_OCCUPIED, TRINARY_OCCUPIED, alpha])
+        } else if p < self.free && !scale_unknown {
+            Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, alpha])
+        } else if self.mode == Mode::Trinary || scale_unknown {
+            // In trinary mode, any pixel that is not occupied or free is considered unknown.
+            // In scale mode, any pixel with transparency is considered unknown.
+            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, alpha])
         }
         // Scale
         else {
-            let scaled = (SCALE_MAGIC * (p - self.free) / (self.occupied - self.free)) as u8;
-            Rgba([scaled, scaled, scaled, pixel[3]])
+            let scaled = match self.quirks {
+                Quirks::Ros1Wiki => {
+                    // wiki.ros.org/map_server#Value_Interpretation
+                    (99. * (p - self.free) / (self.occupied - self.free)) as u8
+                }
+                Quirks::Ros1MapServer | Quirks::Ros2MapServer => {
+                    // ROS 1: https://github.com/ros-planning/navigation/blob/9ad644198e132d0e950579a3bc72c29da46e60b0/map_server/src/image_loader.cpp#L155
+                    // ROS 2:
+                    (1. + 98. * (p - self.free) / (self.occupied - self.free)) as u8
+                }
+            };
+            Rgba([scaled, scaled, scaled, alpha])
         }
     }
 }
@@ -83,12 +127,14 @@ impl ValueInterpretation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use image::{GenericImage, GenericImageView};
 
     const EPS: f32 = 1e-3;
 
     #[test]
     fn avg_float() {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, None);
+
         let pixel = Rgba([128, 128, 128, 255]);
         assert!(thresholding.to_avg_float(&pixel) - 0.5 < EPS);
 
@@ -101,11 +147,10 @@ mod tests {
 
     #[test]
     fn trinary() {
-        use image::{GenericImage, GenericImageView};
-
-        let mut img = DynamicImage::new_rgba8(1, 1);
-        img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Trinary));
+        let mut img = DynamicImage::new_rgba8(1, 1);
+
+        img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
         thresholding.apply(&mut img);
         assert_eq!(
             img.get_pixel(0, 0),
@@ -129,21 +174,12 @@ mod tests {
 
     #[test]
     fn scale() {
-        use image::{GenericImage, GenericImageView};
-
-        let mut img = DynamicImage::new_rgba8(1, 1);
-        img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Scale));
-        thresholding.apply(&mut img);
-        assert_eq!(img.get_pixel(0, 0), Rgba([50, 50, 50, 255]));
+        let mut img = DynamicImage::new_rgba8(1, 1);
 
-        // Any pixel with alpha is considered unknown here.
-        img.put_pixel(0, 0, Rgba([1, 2, 3, 100]));
+        img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
         thresholding.apply(&mut img);
-        assert_eq!(
-            img.get_pixel(0, 0),
-            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 255])
-        );
+        assert_eq!(img.get_pixel(0, 0), Rgba([65, 65, 65, 255]));
 
         img.put_pixel(0, 0, Rgba([60, 60, 60, 255]));
         thresholding.apply(&mut img);
@@ -152,11 +188,52 @@ mod tests {
             Rgba([TRINARY_OCCUPIED, TRINARY_OCCUPIED, TRINARY_OCCUPIED, 255])
         );
 
-        img.put_pixel(0, 0, Rgba([0, 0, 0, 255]));
+        img.put_pixel(0, 0, Rgba([255, 255, 255, 255]));
         thresholding.apply(&mut img);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, 255])
+        );
+
+        // Any pixel with transparency is considered unknown here.
+        img.put_pixel(0, 0, Rgba([1, 2, 3, 100]));
+        thresholding.apply(&mut img);
+        assert_eq!(
+            img.get_pixel(0, 0),
+            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 100])
+        );
+    }
+
+    #[test]
+    fn scale_map_server_quirks() {
+        let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Scale))
+            .with_quirks(Quirks::Ros1MapServer);
+        let mut img = DynamicImage::new_rgba8(1, 1);
+
+        img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
+        thresholding.apply(&mut img);
+        assert_eq!(img.get_pixel(0, 0), Rgba([66, 66, 66, 255]));
+
+        img.put_pixel(0, 0, Rgba([60, 60, 60, 255]));
+        thresholding.apply(&mut img);
+        assert_eq!(
+            img.get_pixel(0, 0),
+            Rgba([TRINARY_OCCUPIED, TRINARY_OCCUPIED, TRINARY_OCCUPIED, 255])
+        );
+
+        img.put_pixel(0, 0, Rgba([255, 255, 255, 255]));
+        thresholding.apply(&mut img);
+        assert_eq!(
+            img.get_pixel(0, 0),
+            Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, 255])
+        );
+
+        // Any pixel with transparency is considered unknown here.
+        img.put_pixel(0, 0, Rgba([1, 2, 3, 100]));
+        thresholding.apply(&mut img);
+        assert_eq!(
+            img.get_pixel(0, 0),
+            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 100])
         );
     }
 }
