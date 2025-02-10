@@ -108,6 +108,7 @@ impl<'a> Lens<'a> {
         }
         let mut cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
         color_to_alpha(&mut cropped_image, map.color_to_alpha);
+        map.meta.value_interpretation.apply(&mut cropped_image);
         let cropped_size = egui::vec2(cropped_image.width() as f32, cropped_image.height() as f32);
 
         let overlay_texture_handle = ui.ctx().load_texture(

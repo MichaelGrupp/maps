@@ -29,6 +29,7 @@ impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
             let request = TextureRequest::new(pane.id.clone(), ui.clip_rect())
                 .with_color_to_alpha(map.color_to_alpha)
                 .with_tint(map.tint)
+                .with_thresholding(map.meta.value_interpretation)
                 .with_sense(egui::Sense::click_and_drag());
 
             egui::ScrollArea::both().show(ui, |ui| {

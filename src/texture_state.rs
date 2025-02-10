@@ -47,6 +47,9 @@ impl TextureState {
                 self.desired_size,
             );
             color_to_alpha(&mut image, request.color_to_alpha);
+            if let Some(thresholding) = &request.thresholding {
+                thresholding.apply(&mut image);
+            }
             ui.ctx().load_texture(
                 request.client.clone(),
                 to_egui_image(image),
@@ -104,6 +107,9 @@ impl TextureState {
             return;
         }
         color_to_alpha(&mut cropped_image, request.uncropped.color_to_alpha);
+        if let Some(thresholding) = &request.uncropped.thresholding {
+            thresholding.apply(&mut cropped_image);
+        }
 
         self.texture_handle = Some(ui.ctx().load_texture(
             request.uncropped.client.clone(),
