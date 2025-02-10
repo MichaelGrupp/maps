@@ -58,6 +58,7 @@ pub struct Meta {
     pub origin_xy: emath::Vec2,
     pub origin_theta: emath::Rot2,
     pub value_interpretation: ValueInterpretation,
+    original_value_interpretation: ValueInterpretation,
 }
 
 impl From<MetaYamlAnnotated> for Meta {
@@ -84,6 +85,12 @@ impl From<MetaYamlAnnotated> for Meta {
                 meta_yaml.negate != 0,
                 meta_yaml.mode,
             ),
+            original_value_interpretation: ValueInterpretation::new(
+                meta_yaml.free_thresh,
+                meta_yaml.occupied_thresh,
+                meta_yaml.negate != 0,
+                meta_yaml.mode,
+            ),
         }
     }
 }
@@ -98,5 +105,9 @@ impl Meta {
             }
             Err(e) => Err(e),
         }
+    }
+
+    pub fn reset_value_interpretation(&mut self) {
+        self.value_interpretation = self.original_value_interpretation;
     }
 }

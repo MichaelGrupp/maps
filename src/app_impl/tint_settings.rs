@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
+use crate::value_interpretation::{Mode, Quirks, ValueInterpretation};
 
 use crate::texture_request::NO_TINT;
 
@@ -15,6 +16,10 @@ pub struct TintOptions {
     pub tint_for_all: egui::Color32,
     pub edit_color_to_alpha: bool,
     pub color_to_alpha_for_all: Option<egui::Color32>,
+    #[serde(default, skip)]
+    pub use_value_interpretation_for_all: bool,
+    #[serde(default, skip)]
+    pub value_interpretation_for_all: ValueInterpretation,
 }
 
 impl default::Default for TintOptions {
@@ -24,6 +29,8 @@ impl default::Default for TintOptions {
             tint_for_all: NO_TINT,
             edit_color_to_alpha: false,
             color_to_alpha_for_all: None,
+            use_value_interpretation_for_all: false,
+            value_interpretation_for_all: ValueInterpretation::default(),
         }
     }
 }
@@ -57,13 +64,18 @@ impl AppState {
         let reset = ui.button("Reset").clicked();
         ui.end_row();
 
+        // TODO: clean code below up a bit.
         if reset {
             self.options.tint_settings.edit_color_to_alpha = false;
+            self.options.tint_settings.use_value_interpretation_for_all = false;
+            self.options.tint_settings.value_interpretation_for_all =
+                ValueInterpretation::default();
         }
 
         if *selected == all_key {
             let tint = &mut self.options.tint_settings.tint_for_all;
             let color_to_alpha = &mut self.options.tint_settings.color_to_alpha_for_all;
+            let value_interpretation = &mut self.options.tint_settings.value_interpretation_for_all;
 
             pick(
                 ui,
@@ -71,23 +83,40 @@ impl AppState {
                 tint,
                 color_to_alpha,
                 &mut self.options.tint_settings.edit_color_to_alpha,
+                &mut self.options.tint_settings.use_value_interpretation_for_all,
+                value_interpretation,
             );
+
+            if reset {
+                *value_interpretation = ValueInterpretation::default();
+            }
 
             for map in self.data.maps.values_mut() {
                 map.tint = Some(*tint);
                 map.color_to_alpha = *color_to_alpha;
+                if self.options.tint_settings.use_value_interpretation_for_all {
+                    map.use_value_interpretation = true;
+                    map.meta.value_interpretation = *value_interpretation;
+                } else if map.meta.value_interpretation != *value_interpretation {
+                    map.meta.reset_value_interpretation();
+                }
             }
         } else if let Some(map) = self.data.maps.get_mut(selected) {
             let tint = map.tint.get_or_insert(NO_TINT);
             let color_to_alpha = &mut map.color_to_alpha;
 
+            if reset {
+                map.meta.reset_value_interpretation();
+            }
             pick(
                 ui,
                 reset,
                 tint,
                 color_to_alpha,
                 &mut self.options.tint_settings.edit_color_to_alpha,
-            );
+                &mut map.use_value_interpretation,
+                &mut map.meta.value_interpretation,
+            )
         } else {
             self.options.tint_settings.active_tint_selection = None;
         }
@@ -106,8 +135,41 @@ fn pick_color_to_alpha(ui: &mut egui::Ui, color_to_alpha: &mut Option<egui::Colo
 }
 
 fn pick_tint_color(ui: &mut egui::Ui, tint: &mut egui::Color32) {
-    ui.label("Tint color");
+    ui.label("Tint color / alpha").on_hover_text(
+        "Colorize the image with this color.\n\
+        Alpha value will be used as transparency.",
+    );
     ui.color_edit_button_srgba(tint);
+}
+
+fn pick_quirks(ui: &mut egui::Ui, quirks: &mut Quirks) {
+    ui.label("Implementation quirks").on_hover_text(
+        "Mimic ROS implementation quirks. Choose whether to follow the ROS Wiki\n\
+        or what's implemented in ROS' map_server.",
+    );
+    ui.horizontal(|ui| {
+        ui.selectable_value(quirks, Quirks::Ros1Wiki, "ROS 1 Wiki")
+            .on_hover_text("Interpret values as documented in ROS 1 Wiki.");
+        ui.selectable_value(quirks, Quirks::Ros1MapServer, "ROS 1/2 map_server")
+            .on_hover_text("ROS 1/2 map_server behaves slightly differently than the Wiki :(");
+        // ROS 2 is left out because I assume it behaves like ROS 1 map_server.
+    });
+}
+
+fn pick_mode(ui: &mut egui::Ui, mode: &mut Mode) {
+    ui.label("Mode")
+        .on_hover_text("How to display the pixel values.");
+    ui.horizontal(|ui| {
+        ui.selectable_value(mode, Mode::Raw, "Raw")
+            .on_hover_text("No interpretation, just display the pixel values.");
+        ui.selectable_value(mode, Mode::Trinary, "Trinary")
+            .on_hover_text("Threshold pixel values as free, occupied, or unknown.");
+        ui.selectable_value(mode, Mode::Scale, "Scale")
+            .on_hover_text(
+                "Scale pixel values to continuous range between free and occupied \n\
+                 and map pixels with alpha to unknown.",
+            );
+    });
 }
 
 fn pick(
@@ -116,6 +178,8 @@ fn pick(
     tint: &mut egui::Color32,
     color_to_alpha: &mut Option<egui::Color32>,
     edit_color_to_alpha: &mut bool,
+    edit_value_interpretation: &mut bool,
+    value_interpretation: &mut ValueInterpretation,
 ) {
     if reset {
         *tint = NO_TINT;
@@ -133,5 +197,35 @@ fn pick(
         pick_color_to_alpha(ui, color_to_alpha);
     } else {
         *color_to_alpha = None;
+    }
+    ui.end_row();
+
+    ui.label("Use value interpretation").on_hover_text(
+        "Enable to change the way pixel values are interpreted / thresholded.\n\
+        This is enabled by default for maps that have the optional 'mode' parameter set.\n\
+        If disabled, the map will be displayed as raw pixel values.",
+    );
+    ui.checkbox(edit_value_interpretation, "");
+    if *edit_value_interpretation {
+        ui.end_row();
+        ui.end_row();
+        pick_mode(ui, &mut value_interpretation.mode);
+        ui.end_row();
+        pick_quirks(ui, &mut value_interpretation.quirks);
+        ui.end_row();
+        ui.label("Free threshold")
+            .on_hover_text("Threshold for free space interpretation.");
+        ui.add(egui::Slider::new(&mut value_interpretation.free, 0.0..=1.0));
+        ui.end_row();
+        ui.label("Occupied threshold")
+            .on_hover_text("Threshold for occupied space interpretation.");
+        ui.add(egui::Slider::new(
+            &mut value_interpretation.occupied,
+            0.0..=1.0,
+        ));
+        ui.end_row();
+        ui.label("Negate")
+            .on_hover_text("Negate the pixel interpretation.");
+        ui.checkbox(&mut value_interpretation.negate, "");
     }
 }

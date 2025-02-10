@@ -6,6 +6,9 @@ const TRINARY_FREE: u8 = 0;
 const TRINARY_OCCUPIED: u8 = 100;
 const TRINARY_UNKNOWN: u8 = 255;
 
+const MAP_SERVER_FREE_DEFAULT: f32 = 0.196;
+const MAP_SERVER_OCCUPIED_DEFAULT: f32 = 0.65;
+
 use image::{DynamicImage, Rgba};
 use imageproc::{integral_image::ArrayData, map::map_colors_mut};
 
@@ -23,16 +26,28 @@ pub enum Quirks {
     #[default]
     Ros1Wiki, // Interpret values as documented in ROS 1 Wiki.
     Ros1MapServer, // ROS 1 map_server behaves differently than documented.
-    Ros2MapServer, // TODO
+    Ros2MapServer, // TODO: same as ROS 1?
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ValueInterpretation {
     pub free: f32,
     pub occupied: f32,
     pub negate: bool,
     pub mode: Mode,
     pub quirks: Quirks,
+}
+
+impl Default for ValueInterpretation {
+    fn default() -> Self {
+        ValueInterpretation {
+            free: MAP_SERVER_FREE_DEFAULT,
+            occupied: MAP_SERVER_OCCUPIED_DEFAULT,
+            negate: false,
+            mode: Mode::default(),
+            quirks: Quirks::default(),
+        }
+    }
 }
 
 impl ValueInterpretation {
