@@ -113,7 +113,8 @@ impl Grid {
 
         let uncropped = TextureRequest::new(map_name.to_string(), rect)
             .with_tint(map.tint)
-            .with_color_to_alpha(map.color_to_alpha);
+            .with_color_to_alpha(map.color_to_alpha)
+            .with_thresholding(map.meta.value_interpretation);
         let request = RotatedCropRequest::from_visible(
             ui,
             uncropped,

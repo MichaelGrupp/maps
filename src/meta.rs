@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 use crate::path_helpers::resolve_symlink;
+use crate::value_interpretation::{Mode, ValueInterpretation};
 
 // Plain ROS map metadata yaml file format.
 #[derive(Deserialize)]
@@ -14,6 +15,7 @@ pub struct MetaYaml {
     pub negate: i32,
     pub occupied_thresh: f32,
     pub free_thresh: f32,
+    pub mode: Option<Mode>,
 }
 
 // Annotated yaml meta to keep track of the yaml file path.
@@ -55,7 +57,7 @@ pub struct Meta {
     pub resolution: f32,
     pub origin_xy: emath::Vec2,
     pub origin_theta: emath::Rot2,
-    // negate, occupied_thresh, free_thresh are not used
+    pub value_interpretation: ValueInterpretation,
 }
 
 impl From<MetaYamlAnnotated> for Meta {
@@ -76,6 +78,12 @@ impl From<MetaYamlAnnotated> for Meta {
             resolution: meta_yaml.resolution,
             origin_xy: emath::Vec2::new(meta_yaml.origin[0], meta_yaml.origin[1]),
             origin_theta: emath::Rot2::from_angle(emath::normalized_angle(meta_yaml.origin[2])),
+            value_interpretation: ValueInterpretation::new(
+                meta_yaml.free_thresh,
+                meta_yaml.occupied_thresh,
+                meta_yaml.negate != 0,
+                meta_yaml.mode,
+            ),
         }
     }
 }

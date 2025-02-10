@@ -1,6 +1,7 @@
 use eframe::egui;
 
 use crate::rect_helpers::{debug_paint, rotate};
+use crate::value_interpretation::ValueInterpretation;
 
 pub const NO_TINT: egui::Color32 = egui::Color32::WHITE;
 
@@ -10,6 +11,7 @@ pub struct TextureRequest {
     pub desired_rect: egui::Rect,
     pub tint: egui::Color32,
     pub color_to_alpha: Option<egui::Color32>,
+    pub thresholding: Option<ValueInterpretation>,
     pub sense: egui::Sense,
 }
 
@@ -20,6 +22,7 @@ impl TextureRequest {
             desired_rect,
             tint: NO_TINT,
             color_to_alpha: None,
+            thresholding: None,
             sense: egui::Sense::hover(),
         }
     }
@@ -43,6 +46,11 @@ impl TextureRequest {
 
     pub fn with_color_to_alpha(mut self, color_to_alpha: Option<egui::Color32>) -> TextureRequest {
         self.color_to_alpha = color_to_alpha;
+        self
+    }
+
+    pub fn with_thresholding(mut self, thresholding: ValueInterpretation) -> TextureRequest {
+        self.thresholding = Some(thresholding);
         self
     }
 }
