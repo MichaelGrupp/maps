@@ -15,14 +15,14 @@ const STACKED_TEXTURE_ID: &str = "stack";
 
 impl AppState {
     fn show_tiles(&mut self, ui: &mut egui::Ui) {
-        let hovered_id = (|| {
+        let hovered_id = {
             let mut behavior = MapsTreeBehavior {
                 maps: &mut self.data.maps,
                 hovered_id: None,
             };
             self.tile_manager.tree.ui(&mut behavior, ui);
             behavior.hovered_id
-        })();
+        };
 
         if let Some(hovered_id) = hovered_id {
             self.show_lens(ui, &hovered_id, &hovered_id);

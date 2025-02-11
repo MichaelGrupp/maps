@@ -56,7 +56,7 @@ impl ValueInterpretation {
             free,
             occupied,
             negate,
-            mode: mode.unwrap_or(Mode::default()),
+            mode: mode.unwrap_or_default(),
             quirks: Quirks::default(),
         }
     }
@@ -79,7 +79,7 @@ impl ValueInterpretation {
         }
     }
 
-    fn to_avg_float(&self, pixel: &Rgba<u8>) -> f32 {
+    fn avg_float(&self, pixel: &Rgba<u8>) -> f32 {
         let num_channels = match self.quirks {
             // Nothing documented about alpha averaging in ROS 1 Wiki.
             Quirks::Ros1Wiki => 3,
@@ -106,7 +106,7 @@ impl ValueInterpretation {
     }
 
     fn interpret(&self, pixel: &Rgba<u8>) -> Rgba<u8> {
-        let p = self.to_avg_float(pixel);
+        let p = self.avg_float(pixel);
         let alpha = pixel[3];
 
         // In scale mode, any pixel with transparency is considered unknown.
@@ -151,13 +151,13 @@ mod tests {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, None);
 
         let pixel = Rgba([128, 128, 128, 255]);
-        assert!(thresholding.to_avg_float(&pixel) - 0.5 < EPS);
+        assert!(thresholding.avg_float(&pixel) - 0.5 < EPS);
 
         let pixel = Rgba([255, 255, 255, 255]);
-        assert_eq!(thresholding.to_avg_float(&pixel), 0.);
+        assert_eq!(thresholding.avg_float(&pixel), 0.);
 
         let pixel = Rgba([0, 0, 0, 255]);
-        assert_eq!(thresholding.to_avg_float(&pixel), 1.);
+        assert_eq!(thresholding.avg_float(&pixel), 1.);
     }
 
     #[test]
