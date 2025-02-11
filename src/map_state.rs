@@ -18,6 +18,7 @@ pub struct MapState {
     pub visible: bool,
     pub tint: Option<egui::Color32>,
     pub color_to_alpha: Option<egui::Color32>,
+    #[serde(default)]
     pub use_value_interpretation: bool,
 
     // The image pyramid is an Arc to allow sharing it for multiple textures.
