@@ -1,5 +1,7 @@
 /// Value thresholding options.
 /// Mostly follows ROS: wiki.ros.org/map_server#Value_Interpretation
+/// Since the nav map_server slightly deviates from that documentation,
+/// it's also possible to mimic its behavior.
 use serde::{Deserialize, Serialize};
 
 const TRINARY_FREE: u8 = 0;
