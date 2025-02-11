@@ -1,0 +1,277 @@
+[maps."tests/maps/dummy_map_raw.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+use_value_interpretation = false
+
+[maps."tests/maps/dummy_map_raw.yaml".meta]
+image_path = "tests/maps/../../data/dummy_maps/dummy_map_lores.png"
+yaml_path = "tests/maps/dummy_map_raw.yaml"
+resolution = 0.10000000149011612
+
+[maps."tests/maps/dummy_map_raw.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."tests/maps/dummy_map_raw.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."tests/maps/dummy_map_raw.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "raw"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_raw.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "raw"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_raw.yaml".pose]
+root_frame = ""
+map_frame = ""
+
+[maps."tests/maps/dummy_map_raw.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."tests/maps/dummy_map_raw.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."tests/maps/dummy_map_raw_negate.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+use_value_interpretation = false
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".meta]
+image_path = "tests/maps/../../data/dummy_maps/dummy_map_lores.png"
+yaml_path = "tests/maps/dummy_map_raw_negate.yaml"
+resolution = 0.10000000149011612
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = true
+mode = "raw"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = true
+mode = "raw"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".pose]
+root_frame = ""
+map_frame = ""
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."tests/maps/dummy_map_raw_negate.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."tests/maps/dummy_map_scale.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+use_value_interpretation = true
+
+[maps."tests/maps/dummy_map_scale.yaml".meta]
+image_path = "tests/maps/../../data/dummy_maps/dummy_map_lores.png"
+yaml_path = "tests/maps/dummy_map_scale.yaml"
+resolution = 0.10000000149011612
+
+[maps."tests/maps/dummy_map_scale.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."tests/maps/dummy_map_scale.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."tests/maps/dummy_map_scale.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "scale"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_scale.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "scale"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_scale.yaml".pose]
+root_frame = ""
+map_frame = ""
+
+[maps."tests/maps/dummy_map_scale.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."tests/maps/dummy_map_scale.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."tests/maps/dummy_map_scale_negate.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+use_value_interpretation = true
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".meta]
+image_path = "tests/maps/../../data/dummy_maps/dummy_map_lores.png"
+yaml_path = "tests/maps/dummy_map_scale_negate.yaml"
+resolution = 0.10000000149011612
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = true
+mode = "scale"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = true
+mode = "scale"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".pose]
+root_frame = ""
+map_frame = ""
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."tests/maps/dummy_map_scale_negate.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."tests/maps/dummy_map_trinary.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+use_value_interpretation = true
+
+[maps."tests/maps/dummy_map_trinary.yaml".meta]
+image_path = "tests/maps/../../data/dummy_maps/dummy_map_lores.png"
+yaml_path = "tests/maps/dummy_map_trinary.yaml"
+resolution = 0.10000000149011612
+
+[maps."tests/maps/dummy_map_trinary.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."tests/maps/dummy_map_trinary.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."tests/maps/dummy_map_trinary.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_trinary.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_trinary.yaml".pose]
+root_frame = ""
+map_frame = ""
+
+[maps."tests/maps/dummy_map_trinary.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."tests/maps/dummy_map_trinary.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+use_value_interpretation = true
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".meta]
+image_path = "tests/maps/../../data/dummy_maps/dummy_map_lores.png"
+yaml_path = "tests/maps/dummy_map_trinary_negate.yaml"
+resolution = 0.10000000149011612
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".meta.origin_xy]
+x = -9.75
+y = -35.0
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = true
+mode = "trinary"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = true
+mode = "trinary"
+quirks = "Ros1MapServer"
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".pose]
+root_frame = ""
+map_frame = ""
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".pose.translation]
+x = 0.0
+y = 0.0
+z = 0.0
+
+[maps."tests/maps/dummy_map_trinary_negate.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[grid_lenses]
