@@ -135,7 +135,7 @@ fn main() -> eframe::Result {
             error!("YAML file does not exist: {}", yaml_file);
             exit(1);
         }
-        info!("Loading {}", yaml_path.to_str().unwrap());
+        info!("Loading map YAML {}", yaml_path.to_str().unwrap());
         if let Ok(meta) = Meta::load_from_file(&yaml_path.to_path_buf()) {
             if !meta.image_path.exists() {
                 error!(
@@ -147,7 +147,11 @@ fn main() -> eframe::Result {
             }
             metas.push(meta);
         } else {
-            error!("Error parsing YAML file: {}", yaml_path.to_str().unwrap());
+            error!(
+                "Error parsing map YAML file {}. \
+                 In case you want to load a session file, use the -s / --session flag.",
+                yaml_path.to_str().unwrap()
+            );
             exit(1);
         }
     }
