@@ -153,11 +153,12 @@ impl eframe::App for AppState {
             self.debug_window(ctx, ui);
         });
 
-        if ctx.input(|i| i.viewport().close_requested()) {
-            if self.status.unsaved_changes && !self.data.maps.is_empty() {
-                ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
-                self.status.quit_modal_active = true;
-            }
+        if ctx.input(|i| i.viewport().close_requested())
+            && self.status.unsaved_changes
+            && !self.data.maps.is_empty()
+        {
+            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+            self.status.quit_modal_active = true;
         }
     }
 

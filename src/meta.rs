@@ -31,7 +31,7 @@ pub struct Error {
 
 impl MetaYamlAnnotated {
     fn from(yaml_path: &PathBuf) -> Result<MetaYamlAnnotated, Error> {
-        let yaml_path = resolve_symlink(&yaml_path);
+        let yaml_path = resolve_symlink(yaml_path);
         match std::fs::read_to_string(&yaml_path) {
             Ok(buffer) => match serde_yaml_ng::from_str::<MetaYaml>(&buffer) {
                 Ok(meta_yaml) => Ok(MetaYamlAnnotated {
@@ -99,7 +99,7 @@ impl From<MetaYamlAnnotated> for Meta {
 
 impl Meta {
     pub fn load_from_file(yaml_path: &PathBuf) -> Result<Meta, Error> {
-        match MetaYamlAnnotated::from(&yaml_path) {
+        match MetaYamlAnnotated::from(yaml_path) {
             Ok(meta_yaml_annotated) => {
                 let meta = Meta::from(meta_yaml_annotated);
                 debug!("Parsed metadata: {:?}", meta);

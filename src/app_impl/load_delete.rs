@@ -66,7 +66,7 @@ impl AppState {
     }
 
     fn load_meta(&mut self, yaml_path: &PathBuf) -> Result<bool, Error> {
-        match Meta::load_from_file(&yaml_path) {
+        match Meta::load_from_file(yaml_path) {
             Ok(meta) => match self.load_map(meta) {
                 Ok(_) => Ok(true),
                 Err(e) => Err(e),
