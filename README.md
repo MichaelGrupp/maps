@@ -205,14 +205,14 @@ The snapshot image blobs are versioned with it instead of normal Git.
 
 Run with snapshot diff check enabled (default feature `kittest_snapshots` of this crate):
 ```
-RUST_LOG=maps=debug cargo test --profile kittest --verbose -- --show-output
+RUST_LOG=maps=info cargo test --profile kittest --verbose -- --show-output
 ```
 
 To update the baseline snapshots (e.g. when changing the UI intentionally as part of the UI), set the `UPDATE_SNAPSHOTS=1` environment variable before the test command.
 
 Run without snapshot checks:
 ```
-RUST_LOG=maps=debug cargo test --profile kittest --verbose --no-default-features -- --show-output
+RUST_LOG=maps=info cargo test --profile kittest --verbose --no-default-features -- --show-output
 ```
 
 </details>
