@@ -123,6 +123,46 @@ impl AppState {
     }
 }
 
+fn pick(
+    ui: &mut egui::Ui,
+    reset: bool,
+    tint: &mut egui::Color32,
+    color_to_alpha: &mut Option<egui::Color32>,
+    edit_color_to_alpha: &mut bool,
+    edit_value_interpretation: &mut bool,
+    value_interpretation: &mut ValueInterpretation,
+) {
+    if reset {
+        *tint = NO_TINT;
+        *color_to_alpha = None;
+    }
+
+    pick_tint_color(ui, tint);
+    ui.end_row();
+
+    ui.label("Enable color to alpha")
+        .on_hover_text("Enable to select a pixel value that shall be shown as transparent.");
+    ui.checkbox(edit_color_to_alpha, "");
+    if *edit_color_to_alpha {
+        ui.end_row();
+        pick_color_to_alpha(ui, color_to_alpha);
+    } else {
+        *color_to_alpha = None;
+    }
+    ui.end_row();
+
+    ui.label("Use value interpretation").on_hover_text(
+        "Enable to change the way pixel values are interpreted / thresholded.\n\
+        This is enabled by default for maps that have the optional 'mode' parameter set.\n\
+        If disabled, the map will be displayed as raw pixel values.",
+    );
+    ui.checkbox(edit_value_interpretation, "");
+    if *edit_value_interpretation {
+        ui.end_row();
+        pick_value_interpretation(ui, value_interpretation);
+    }
+}
+
 fn pick_color_to_alpha(ui: &mut egui::Ui, color_to_alpha: &mut Option<egui::Color32>) {
     ui.label("Color for alpha mapping").on_hover_text(
         "Select a pixel value (of the source image) that shall be shown as transparent.",
@@ -172,60 +212,23 @@ fn pick_mode(ui: &mut egui::Ui, mode: &mut Mode) {
     });
 }
 
-fn pick(
-    ui: &mut egui::Ui,
-    reset: bool,
-    tint: &mut egui::Color32,
-    color_to_alpha: &mut Option<egui::Color32>,
-    edit_color_to_alpha: &mut bool,
-    edit_value_interpretation: &mut bool,
-    value_interpretation: &mut ValueInterpretation,
-) {
-    if reset {
-        *tint = NO_TINT;
-        *color_to_alpha = None;
-    }
-
-    pick_tint_color(ui, tint);
+fn pick_value_interpretation(ui: &mut egui::Ui, value_interpretation: &mut ValueInterpretation) {
+    pick_mode(ui, &mut value_interpretation.mode);
     ui.end_row();
-
-    ui.label("Enable color to alpha")
-        .on_hover_text("Enable to select a pixel value that shall be shown as transparent.");
-    ui.checkbox(edit_color_to_alpha, "");
-    if *edit_color_to_alpha {
-        ui.end_row();
-        pick_color_to_alpha(ui, color_to_alpha);
-    } else {
-        *color_to_alpha = None;
-    }
+    pick_quirks(ui, &mut value_interpretation.quirks);
     ui.end_row();
-
-    ui.label("Use value interpretation").on_hover_text(
-        "Enable to change the way pixel values are interpreted / thresholded.\n\
-        This is enabled by default for maps that have the optional 'mode' parameter set.\n\
-        If disabled, the map will be displayed as raw pixel values.",
-    );
-    ui.checkbox(edit_value_interpretation, "");
-    if *edit_value_interpretation {
-        ui.end_row();
-        ui.end_row();
-        pick_mode(ui, &mut value_interpretation.mode);
-        ui.end_row();
-        pick_quirks(ui, &mut value_interpretation.quirks);
-        ui.end_row();
-        ui.label("Free threshold")
-            .on_hover_text("Threshold for free space interpretation.");
-        ui.add(egui::Slider::new(&mut value_interpretation.free, 0.0..=1.0));
-        ui.end_row();
-        ui.label("Occupied threshold")
-            .on_hover_text("Threshold for occupied space interpretation.");
-        ui.add(egui::Slider::new(
-            &mut value_interpretation.occupied,
-            0.0..=1.0,
-        ));
-        ui.end_row();
-        ui.label("Negate")
-            .on_hover_text("Negate the pixel interpretation.");
-        ui.checkbox(&mut value_interpretation.negate, "");
-    }
+    ui.label("Free threshold")
+        .on_hover_text("Threshold for free space interpretation.");
+    ui.add(egui::Slider::new(&mut value_interpretation.free, 0.0..=1.0));
+    ui.end_row();
+    ui.label("Occupied threshold")
+        .on_hover_text("Threshold for occupied space interpretation.");
+    ui.add(egui::Slider::new(
+        &mut value_interpretation.occupied,
+        0.0..=1.0,
+    ));
+    ui.end_row();
+    ui.label("Negate")
+        .on_hover_text("Negate the pixel interpretation.");
+    ui.checkbox(&mut value_interpretation.negate, "");
 }
