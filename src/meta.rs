@@ -57,7 +57,9 @@ pub struct Meta {
     pub resolution: f32,
     pub origin_xy: emath::Vec2,
     pub origin_theta: emath::Rot2,
+    #[serde(default)]
     pub value_interpretation: ValueInterpretation,
+    #[serde(default)]
     original_value_interpretation: ValueInterpretation,
 }
 
