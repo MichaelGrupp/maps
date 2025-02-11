@@ -6,6 +6,7 @@ use crate::app_impl::constants::SPACE;
 
 fn default_theme_pref() -> egui::ThemePreference {
     // TODO: add default() to egui::ThemePreference
+    // See: https://github.com/emilk/egui/pull/5702
     egui::ThemePreference::System
 }
 
