@@ -40,6 +40,7 @@ pub struct ValueInterpretation {
     pub negate: bool,
     pub mode: Mode,
     pub quirks: Quirks,
+    #[serde(default)]
     pub colormap: ColorMap,
 }
 
