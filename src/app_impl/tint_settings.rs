@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
+use crate::value_colormap::ColorMap;
 use crate::value_interpretation::{Mode, Quirks, ValueInterpretation};
 
 use crate::texture_request::NO_TINT;
@@ -20,6 +21,8 @@ pub struct TintOptions {
     pub use_value_interpretation_for_all: bool,
     #[serde(default, skip)]
     pub value_interpretation_for_all: ValueInterpretation,
+    #[serde(default, skip)]
+    pub colormap_for_all: ColorMap,
 }
 
 impl default::Default for TintOptions {
@@ -31,6 +34,7 @@ impl default::Default for TintOptions {
             color_to_alpha_for_all: None,
             use_value_interpretation_for_all: false,
             value_interpretation_for_all: ValueInterpretation::default(),
+            colormap_for_all: ColorMap::default(),
         }
     }
 }
@@ -190,7 +194,7 @@ fn pick_quirks(ui: &mut egui::Ui, quirks: &mut Quirks) {
     ui.horizontal(|ui| {
         ui.selectable_value(quirks, Quirks::Ros1Wiki, "ROS 1 Wiki")
             .on_hover_text("Interpret values as documented in ROS 1 Wiki.");
-        ui.selectable_value(quirks, Quirks::Ros1MapServer, "ROS 1/2 map_server")
+        ui.selectable_value(quirks, Quirks::Ros1MapServer, "ROS map_server")
             .on_hover_text("ROS 1/2 map_server behaves slightly differently than the Wiki :(");
         // ROS 2 is left out because I assume it behaves like ROS 1 map_server.
     });
@@ -212,10 +216,25 @@ fn pick_mode(ui: &mut egui::Ui, mode: &mut Mode) {
     });
 }
 
+fn pick_colormap(ui: &mut egui::Ui, colormap: &mut ColorMap) {
+    ui.label("Coloring")
+        .on_hover_text("Select a colormap for the visualization.");
+    egui::ComboBox::from_label("")
+        .selected_text(colormap.to_string())
+        .show_ui(ui, |ui| {
+            ui.selectable_value(colormap, ColorMap::RvizMap, "RViz \"Map\"")
+                .on_hover_text("Classic RViz map coloring.");
+            ui.selectable_value(colormap, ColorMap::RvizCostmap, "RViz \"Costmap\"")
+                .on_hover_text("Classic RViz costmap coloring.");
+            ui.selectable_value(colormap, ColorMap::RvizRaw, "RViz \"Raw\"")
+                .on_hover_text("Classic RViz raw color map (aka: no coloring).");
+            ui.selectable_value(colormap, ColorMap::CoolCostmap, "Cool costmap")
+                .on_hover_text("Alternative costmap coloring with less screaming colors.");
+        });
+}
+
 fn pick_value_interpretation(ui: &mut egui::Ui, value_interpretation: &mut ValueInterpretation) {
     pick_mode(ui, &mut value_interpretation.mode);
-    ui.end_row();
-    pick_quirks(ui, &mut value_interpretation.quirks);
     ui.end_row();
     ui.label("Free threshold")
         .on_hover_text("Threshold for free space interpretation.");
@@ -231,4 +250,8 @@ fn pick_value_interpretation(ui: &mut egui::Ui, value_interpretation: &mut Value
     ui.label("Negate")
         .on_hover_text("Negate the pixel interpretation.");
     ui.checkbox(&mut value_interpretation.negate, "");
+    ui.end_row();
+    pick_colormap(ui, &mut value_interpretation.colormap);
+    ui.end_row();
+    pick_quirks(ui, &mut value_interpretation.quirks);
 }
