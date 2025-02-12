@@ -14,6 +14,8 @@ const MAP_SERVER_OCCUPIED_DEFAULT: f32 = 0.65;
 use image::{DynamicImage, Rgba};
 use imageproc::{integral_image::ArrayData, map::map_colors_mut};
 
+use crate::value_colormap::ColorMap;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Mode {
@@ -38,6 +40,7 @@ pub struct ValueInterpretation {
     pub negate: bool,
     pub mode: Mode,
     pub quirks: Quirks,
+    pub colormap: ColorMap,
 }
 
 impl Default for ValueInterpretation {
@@ -48,6 +51,7 @@ impl Default for ValueInterpretation {
             negate: false,
             mode: Mode::default(),
             quirks: Quirks::default(),
+            colormap: ColorMap::default(),
         }
     }
 }
@@ -60,6 +64,7 @@ impl ValueInterpretation {
             negate,
             mode: mode.unwrap_or_default(),
             quirks: Quirks::default(),
+            colormap: ColorMap::default(),
         }
     }
 
@@ -76,7 +81,7 @@ impl ValueInterpretation {
         match self.mode {
             Mode::Raw => {}
             Mode::Trinary | Mode::Scale => {
-                map_colors_mut(img, |c| self.interpret(&c));
+                map_colors_mut(img, |c| self.colormap.get().map(self.interpret(&c)[0]));
             }
         }
     }
