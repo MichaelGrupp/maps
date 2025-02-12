@@ -2422,6 +2422,7 @@ dependencies = [
  "fast_image_resize",
  "image",
  "imageproc",
+ "lazy_static",
  "log",
  "serde",
  "serde_yaml_ng",
