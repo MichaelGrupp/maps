@@ -226,8 +226,8 @@ fn pick_colormap(ui: &mut egui::Ui, colormap: &mut ColorMap) {
                 .on_hover_text("Classic RViz map coloring.");
             ui.selectable_value(colormap, ColorMap::RvizCostmap, "RViz \"Costmap\"")
                 .on_hover_text("Classic RViz costmap coloring.");
-            ui.selectable_value(colormap, ColorMap::RvizRaw, "RViz \"Raw\"")
-                .on_hover_text("Classic RViz raw color map (aka: no coloring).");
+            ui.selectable_value(colormap, ColorMap::Raw, "Raw")
+                .on_hover_text("No coloring.");
             ui.selectable_value(colormap, ColorMap::CoolCostmap, "Cool costmap")
                 .on_hover_text("Alternative costmap coloring with less screaming colors.");
         });
