@@ -12,12 +12,12 @@ pub trait ValueColorMap {
 #[derive(Debug, Display, Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum ColorMap {
     #[default]
+    #[strum(to_string = "Raw")]
+    Raw,
     #[strum(to_string = "RViz \"Map\"")]
     RvizMap,
     #[strum(to_string = "RViz \"Costmap\"")]
     RvizCostmap,
-    #[strum(to_string = "RViz \"Raw\"")]
-    RvizRaw,
     #[strum(to_string = "Cool Costmap")]
     CoolCostmap,
 }
@@ -27,7 +27,7 @@ impl ColorMap {
         match self {
             ColorMap::RvizMap => &*RVIZ_MAP,
             ColorMap::RvizCostmap => &*RVIZ_COSTMAP,
-            ColorMap::RvizRaw => &*RVIZ_RAW,
+            ColorMap::Raw => &*RAW,
             ColorMap::CoolCostmap => &*COOL_COSTMAP,
         }
     }
@@ -36,7 +36,7 @@ impl ColorMap {
 lazy_static! {
     static ref RVIZ_MAP: RvizMapColors = RvizMapColors::new();
     static ref RVIZ_COSTMAP: CostmapColors = CostmapColors::new();
-    static ref RVIZ_RAW: RvizRaw = RvizRaw;
+    static ref RAW: Raw = Raw;
     static ref COOL_COSTMAP: CoolCostmapColors = CoolCostmapColors::new();
 }
 
@@ -108,10 +108,10 @@ impl ValueColorMap for CostmapColors {
     }
 }
 
-/// Reimplementation of the ROS RViz "Raw" occupancy grid colormap (no-op).
-struct RvizRaw;
+/// "Raw" occupancy grid colormap (no-op).
+struct Raw;
 
-impl ValueColorMap for RvizRaw {
+impl ValueColorMap for Raw {
     fn map(&self, value: u8) -> Rgba<u8> {
         Rgba([value, value, value, 255])
     }
@@ -188,7 +188,7 @@ mod tests {
 
     #[test]
     fn test_rviz_raw_colors() {
-        let palette = RvizRaw;
+        let palette = Raw;
         assert_eq!(palette.map(0), Rgba([0, 0, 0, 255]));
         assert_eq!(palette.map(100), Rgba([100, 100, 100, 255]));
         assert_eq!(palette.map(255), Rgba([255, 255, 255, 255]));
