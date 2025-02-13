@@ -81,18 +81,8 @@ impl From<MetaYamlAnnotated> for Meta {
             resolution: meta_yaml.resolution,
             origin_xy: emath::Vec2::new(meta_yaml.origin[0], meta_yaml.origin[1]),
             origin_theta: emath::Rot2::from_angle(emath::normalized_angle(meta_yaml.origin[2])),
-            value_interpretation: ValueInterpretation::new(
-                meta_yaml.free_thresh,
-                meta_yaml.occupied_thresh,
-                meta_yaml.negate != 0,
-                meta_yaml.mode,
-            ),
-            original_value_interpretation: ValueInterpretation::new(
-                meta_yaml.free_thresh,
-                meta_yaml.occupied_thresh,
-                meta_yaml.negate != 0,
-                meta_yaml.mode,
-            ),
+            value_interpretation: ValueInterpretation::from_meta_yaml(meta_yaml),
+            original_value_interpretation: ValueInterpretation::from_meta_yaml(meta_yaml),
         }
     }
 }
