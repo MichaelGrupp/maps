@@ -18,11 +18,14 @@ pub struct ImagePyramid {
     levels_by_size: HashMap<u32, image::DynamicImage>,
     aspect_ratio: f32,
     original_size: egui::Vec2,
+    pub original_has_alpha: bool,
 }
 
 impl ImagePyramid {
     pub fn new(original: image::DynamicImage) -> ImagePyramid {
         // Always add an alpha channel, if not present, to support our image operations.
+        // DynamicImage allows conversions, but we do it once here for performance reasons.
+        let original_has_alpha = original.color().has_alpha();
         let original = add_alpha_if_needed(original);
 
         let original_size = egui::Vec2::new(original.width() as f32, original.height() as f32);
@@ -49,6 +52,7 @@ impl ImagePyramid {
             original,
             aspect_ratio: original_size.x / original_size.y,
             original_size,
+            original_has_alpha,
         }
     }
 
