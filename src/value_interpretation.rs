@@ -14,6 +14,7 @@ const MAP_SERVER_OCCUPIED_DEFAULT: f32 = 0.65;
 use image::{DynamicImage, Rgba};
 use imageproc::{integral_image::ArrayData, map::map_colors_mut};
 
+use crate::meta::MetaYaml;
 use crate::value_colormap::ColorMap;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -69,9 +70,23 @@ impl ValueInterpretation {
         }
     }
 
+    pub fn from_meta_yaml(meta: &MetaYaml) -> Self {
+        ValueInterpretation::new(
+            meta.free_thresh,
+            meta.occupied_thresh,
+            meta.negate != 0,
+            meta.mode,
+        )
+    }
+
     /// Allows to mimic the wonderful undocumented behaviors of map_server.
     pub fn with_quirks(mut self, quirks: Quirks) -> Self {
         self.quirks = quirks;
+        self
+    }
+
+    pub fn with_colormap(mut self, colormap: ColorMap) -> Self {
+        self.colormap = colormap;
         self
     }
 
