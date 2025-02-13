@@ -52,7 +52,7 @@ impl TextureState {
             );
             color_to_alpha(&mut image, request.color_to_alpha);
             if let Some(thresholding) = &request.thresholding {
-                thresholding.apply(&mut image);
+                thresholding.apply(&mut image, self.image_pyramid.original_has_alpha);
             }
             ui.ctx().load_texture(
                 request.client.clone(),
@@ -115,7 +115,7 @@ impl TextureState {
         }
         color_to_alpha(&mut cropped_image, request.uncropped.color_to_alpha);
         if let Some(thresholding) = &request.uncropped.thresholding {
-            thresholding.apply(&mut cropped_image);
+            thresholding.apply(&mut cropped_image, self.image_pyramid.original_has_alpha);
         }
 
         self.texture_handle = Some(ui.ctx().load_texture(

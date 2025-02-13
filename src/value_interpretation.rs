@@ -28,9 +28,12 @@ pub enum Mode {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum Quirks {
-    #[default]
     Ros1Wiki, // Interpret values as documented in ROS 1 Wiki.
-    Ros1MapServer, // ROS 1 map_server behaves differently than documented.
+
+    // ROS 1 map_server behaves differently than documented.
+    // At this point, probably everyone is used to the map_server quirks.
+    #[default]
+    Ros1MapServer,
     Ros2MapServer, // TODO: same as ROS 1?
 }
 
@@ -93,16 +96,23 @@ impl ValueInterpretation {
     /// Modifies the image according to the value interpretation.
     /// Note that the output needs a color map for visualization.
     /// Without color map, the image corresponds to the "raw" display of RViz.
-    pub fn apply(&self, img: &mut DynamicImage) {
+    ///
+    /// The "original_has_alpha" parameter is used to determine if the source
+    /// image had an alpha channel. This is necessary for some implementation quirks.
+    pub fn apply(&self, img: &mut DynamicImage, original_has_alpha: bool) {
         match self.mode {
             Mode::Raw => {}
             Mode::Trinary | Mode::Scale => {
-                map_colors_mut(img, |c| self.colormap.get().map(self.interpret(&c)[0]));
+                map_colors_mut(img, |c| {
+                    self.colormap
+                        .get()
+                        .map(self.interpret(&c, original_has_alpha)[0])
+                });
             }
         }
     }
 
-    fn avg_float(&self, pixel: &Rgba<u8>) -> f32 {
+    fn avg_float(&self, pixel: &Rgba<u8>, has_alpha: bool) -> f32 {
         let num_channels = match self.quirks {
             // Nothing documented about alpha averaging in ROS 1 Wiki.
             Quirks::Ros1Wiki => 3,
@@ -110,7 +120,7 @@ impl ValueInterpretation {
             // ROS 1: https://github.com/ros-planning/navigation/blob/9ad644198e132d0e950579a3bc72c29da46e60b0/map_server/src/image_loader.cpp#L106C3-L106C76
             // ROS 2: https://github.com/ros-navigation/navigation2/blob/088c423deb97a76f5a5f4ca133cb122338576fe1/nav2_map_server/src/map_io.cpp#L236
             Quirks::Ros1MapServer | Quirks::Ros2MapServer => {
-                if self.mode == Mode::Trinary {
+                if self.mode == Mode::Trinary && has_alpha {
                     4
                 } else {
                     3
@@ -128,8 +138,8 @@ impl ValueInterpretation {
         (255. - avg) / 255.
     }
 
-    fn interpret(&self, pixel: &Rgba<u8>) -> Rgba<u8> {
-        let p = self.avg_float(pixel);
+    fn interpret(&self, pixel: &Rgba<u8>, has_alpha: bool) -> Rgba<u8> {
+        let p = self.avg_float(pixel, has_alpha);
         let alpha = pixel[3];
 
         // In scale mode, any pixel with transparency is considered unknown.
@@ -174,13 +184,13 @@ mod tests {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, None);
 
         let pixel = Rgba([128, 128, 128, 255]);
-        assert!(thresholding.avg_float(&pixel) - 0.5 < EPS);
+        assert!(thresholding.avg_float(&pixel, false) - 0.5 < EPS);
 
         let pixel = Rgba([255, 255, 255, 255]);
-        assert_eq!(thresholding.avg_float(&pixel), 0.);
+        assert_eq!(thresholding.avg_float(&pixel, false), 0.);
 
         let pixel = Rgba([0, 0, 0, 255]);
-        assert_eq!(thresholding.avg_float(&pixel), 1.);
+        assert_eq!(thresholding.avg_float(&pixel, false), 1.);
     }
 
     #[test]
@@ -189,21 +199,21 @@ mod tests {
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, false);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 255])
         );
 
         img.put_pixel(0, 0, Rgba([255, 255, 255, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, false);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, 255])
         );
 
         img.put_pixel(0, 0, Rgba([60, 60, 60, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, false);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_OCCUPIED, TRINARY_OCCUPIED, TRINARY_OCCUPIED, 255])
@@ -216,18 +226,18 @@ mod tests {
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(img.get_pixel(0, 0), Rgba([65, 65, 65, 255]));
 
         img.put_pixel(0, 0, Rgba([60, 60, 60, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_OCCUPIED, TRINARY_OCCUPIED, TRINARY_OCCUPIED, 255])
         );
 
         img.put_pixel(0, 0, Rgba([255, 255, 255, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, 255])
@@ -235,10 +245,10 @@ mod tests {
 
         // Any pixel with transparency is considered unknown here.
         img.put_pixel(0, 0, Rgba([1, 2, 3, 100]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(
             img.get_pixel(0, 0),
-            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 100])
+            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 255])
         );
     }
 
@@ -249,18 +259,18 @@ mod tests {
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(img.get_pixel(0, 0), Rgba([66, 66, 66, 255]));
 
         img.put_pixel(0, 0, Rgba([60, 60, 60, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_OCCUPIED, TRINARY_OCCUPIED, TRINARY_OCCUPIED, 255])
         );
 
         img.put_pixel(0, 0, Rgba([255, 255, 255, 255]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(
             img.get_pixel(0, 0),
             Rgba([TRINARY_FREE, TRINARY_FREE, TRINARY_FREE, 255])
@@ -268,10 +278,10 @@ mod tests {
 
         // Any pixel with transparency is considered unknown here.
         img.put_pixel(0, 0, Rgba([1, 2, 3, 100]));
-        thresholding.apply(&mut img);
+        thresholding.apply(&mut img, true);
         assert_eq!(
             img.get_pixel(0, 0),
-            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 100])
+            Rgba([TRINARY_UNKNOWN, TRINARY_UNKNOWN, TRINARY_UNKNOWN, 255])
         );
     }
 }
