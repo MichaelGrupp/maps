@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use eframe::egui;
 
 use crate::grid_options::{GridLineDimension, GridOptions, LineType};
+use crate::map_pose::MapPose;
 use crate::map_state::MapState;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
 
@@ -96,7 +97,13 @@ impl Grid {
         *metric * self.points_per_meter + self.origin_in_points.to_vec2()
     }
 
-    pub fn show_map(&self, ui: &mut egui::Ui, map: &mut MapState, map_name: &str) {
+    pub fn show_map(
+        &self,
+        ui: &mut egui::Ui,
+        map: &mut MapState,
+        map_name: &str,
+        options: &GridOptions,
+    ) {
         if !map.visible {
             return;
         }
@@ -124,11 +131,20 @@ impl Grid {
         );
         map.get_or_create_texture_state(self.name.as_str())
             .crop_and_put(ui, &request);
+
+        if options.marker_visible {
+            self.draw_axes(ui, options, Some(&map.pose));
+        }
     }
 
-    pub fn show_maps(&self, ui: &mut egui::Ui, maps: &mut BTreeMap<String, MapState>) {
+    pub fn show_maps(
+        &self,
+        ui: &mut egui::Ui,
+        maps: &mut BTreeMap<String, MapState>,
+        options: &GridOptions,
+    ) {
         for (name, map) in maps.iter_mut() {
-            self.show_map(ui, map, name);
+            self.show_map(ui, map, name, options);
         }
     }
 
@@ -281,7 +297,7 @@ impl Grid {
         self.draw_horizontal_lines(ui, options, &line_type, spacing_points, &label_text_options);
     }
 
-    pub fn draw_axes(&self, ui: &mut egui::Ui, options: &GridOptions) {
+    pub fn draw_axes(&self, ui: &mut egui::Ui, options: &GridOptions, pose: Option<&MapPose>) {
         // Convert stroke width to points.
         let x_stroke = egui::Stroke::new(
             options.marker_width_meters * self.points_per_meter,
@@ -292,24 +308,25 @@ impl Grid {
             options.marker_y_color,
         );
 
-        ui.painter().line_segment(
-            [
-                self.origin_in_points,
-                self.origin_in_points
-                    + egui::vec2(options.marker_length_meters * self.points_per_meter, 0.),
-            ],
-            x_stroke,
-        );
-        ui.painter().line_segment(
-            [
-                self.origin_in_points,
-                self.origin_in_points
-                    - egui::vec2(0., options.marker_length_meters * self.points_per_meter), // RHS to LHS
-            ],
-            y_stroke,
-        );
+        let pos = match pose {
+            Some(p) => self.to_point(&(p.vec2() * egui::vec2(1., -1.)).to_pos2()),
+            None => self.origin_in_points,
+        };
+        let x_vec = match pose {
+            Some(p) => p.rot2().inverse() * egui::vec2(1., 0.),
+            None => egui::vec2(1., 0.),
+        } * options.marker_length_meters
+            * self.points_per_meter;
+        let y_vec = match pose {
+            Some(p) => p.rot2().inverse() * egui::vec2(0., 1.),
+            None => egui::vec2(0., 1.),
+        } * options.marker_length_meters
+            * self.points_per_meter;
+
+        ui.painter().line_segment([pos, pos + x_vec], x_stroke);
+        ui.painter().line_segment([pos, pos - y_vec], y_stroke);
         ui.painter().circle_filled(
-            self.origin_in_points,
+            pos,
             options.marker_width_meters * self.points_per_meter / 2.,
             options.marker_z_color,
         );
