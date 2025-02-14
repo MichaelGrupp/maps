@@ -27,6 +27,45 @@ pub enum SubLineVisibility {
     Never,
 }
 
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
+pub enum MarkerVisibility {
+    #[default]
+    Zero,
+    Map,
+    All,
+    None,
+}
+
+impl MarkerVisibility {
+    pub fn any_visible(&self) -> bool {
+        matches!(
+            self,
+            MarkerVisibility::All | MarkerVisibility::Map | MarkerVisibility::Zero
+        )
+    }
+
+    pub fn zero_visible(&self) -> bool {
+        matches!(self, MarkerVisibility::Zero | MarkerVisibility::All)
+    }
+
+    pub fn maps_visible(&self) -> bool {
+        matches!(self, MarkerVisibility::Map | MarkerVisibility::All)
+    }
+
+    pub fn ui(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.selectable_value(self, MarkerVisibility::Zero, "Zero")
+                .on_hover_text("Show marker at the zero coordinate.");
+            ui.selectable_value(self, MarkerVisibility::Map, "Map")
+                .on_hover_text("Show marker at the origin of each map.");
+            ui.selectable_value(self, MarkerVisibility::All, "All")
+                .on_hover_text("Show all markers.");
+            ui.selectable_value(self, MarkerVisibility::None, "None")
+                .on_hover_text("Show no markers.");
+        });
+    }
+}
+
 // Visualization options for the grid that are viewport-independent.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GridOptions {
@@ -47,7 +86,8 @@ pub struct GridOptions {
     pub sub_lines_factor: i8,
     pub sub_lines_stroke: egui::Stroke,
     pub scroll_delta_percent: f32,
-    pub marker_visible: bool,
+    #[serde(default)]
+    pub marker_visibility: MarkerVisibility,
     pub marker_length_meters: f32,
     pub marker_width_meters: f32,
     pub marker_x_color: egui::Color32,
@@ -84,7 +124,7 @@ impl default::Default for GridOptions {
                 egui::Color32::from_rgba_unmultiplied(200, 200, 200, 75),
             ),
             scroll_delta_percent: 1.,
-            marker_visible: true,
+            marker_visibility: MarkerVisibility::default(),
             marker_length_meters: 1.,
             marker_width_meters: 0.1,
             marker_x_color: egui::Color32::RED,
