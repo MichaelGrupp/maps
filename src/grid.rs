@@ -132,7 +132,7 @@ impl Grid {
         map.get_or_create_texture_state(self.name.as_str())
             .crop_and_put(ui, &request);
 
-        if options.marker_visible {
+        if options.marker_visibility.maps_visible() {
             self.draw_axes(ui, options, Some(&map.pose));
         }
     }

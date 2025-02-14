@@ -101,7 +101,7 @@ impl AppState {
         if options.sub_lines_visible == SubLineVisibility::Always {
             grid.draw(ui, options, LineType::Sub);
         }
-        if options.marker_visible {
+        if options.marker_visibility.zero_visible() {
             grid.draw_axes(ui, options, None);
         }
         self.status.hover_position = grid.hover_pos_metric(ui);
@@ -204,7 +204,7 @@ impl AppState {
                 {
                     mini_grid.draw(ui, options, LineType::Sub);
                 }
-                if options.marker_visible {
+                if options.marker_visibility.zero_visible() {
                     mini_grid.draw_axes(ui, options, None);
                 }
             }

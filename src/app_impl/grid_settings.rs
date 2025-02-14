@@ -96,27 +96,29 @@ impl AppState {
         ui.end_row();
         ui.end_row();
         ui.label("Show marker");
-        ui.checkbox(&mut self.options.grid.marker_visible, "");
+        self.options.grid.marker_visibility.ui(ui);
         ui.end_row();
-        ui.label("Marker length (meters)");
-        ui.add(egui::Slider::new(
-            &mut self.options.grid.marker_length_meters,
-            0.1..=25.0,
-        ));
-        ui.end_row();
-        ui.label("Marker width (meters)");
-        ui.add(egui::Slider::new(
-            &mut self.options.grid.marker_width_meters,
-            0.01..=5.,
-        ));
-        ui.end_row();
-        ui.label("Marker color (x, y, z)");
-        ui.horizontal(|ui| {
-            ui.color_edit_button_srgba(&mut self.options.grid.marker_x_color);
-            ui.color_edit_button_srgba(&mut self.options.grid.marker_y_color);
-            ui.color_edit_button_srgba(&mut self.options.grid.marker_z_color);
-        });
-        ui.end_row();
+        if self.options.grid.marker_visibility.any_visible() {
+            ui.label("Marker length (meters)");
+            ui.add(egui::Slider::new(
+                &mut self.options.grid.marker_length_meters,
+                0.1..=25.0,
+            ));
+            ui.end_row();
+            ui.label("Marker width (meters)");
+            ui.add(egui::Slider::new(
+                &mut self.options.grid.marker_width_meters,
+                0.01..=5.,
+            ));
+            ui.end_row();
+            ui.label("Marker color (x, y, z)");
+            ui.horizontal(|ui| {
+                ui.color_edit_button_srgba(&mut self.options.grid.marker_x_color);
+                ui.color_edit_button_srgba(&mut self.options.grid.marker_y_color);
+                ui.color_edit_button_srgba(&mut self.options.grid.marker_z_color);
+            });
+            ui.end_row();
+        }
         ui.end_row();
         ui.label("Grid scale (points per meter)");
         ui.add(egui::Slider::new(
