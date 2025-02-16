@@ -164,7 +164,6 @@ mod tests {
     fn test_rviz_map_colors() {
         let palette = RvizMapColors::new();
         assert_eq!(palette.map(0), Rgba([255, 255, 255, 255]));
-        print!("{:?}", palette.mapped[100]);
         assert_eq!(palette.map(100), Rgba([0, 0, 0, 255]));
         assert_eq!(palette.map(101), Rgba([0, 255, 0, 255]));
         assert_eq!(palette.map(128), Rgba([255, 0, 0, 255]));
