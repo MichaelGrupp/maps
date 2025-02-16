@@ -93,9 +93,7 @@ impl ValueInterpretation {
         self
     }
 
-    /// Modifies the image according to the value interpretation.
-    /// Note that the output needs a color map for visualization.
-    /// Without color map, the image corresponds to the "raw" display of RViz.
+    /// Modifies the image according to the value interpretation and colormap.
     ///
     /// The "original_has_alpha" parameter is used to determine if the source
     /// image had an alpha channel. This is necessary for some implementation quirks.
