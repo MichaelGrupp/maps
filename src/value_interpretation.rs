@@ -194,8 +194,9 @@ mod tests {
     }
 
     #[test]
-    fn trinary() {
-        let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Trinary));
+    fn trinary_wiki() {
+        let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Trinary))
+            .with_quirks(Quirks::Ros1Wiki);
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
@@ -221,8 +222,9 @@ mod tests {
     }
 
     #[test]
-    fn scale() {
-        let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Scale));
+    fn scale_wiki() {
+        let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Scale))
+            .with_quirks(Quirks::Ros1Wiki);
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
