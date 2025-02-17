@@ -1,5 +1,6 @@
 pub mod app;
 mod app_impl;
+mod draw_order;
 mod grid;
 mod grid_options;
 mod image;

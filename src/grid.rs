@@ -1,7 +1,9 @@
 use std::collections::BTreeMap;
 
 use eframe::egui;
+use log::error;
 
+use crate::draw_order::DrawOrder;
 use crate::grid_options::{GridLineDimension, GridOptions, LineType};
 use crate::map_pose::MapPose;
 use crate::map_state::MapState;
@@ -142,9 +144,14 @@ impl Grid {
         ui: &mut egui::Ui,
         maps: &mut BTreeMap<String, MapState>,
         options: &GridOptions,
+        draw_order: &DrawOrder,
     ) {
-        for (name, map) in maps.iter_mut() {
-            self.show_map(ui, map, name, options);
+        for name in draw_order.keys() {
+            if let Some(map) = maps.get_mut(name) {
+                self.show_map(ui, map, name, options);
+            } else {
+                error!("Unknown draw order key: {}", name);
+            }
         }
     }
 

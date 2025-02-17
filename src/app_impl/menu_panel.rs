@@ -62,7 +62,13 @@ impl AppState {
         egui::CollapsingHeader::new("List")
             .default_open(true)
             .show(ui, |ui| {
-                self.maps_list(ui);
+                ui.toggle_value(&mut self.status.draw_order_edit_active, "⬆⬇")
+                    .on_hover_text("Click to view and edit the draw order via drag and drop.");
+                if self.status.draw_order_edit_active {
+                    self.data.draw_order.ui(ui);
+                } else {
+                    self.maps_list(ui);
+                }
             });
 
         if self.data.maps.is_empty() {
