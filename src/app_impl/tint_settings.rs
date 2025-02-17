@@ -163,6 +163,7 @@ fn pick(
     ui.checkbox(edit_value_interpretation, "");
     if *edit_value_interpretation {
         ui.end_row();
+        ui.end_row();
         pick_value_interpretation(ui, value_interpretation);
     }
 }

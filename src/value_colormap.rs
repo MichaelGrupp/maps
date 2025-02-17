@@ -11,9 +11,9 @@ pub trait ValueColorMap {
 /// Color map options. Includes the classic RViz colormaps.
 #[derive(Debug, Display, Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum ColorMap {
-    #[default]
     #[strum(to_string = "Raw")]
     Raw,
+    #[default]
     #[strum(to_string = "RViz \"Map\"")]
     RvizMap,
     #[strum(to_string = "RViz \"Costmap\"")]
