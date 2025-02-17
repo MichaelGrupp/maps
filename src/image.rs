@@ -115,10 +115,10 @@ pub fn color_to_alpha(img: &mut image::DynamicImage, color: Option<egui::Color32
     }
 }
 
-pub fn add_alpha_if_needed(img: image::DynamicImage) -> image::DynamicImage {
+pub fn to_rgba8(img: image::DynamicImage) -> image::DynamicImage {
     match img.color() {
-        image::ColorType::L8 => image::DynamicImage::from(img.to_luma_alpha8()),
-        image::ColorType::La8 => img,
+        image::ColorType::L8 => image::DynamicImage::from(img.to_rgba8()),
+        image::ColorType::La8 => image::DynamicImage::from(img.to_rgba8()),
         image::ColorType::Rgb8 => image::DynamicImage::from(img.to_rgba8()),
         image::ColorType::Rgba8 => img,
         _ => panic!("Unsupported color type: {:?}", img.color()),
