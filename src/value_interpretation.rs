@@ -194,7 +194,8 @@ mod tests {
     #[test]
     fn trinary_wiki() {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Trinary))
-            .with_quirks(Quirks::Ros1Wiki);
+            .with_quirks(Quirks::Ros1Wiki)
+            .with_colormap(ColorMap::Raw);
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
@@ -222,7 +223,8 @@ mod tests {
     #[test]
     fn scale_wiki() {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Scale))
-            .with_quirks(Quirks::Ros1Wiki);
+            .with_quirks(Quirks::Ros1Wiki)
+            .with_colormap(ColorMap::Raw);
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
@@ -255,7 +257,8 @@ mod tests {
     #[test]
     fn scale_map_server_quirks() {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, Some(Mode::Scale))
-            .with_quirks(Quirks::Ros1MapServer);
+            .with_quirks(Quirks::Ros1MapServer)
+            .with_colormap(ColorMap::Raw);
         let mut img = DynamicImage::new_rgba8(1, 1);
 
         img.put_pixel(0, 0, Rgba([128, 128, 128, 255]));
