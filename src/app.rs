@@ -12,6 +12,7 @@ pub use crate::app_impl::pose_edit::PoseEditOptions;
 pub use crate::app_impl::tint_settings::TintOptions;
 pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
+pub use crate::value_colormap::ColorMap;
 
 use crate::map_state::MapState;
 use crate::meta::Meta;
