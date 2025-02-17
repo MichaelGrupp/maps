@@ -14,6 +14,7 @@ pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
 pub use crate::value_colormap::ColorMap;
 
+use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::persistence::{save_app_options, PersistenceOptions};
@@ -69,6 +70,7 @@ pub struct StatusInfo {
     pub hover_position: Option<egui::Pos2>,
     pub quit_modal_active: bool,
     pub debug_window_active: bool,
+    pub draw_order_edit_active: bool,
     pub unsaved_changes: bool,
     pub quit_after_save: bool,
     pub move_action: Option<String>,
@@ -78,6 +80,8 @@ pub struct StatusInfo {
 #[derive(Default, Serialize, Deserialize)]
 pub struct SessionData {
     pub maps: BTreeMap<String, MapState>,
+    #[serde(skip)]
+    pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
 }
 

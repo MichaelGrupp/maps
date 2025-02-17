@@ -128,6 +128,7 @@ impl AppState {
                         use_value_interpretation: use_interpretation,
                     },
                 );
+                self.data.draw_order.add(name.clone());
                 info!("Loaded map: {}", name);
                 self.status.unsaved_changes = true;
                 Ok(())
@@ -142,6 +143,7 @@ impl AppState {
         for name in to_delete {
             info!("Removing {}", name);
             self.data.maps.remove(name);
+            self.data.draw_order.remove(name);
             self.tile_manager.remove_pane(name);
             if let Some(active_tool) = &self.status.active_tool {
                 if active_tool == name {
