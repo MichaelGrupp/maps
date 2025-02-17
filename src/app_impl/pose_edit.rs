@@ -13,6 +13,7 @@ pub struct PoseEditOptions {
     pub selected_map: String,
     pub edit_root_frame: bool,
     pub edit_map_frame: bool,
+    #[serde(skip)]
     pub movable_amounts: MovableAmounts,
 }
 
