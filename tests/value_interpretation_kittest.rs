@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use eframe::egui;
 
 use kittest_common::*;
-use maps::app::{AppOptions, AppState, ViewMode};
+use maps::app::{AppOptions, AppState, ColorMap, ViewMode};
 
 const WIKI_SESSION: &str = "tests/sessions/value_interpretations_ros1_wiki.toml";
 const MAP_SERVER_SESSION: &str = "tests/sessions/value_interpretations_map_server.toml";
@@ -32,5 +32,11 @@ fn run(name: &str, session_file: &str) {
     .expect("Failed to initialize AppState");
 
     app_state.load_session(PathBuf::from(session_file));
+
+    // This test shall output the raw interpretation without colormap.
+    for map in app_state.data.maps.values_mut() {
+        map.meta.value_interpretation.colormap = ColorMap::Raw;
+    }
+
     snapshot_full_app(app_state, name, egui::Vec2::new(500., 1000.));
 }
