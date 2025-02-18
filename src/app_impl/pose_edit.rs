@@ -46,6 +46,7 @@ impl AppState {
         let original_map_pose = map_pose.clone();
 
         ui.add_space(SPACE);
+        ui.separator();
         egui::Grid::new("pose_buttons_grid")
             .num_columns(2)
             .striped(false)
@@ -66,7 +67,7 @@ impl AppState {
                 .on_hover_text("Toggle to move the grid with the WASD keys.");
             });
 
-        ui.separator();
+        ui.add_space(SPACE);
         ui.vertical(|ui| {
             ui.label("x/y step (m)")
                 .on_hover_text("The amount of translation per key press.");
