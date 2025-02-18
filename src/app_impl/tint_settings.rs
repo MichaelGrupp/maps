@@ -101,7 +101,7 @@ impl AppState {
                 if self.options.tint_settings.use_value_interpretation_for_all {
                     map.use_value_interpretation = true;
                     map.meta.value_interpretation = *value_interpretation;
-                } else if map.meta.value_interpretation != *value_interpretation {
+                } else {
                     map.meta.reset_value_interpretation();
                 }
             }
