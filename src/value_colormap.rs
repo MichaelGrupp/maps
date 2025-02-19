@@ -11,18 +11,23 @@ pub trait ValueColorMap {
 /// Color map options. Includes the classic RViz colormaps.
 #[derive(Debug, Display, Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum ColorMap {
+    /// "Raw" occupancy grid colormap (no-op).
     #[strum(to_string = "Raw")]
     Raw,
+    /// Reimplementation of the ROS RViz "Map" occupancy grid colormap.
     #[default]
     #[strum(to_string = "RViz \"Map\"")]
     RvizMap,
+    /// Reimplementation of the ROS RViz "Costmap" occupancy grid colormap.
     #[strum(to_string = "RViz \"Costmap\"")]
     RvizCostmap,
+    /// An alternative costmap color map with less screaming colors.
     #[strum(to_string = "Cool Costmap")]
     CoolCostmap,
 }
 
 impl ColorMap {
+    /// Gives access to the corresponding color map implementation.
     pub fn get(&self) -> &dyn ValueColorMap {
         match self {
             ColorMap::RvizMap => &*RVIZ_MAP,
@@ -40,7 +45,6 @@ lazy_static! {
     static ref COOL_COSTMAP: CoolCostmapColors = CoolCostmapColors::new();
 }
 
-/// Reimplementation of the ROS RViz "Map" occupancy grid colormap.
 struct RvizMapColors {
     mapped: [Rgba<u8>; 256],
 }
@@ -71,7 +75,6 @@ impl ValueColorMap for RvizMapColors {
     }
 }
 
-/// Reimplementation of the ROS RViz "Costmap" occupancy grid colormap.
 struct CostmapColors {
     mapped: [Rgba<u8>; 256],
 }
@@ -108,7 +111,6 @@ impl ValueColorMap for CostmapColors {
     }
 }
 
-/// "Raw" occupancy grid colormap (no-op).
 struct Raw;
 
 impl ValueColorMap for Raw {
@@ -117,8 +119,7 @@ impl ValueColorMap for Raw {
     }
 }
 
-/// An alternative costmap color map with less screaming colors.
-pub struct CoolCostmapColors {
+struct CoolCostmapColors {
     mapped: [Rgba<u8>; 256],
 }
 
