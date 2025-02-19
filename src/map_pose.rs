@@ -6,18 +6,34 @@ use serde::{Deserialize, Serialize};
 use crate::movable::{Draggable, Rotatable};
 use crate::path_helpers::resolve_symlink;
 
+/// Pose of a map in metric coordinates.
+/// Allows to align the map independently of the map metadata file contents.
+/// Can be used for external applications through saving to a YAML file.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct MapPose {
-    pub root_frame: String,
-    pub map_frame: String,
     pub translation: Translation,
     pub rotation: Rotation,
+
+    /// The name of the coordinate frame that the map pose is relative to.
+    /// Can be left empty if it's not needed for your use case.
+    #[serde(default)]
+    pub root_frame: String,
+    /// The name of the coordinate frame of the map itself.
+    /// Can be left empty if it's not needed for your use case.
+    #[serde(default)]
+    pub map_frame: String,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Rotation {
+    /// Placeholder for roll. Not used by the maps app.
+    #[serde(default)]
     pub roll: f32,
+    /// Placeholder for pitch. Not used by the maps app.
+    #[serde(default)]
     pub pitch: f32,
+
+    /// Yaw angle in radians.
     pub yaw: f32,
 }
 
@@ -25,6 +41,9 @@ pub struct Rotation {
 pub struct Translation {
     pub x: f32,
     pub y: f32,
+
+    /// Placeholder for z. Not used by the maps app.
+    #[serde(default)]
     pub z: f32,
 }
 
@@ -51,6 +70,7 @@ impl Rotatable for MapPose {
 }
 
 impl MapPose {
+    /// Creates a new map pose with frame metadata and default pose values.
     pub fn new(root_frame: String, map_frame: String) -> MapPose {
         MapPose {
             root_frame,
@@ -60,6 +80,7 @@ impl MapPose {
         }
     }
 
+    /// In-place inversion of the pose.
     pub fn invert(&mut self) {
         self.translation.x = -self.translation.x;
         self.translation.y = -self.translation.y;
@@ -69,25 +90,31 @@ impl MapPose {
         self.rotation.yaw = -self.rotation.yaw;
     }
 
+    /// Builder pattern for setting the translation.
     pub fn with_vec2(&mut self, vec: emath::Vec2) -> &mut Self {
         self.translation.x = vec.x;
         self.translation.y = vec.y;
         self
     }
 
+    /// Builder pattern for setting the rotation.
     pub fn with_rot2(&mut self, rot: emath::Rot2) -> &mut Self {
         self.rotation.yaw = rot.angle();
         self
     }
 
+    /// Converts the rotation to an `emath` type.
     pub fn rot2(&self) -> emath::Rot2 {
         emath::Rot2::from_angle(self.rotation.yaw).normalized()
     }
 
+    /// Converts the translation to an `emath` type.
     pub fn vec2(&self) -> emath::Vec2 {
         emath::vec2(self.translation.x, self.translation.y)
     }
 
+    /// Loads a map pose from a YAML file.
+    /// Note that angles are normalized to the range [-π, π] by this.
     pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
         match std::fs::File::open(resolve_symlink(yaml_path)) {
             Ok(file) => match serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file) {
@@ -107,6 +134,7 @@ impl MapPose {
         }
     }
 
+    /// Serializes the map pose to a YAML string.
     pub fn to_yaml(&self) -> Result<String, Error> {
         match serde_yaml_ng::to_string(self) {
             Ok(yaml) => Ok(yaml),
@@ -116,6 +144,7 @@ impl MapPose {
         }
     }
 
+    /// Saves the map pose to a YAML file.
     pub fn to_yaml_file(&self, yaml_path: &PathBuf) -> Result<(), Error> {
         match std::fs::write(yaml_path, self.to_yaml()?) {
             Ok(_) => Ok(()),
