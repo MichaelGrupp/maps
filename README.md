@@ -136,9 +136,8 @@ You can display maps the same way as you would see them in RViz when using an oc
 Just enable value interpretation and choose the options you want.
 This allows for example to tune the free/occupied thresholds for your application, since `maps` directly shows the effect when the corresponding slider is moved.
 
-<img width="600" alt="value_interpretation_examples" src="https://github.com/user-attachments/assets/a5882a4d-0a06-4bdb-8bf8-ebc32041ea26" />
-<img width="340" alt="value_interpretation_ui" src="https://github.com/user-attachments/assets/738843eb-9d15-4906-8a5b-eb273e5805e4" />
-
+<img width="500" alt="value_interpretation_examples" src="https://github.com/user-attachments/assets/a5882a4d-0a06-4bdb-8bf8-ebc32041ea26" />
+<img width="250" alt="value_interpretation_ui" src="https://github.com/user-attachments/assets/738843eb-9d15-4906-8a5b-eb273e5805e4" />
 
 > 💡 If the map metadata YAML already contains the optional `mode` parameter, value interpretation is enabled automatically for that map.
 
