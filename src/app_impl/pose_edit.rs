@@ -18,7 +18,7 @@ pub struct PoseEditOptions {
 }
 
 impl AppState {
-    pub fn pose_edit(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn pose_edit(&mut self, ui: &mut egui::Ui) {
         // ComboBox is in a horizontal scroll to not take too much space for long paths.
         // Waiting for: https://github.com/emilk/egui/discussions/1829
         egui::ScrollArea::horizontal().show(ui, |ui| {
@@ -190,7 +190,7 @@ impl AppState {
             });
     }
 
-    pub fn apply_pose_to_other_maps(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn apply_pose_to_other_maps(&mut self, ui: &mut egui::Ui) {
         ui.label("Apply pose also to:");
         ui.add_space(SPACE);
         let mut selected_maps: Vec<String> = Vec::new();

@@ -4,7 +4,7 @@ use log::log_enabled;
 use crate::app::{AppState, ViewMode};
 
 impl AppState {
-    pub fn footer_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn footer_panel(&mut self, ui: &mut egui::Ui) {
         egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Bottom, "footer").show(
             ui.ctx(),
             |ui| {

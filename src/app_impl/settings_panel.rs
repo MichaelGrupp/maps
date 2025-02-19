@@ -3,7 +3,7 @@ use eframe::egui;
 use crate::app::{AppState, ViewMode};
 
 impl AppState {
-    pub fn settings_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn settings_panel(&mut self, ui: &mut egui::Ui) {
         if !self.options.settings_visible {
             return;
         }

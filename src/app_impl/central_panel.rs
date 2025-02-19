@@ -175,7 +175,7 @@ impl AppState {
         }
     }
 
-    pub fn show_grid_lens(
+    pub(crate) fn show_grid_lens(
         &mut self,
         ui: &mut egui::Ui,
         center_pos: Option<egui::Pos2>,
@@ -266,7 +266,7 @@ impl AppState {
         );
     }
 
-    pub fn central_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn central_panel(&mut self, ui: &mut egui::Ui) {
         egui::CentralPanel::default()
             .frame(egui::Frame::default().fill(self.options.canvas_settings.background_color))
             .show(ui.ctx(), |ui| {

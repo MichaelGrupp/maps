@@ -4,7 +4,7 @@ use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 impl AppState {
-    pub fn menu_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn menu_panel(&mut self, ui: &mut egui::Ui) {
         if !self.options.menu_visible {
             return;
         }

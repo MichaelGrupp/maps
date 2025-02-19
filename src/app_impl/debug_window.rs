@@ -3,7 +3,7 @@ use eframe::egui;
 use crate::app::AppState;
 
 impl AppState {
-    pub fn debug_window(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+    pub(crate) fn debug_window(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
         if !self.status.debug_window_active {
             return;
         }

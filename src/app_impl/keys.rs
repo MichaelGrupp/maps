@@ -19,7 +19,7 @@ impl AppState {
         self.options.pose_edit.edit_map_frame || self.options.pose_edit.edit_root_frame
     }
 
-    pub fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
+    pub(crate) fn handle_key_shortcuts(&mut self, ui: &egui::Ui) {
         if self.dialogs_open() || self.text_editing() {
             self.status.move_action = None;
             return;

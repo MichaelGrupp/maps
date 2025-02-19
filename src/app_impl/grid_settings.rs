@@ -5,7 +5,7 @@ use crate::app_impl::constants::SPACE;
 use crate::grid_options::{GridLineDimension, GridOptions, SubLineVisibility};
 
 impl AppState {
-    pub fn grid_settings(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn grid_settings(&mut self, ui: &mut egui::Ui) {
         ui.heading("Grid");
         if ui.button("Reset").clicked() {
             self.options.grid = GridOptions::default();
