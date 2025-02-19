@@ -7,11 +7,11 @@ repository = "https://www.github.com/MichaelGrupp/maps"
 homepage = "https://www.github.com/MichaelGrupp/maps"
 categories = ["science::robotics", "visualization", "gui", "multimedia::images"]
 keywords = ["map", "navigation", "SLAM", "ROS", "egui"]
-version = "1.0.1"
+version = "1.1.0"
 edition = "2021"
 readme = "README.md"
 build = "build.rs"
-exclude = ["data/doc", "test/snapshots"]
+exclude = ["data/**/", "test/snapshots"]
 
 [features]
 # kittest snapshot diff tests are enabled by default (see tests/).
