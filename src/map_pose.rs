@@ -1,3 +1,5 @@
+//! Pose utilities for map alignment.
+
 use std::path::PathBuf;
 
 use eframe::emath;
