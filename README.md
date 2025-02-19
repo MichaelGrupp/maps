@@ -55,6 +55,12 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 ## User Interface
 
+### Menu & Settings
+
+* Click `☰` to open the sidebar to manage maps and their visibility.
+* Click `⚙` to open the sidebar for settings.
+* Click the ℹ️ button in the lower right corner to display version & keybindings.
+
 ### Views
 
 `maps` provides three different main view modes.
@@ -114,11 +120,31 @@ or to align with a fixed layout, etc.
 > 👉 maps doesn't touch the `origin` of your `map.yaml` file, but writes a separate file.
 > Many ROS tools don't support rotations in the map yaml file, and it's anyway cleaner to separate the alignment pose from the map origin.
 
-### Menu & Settings
+### Draw order
 
-* Click `☰` to open the sidebar to manage maps and their visibility.
-* Click `⚙` to open the sidebar for settings.
-* Click the ℹ️ button in the lower right corner to display version & keybindings.
+Also with transparency enabled, you might want to reorder the map layers.
+
+Changing the draw is just a matter of using drag & drop in the map list of the menu panel:
+
+https://github.com/user-attachments/assets/0d68e18b-2980-4ffa-bf93-470fe7a9612d
+
+### Value interpretation & colormap
+
+You can display maps the same way as you would see them in RViz when using an occupancy grid publisher like map_server together with RViz.
+
+`maps` simulates this by first applying a [value interpretation](http://wiki.ros.org/map_server#Value_Interpretation) followed by a colormap.
+Just enable value interpretation and choose the options you want.
+This allows for example to tune the free/occupied thresholds for your application, since `maps` directly shows the effect when the corresponding slider is moved.
+
+<img width="600" alt="value_interpretation_examples" src="https://github.com/user-attachments/assets/a5882a4d-0a06-4bdb-8bf8-ebc32041ea26" />
+<img width="340" alt="value_interpretation_ui" src="https://github.com/user-attachments/assets/738843eb-9d15-4906-8a5b-eb273e5805e4" />
+
+
+> 💡 If the map metadata YAML already contains the optional `mode` parameter, value interpretation is enabled automatically for that map.
+
+> ⚠️ The implementation in map_server is not consistent with the documentation.
+> This is a "standard" that most likely will stay, but worth to consider that there are slight differences in case you rely on the documentation.
+> Hence `maps` defaults to a reimplementation of that map_server quirk, but an implementation following the Wiki docs can be chosen as alternative.
 
 ### Session files
 
