@@ -128,7 +128,7 @@ Changing the draw is just a matter of using drag & drop in the map list of the m
 
 https://github.com/user-attachments/assets/0d68e18b-2980-4ffa-bf93-470fe7a9612d
 
-### Value interpretation & colormap
+### Value interpretation & colormap à la ROS
 
 You can display maps the same way as you would see them in RViz when using an occupancy grid publisher like map_server together with RViz.
 
@@ -141,9 +141,9 @@ This allows for example to tune the free/occupied thresholds for your applicatio
 
 > 💡 If the map metadata YAML already contains the optional `mode` parameter, value interpretation is enabled automatically for that map.
 
-> ⚠️ The implementation in map_server is not consistent with the documentation.
+> 💩 The implementation in map_server is not fully consistent with the documentation.
 > This is a "standard" that most likely will stay, but worth to consider that there are slight differences in case you rely on the documentation.
-> Hence `maps` defaults to a reimplementation of that map_server quirk, but an implementation following the Wiki docs can be chosen as alternative.
+> Hence `maps` defaults to a reimplementation of that map_server quirk, but an implementation that follows the Wiki docs / occupancy grid message definition can be chosen as alternative.
 
 ### Session files
 
