@@ -4,7 +4,7 @@ use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 impl AppState {
-    pub fn error_modal(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn error_modal(&mut self, ui: &mut egui::Ui) {
         if self.status.error.is_empty() {
             return;
         }

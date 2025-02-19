@@ -5,7 +5,7 @@ use crate::app_impl::constants::SPACE;
 use crate::lens::LensOptions;
 
 impl AppState {
-    pub fn lens_settings(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn lens_settings(&mut self, ui: &mut egui::Ui) {
         ui.heading("Lens");
         if ui.button("Reset").clicked() {
             self.options.lens = LensOptions::default();

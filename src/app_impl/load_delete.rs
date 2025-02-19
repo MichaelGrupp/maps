@@ -19,7 +19,7 @@ use crate::map_pose::MapPose;
 use crate::value_interpretation;
 
 impl AppState {
-    pub fn make_yaml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
+    pub(crate) fn make_yaml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
         FileDialog::new()
             .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
             .add_file_filter(
@@ -42,7 +42,7 @@ impl AppState {
             )
     }
 
-    pub fn make_toml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
+    pub(crate) fn make_toml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
         FileDialog::new()
             .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
             .add_file_filter(
@@ -77,7 +77,7 @@ impl AppState {
         }
     }
 
-    pub fn load_meta_button(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn load_meta_button(&mut self, ui: &mut egui::Ui) {
         if ui.button("📂 Load Maps").clicked() {
             self.load_meta_file_dialog.pick_multiple();
         }
@@ -101,7 +101,7 @@ impl AppState {
         }
     }
 
-    pub fn load_map(&mut self, meta: Meta) -> Result<(), Error> {
+    pub(crate) fn load_map(&mut self, meta: Meta) -> Result<(), Error> {
         match load_image(&meta.image_path) {
             Ok(image) => {
                 self.tile_manager.add_pane(Pane {
@@ -139,7 +139,7 @@ impl AppState {
         }
     }
 
-    pub fn delete(&mut self, to_delete: &Vec<String>) {
+    pub(crate) fn delete(&mut self, to_delete: &Vec<String>) {
         for name in to_delete {
             info!("Removing {}", name);
             self.data.maps.remove(name);
@@ -162,7 +162,7 @@ impl AppState {
         }
     }
 
-    pub fn load_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
+    pub(crate) fn load_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
         if ui
             .button("📂 Load Pose")
             .on_hover_text("Load a map pose from a YAML file.")
@@ -195,7 +195,7 @@ impl AppState {
         }
     }
 
-    pub fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
+    pub(crate) fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
         if ui
             .button("💾 Save Pose")
             .on_hover_text("Save the map pose to a YAML file.")
@@ -279,7 +279,7 @@ impl AppState {
         }
     }
 
-    pub fn load_session_button(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn load_session_button(&mut self, ui: &mut egui::Ui) {
         if ui
             .button("📂 Load Session")
             .on_hover_text("Load a session from a file.")
@@ -294,7 +294,7 @@ impl AppState {
         }
     }
 
-    pub fn save_session_button(&mut self, ui: &mut egui::Ui, quit_after_save: bool) {
+    pub(crate) fn save_session_button(&mut self, ui: &mut egui::Ui, quit_after_save: bool) {
         let text = if quit_after_save {
             "💾 Save Session and Quit"
         } else {

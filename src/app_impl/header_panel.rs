@@ -48,7 +48,7 @@ impl AppState {
         });
     }
 
-    pub fn header_panel(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn header_panel(&mut self, ui: &mut egui::Ui) {
         let add_toggle_button = |ui: &mut egui::Ui,
                                  icon: &str,
                                  tooltip: &str,

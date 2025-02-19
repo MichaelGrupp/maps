@@ -78,7 +78,7 @@ impl AppState {
             });
     }
 
-    pub fn info_window(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn info_window(&mut self, ui: &mut egui::Ui) {
         if self.options.help_visible {
             egui::Window::new("Info")
                 .open(&mut self.options.help_visible)

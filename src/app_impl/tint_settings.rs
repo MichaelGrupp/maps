@@ -40,7 +40,7 @@ impl default::Default for TintOptions {
 }
 
 impl AppState {
-    pub fn tint_settings(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn tint_settings(&mut self, ui: &mut egui::Ui) {
         ui.heading("Blend");
         ui.add_space(SPACE);
         ui.end_row();

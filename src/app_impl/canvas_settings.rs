@@ -27,7 +27,7 @@ impl Default for CanvasOptions {
 }
 
 impl AppState {
-    pub fn canvas_settings(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn canvas_settings(&mut self, ui: &mut egui::Ui) {
         ui.heading("Canvas");
         if ui.button("Reset").clicked() {
             self.options.canvas_settings = CanvasOptions::default();

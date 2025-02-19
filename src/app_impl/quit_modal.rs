@@ -4,7 +4,7 @@ use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 impl AppState {
-    pub fn quit_modal(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn quit_modal(&mut self, ui: &mut egui::Ui) {
         if !self.status.quit_modal_active || self.data.maps.is_empty() {
             return;
         }
