@@ -1,9 +1,11 @@
+//! Color map implementations.
+
 use image::Rgba;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
-/// Color mapping from cell values to RGBA colors.
+/// Trait for color mapping from cell values to RGBA colors.
 pub trait ValueColorMap {
     fn map(&self, value: u8) -> Rgba<u8>;
 }
@@ -27,7 +29,8 @@ pub enum ColorMap {
 }
 
 impl ColorMap {
-    /// Gives access to the corresponding color map implementation.
+    /// Gives access to the corresponding color map trait implementations
+    /// that are implemented in this module.
     pub fn get(&self) -> &dyn ValueColorMap {
         match self {
             ColorMap::RvizMap => &*RVIZ_MAP,

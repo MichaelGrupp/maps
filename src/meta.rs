@@ -1,3 +1,5 @@
+//! Map metadata.
+
 use eframe::emath;
 use log::debug;
 use serde::{Deserialize, Serialize};

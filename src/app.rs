@@ -1,3 +1,5 @@
+//! Main application state and options.
+
 use std::collections::{BTreeMap, HashMap};
 use std::path::absolute;
 use std::vec::Vec;
@@ -47,6 +49,7 @@ pub enum ActiveTool {
     Measure,
 }
 
+/// Contains all configurable options of the application.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
     pub version: String,
@@ -85,6 +88,7 @@ pub struct SessionData {
     pub grid_lenses: HashMap<String, egui::Pos2>,
 }
 
+/// Main application state, implements the `eframe::App` trait.
 #[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,

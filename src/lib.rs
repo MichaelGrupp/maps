@@ -1,3 +1,10 @@
+//! Library target of the `maps` app.
+//!
+//! The public components listed here can be reused in external applications.
+//!
+//! Note that public API is not the main focus of this app crate.
+//! But feel free to use parts of it as you see fit.
+
 pub mod app;
 mod app_impl;
 mod draw_order;
