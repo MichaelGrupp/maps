@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use crate::path_helpers::resolve_symlink;
 use crate::value_interpretation::{Mode, ValueInterpretation};
 
-// Plain ROS map metadata yaml file format.
+/// Plain ROS map metadata yaml file format.
 #[derive(Deserialize)]
 pub struct MetaYaml {
     pub image: PathBuf,
@@ -49,7 +49,7 @@ impl MetaYamlAnnotated {
     }
 }
 
-// Internal representation of the metadata.
+/// Internal representation of the metadata.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Meta {
     pub image_path: PathBuf,
