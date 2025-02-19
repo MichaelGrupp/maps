@@ -1,7 +1,9 @@
-/// Value thresholding options.
-/// Mostly follows ROS: wiki.ros.org/map_server#Value_Interpretation
-/// Since the nav map_server slightly deviates from that documentation,
-/// it's also possible to mimic its behavior.
+//! Value thresholding options.
+//! Mostly follows ROS: wiki.ros.org/map_server#Value_Interpretation
+//! 
+//! Since the nav map_server slightly deviates from that documentation,
+//! it's also possible to mimic its behavior.
+
 use serde::{Deserialize, Serialize};
 
 const TRINARY_FREE: u8 = 0;
@@ -17,26 +19,35 @@ use imageproc::{integral_image::ArrayData, map::map_colors_mut};
 use crate::meta::MetaYaml;
 use crate::value_colormap::ColorMap;
 
+/// Value interpretation modes.
+/// Corresponds to the optional `mode` field in the map metadata.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Mode {
+    /// Raw mode: no interpretation.
     #[default]
     Raw,
+    /// Trinary mode: values are thresholded into free, occupied, unknown.
     Trinary,
+    /// Scale mode: values are scaled into a continuous range between free and occupied.
     Scale,
 }
 
+/// Allows to choose how the value interpretation should behave.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum Quirks {
-    Ros1Wiki, // Interpret values as documented in ROS 1 Wiki.
+    /// Interpret values as documented in ROS 1 Wiki.
+    Ros1Wiki,
 
-    // ROS 1 map_server behaves differently than documented.
-    // At this point, probably everyone is used to the map_server quirks.
+    /// ROS 1 map_server behaves differently than documented.
+    /// At this point, probably everyone is used to the map_server quirks.
     #[default]
     Ros1MapServer,
-    Ros2MapServer, // TODO: same as ROS 1?
+    /// TODO: same as ROS 1?
+    Ros2MapServer,
 }
 
+/// Value interpretation with colormap that can be applied to images.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ValueInterpretation {
     pub free: f32,
@@ -82,12 +93,14 @@ impl ValueInterpretation {
         )
     }
 
+    /// Sets the implementation quirks for the value interpretation.
     /// Allows to mimic the wonderful undocumented behaviors of map_server.
     pub fn with_quirks(mut self, quirks: Quirks) -> Self {
         self.quirks = quirks;
         self
     }
 
+    // Sets the colormap that will be used on the interpreted values.
     pub fn with_colormap(mut self, colormap: ColorMap) -> Self {
         self.colormap = colormap;
         self
@@ -95,7 +108,7 @@ impl ValueInterpretation {
 
     /// Modifies the image according to the value interpretation and colormap.
     ///
-    /// The "original_has_alpha" parameter is used to determine if the source
+    /// The `original_has_alpha` parameter is used to determine if the source
     /// image had an alpha channel. This is necessary for some implementation quirks.
     pub fn apply(&self, img: &mut DynamicImage, original_has_alpha: bool) {
         match self.mode {
