@@ -18,4 +18,4 @@ mod texture_state;
 mod tiles;
 mod tiles_behavior;
 pub mod value_colormap;
-mod value_interpretation;
+pub mod value_interpretation;
