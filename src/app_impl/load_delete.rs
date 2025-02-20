@@ -101,7 +101,7 @@ impl AppState {
         }
     }
 
-    pub(crate) fn load_map(&mut self, meta: Meta) -> Result<(), Error> {
+    pub(crate) fn load_map(&mut self, meta: Meta) -> Result<String, Error> {
         match load_image(&meta.image_path) {
             Ok(image) => {
                 self.tile_manager.add_pane(Pane {
@@ -131,7 +131,7 @@ impl AppState {
                 self.data.draw_order.add(name.clone());
                 info!("Loaded map: {}", name);
                 self.status.unsaved_changes = true;
-                Ok(())
+                Ok(name)
             }
             Err(e) => Err(Error {
                 message: format!("Error loading image {:?}: {}", &meta.image_path, e),
@@ -244,8 +244,8 @@ impl AppState {
                 for (name, map) in deserialized_session.maps {
                     debug!("Restoring map state: {}", name);
                     match self.load_map(map.meta) {
-                        Ok(_) => {
-                            let map_state = self.data.maps.get_mut(&name).unwrap();
+                        Ok(map_name) => {
+                            let map_state = self.data.maps.get_mut(&map_name).expect("missing map");
                             map_state.pose = map.pose;
                             map_state.visible = map.visible;
                             map_state.tint = map.tint;
