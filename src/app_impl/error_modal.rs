@@ -16,7 +16,11 @@ impl AppState {
                 ui.vertical_centered(|ui| {
                     ui.label(egui::RichText::new("💩").size(50.));
                 });
-                ui.code(self.status.error.clone());
+                egui::ScrollArea::vertical()
+                    .max_height(250.)
+                    .show(ui, |ui| {
+                        ui.code(self.status.error.clone());
+                    });
                 ui.add_space(SPACE);
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui.button("Close").clicked() {
