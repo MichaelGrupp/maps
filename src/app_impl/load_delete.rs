@@ -104,11 +104,13 @@ impl AppState {
     pub(crate) fn load_map(&mut self, meta: Meta) -> Result<String, Error> {
         match load_image(&meta.image_path) {
             Ok(image) => {
-                self.tile_manager.add_pane(Pane {
-                    id: meta.yaml_path.to_str().unwrap().to_owned(),
-                });
+                let name = meta
+                    .yaml_path
+                    .to_str()
+                    .expect("invalid unicode path, can't use as map name")
+                    .to_owned();
+                self.tile_manager.add_pane(Pane { id: name.clone() });
                 let image_pyramid = Arc::new(ImagePyramid::new(image));
-                let name = meta.yaml_path.to_str().unwrap().to_owned();
                 let use_interpretation =
                     meta.value_interpretation.mode != value_interpretation::Mode::Raw;
                 if use_interpretation {
@@ -177,7 +179,13 @@ impl AppState {
             match MapPose::from_yaml_file(&path) {
                 Ok(map_pose) => {
                     info!("Loaded pose file: {:?}", path);
-                    self.data.maps.get_mut(map_name).unwrap().pose = map_pose;
+                    let Some(map) = self.data.maps.get_mut(map_name) else {
+                        self.status.error =
+                            format!("Can't load pose, map doesn't exist: {}", map_name);
+                        error!("{}", self.status.error);
+                        return;
+                    };
+                    map.pose = map_pose;
                     // Start from the same path the next time, also for saving.
                     self.load_map_pose_file_dialog
                         .config_mut()
@@ -208,14 +216,12 @@ impl AppState {
         if let Some(path) = self.save_map_pose_file_dialog.take_picked() {
             ui.ctx().request_repaint();
             debug!("Saving pose file: {:?}", path);
-            match self
-                .data
-                .maps
-                .get(map_name)
-                .unwrap()
-                .pose
-                .to_yaml_file(&path)
-            {
+            let Some(map) = self.data.maps.get(map_name) else {
+                self.status.error = format!("Can't save pose, map doesn't exist: {}", map_name);
+                error!("{}", self.status.error);
+                return;
+            };
+            match map.pose.to_yaml_file(&path) {
                 Ok(_) => {
                     info!("Saved pose file: {:?}", path);
                     // Start from the same path the next time, also for loading.
