@@ -135,13 +135,17 @@ fn main() -> eframe::Result {
             error!("YAML file does not exist: {}", yaml_file);
             exit(1);
         }
-        info!("Loading map YAML {}", yaml_path.to_str().unwrap());
+        let Some(yaml_path_str) = yaml_path.to_str() else {
+            error!("Invalid unicode paths are not supported: {:?}", yaml_path);
+            exit(1);
+        };
+        info!("Loading map YAML {}", yaml_path_str);
         if let Ok(meta) = Meta::load_from_file(&yaml_path.to_path_buf()) {
             if !meta.image_path.exists() {
                 error!(
                     "Metadata from {} points to an image that does not exist: {}",
-                    yaml_path.to_str().unwrap(),
-                    meta.image_path.to_str().unwrap()
+                    yaml_path_str,
+                    meta.image_path.to_str().unwrap_or("<invalid unicode path>")
                 );
                 exit(1);
             }
@@ -150,7 +154,7 @@ fn main() -> eframe::Result {
             error!(
                 "Error parsing map YAML file {}. \
                  In case you want to load a session file, use the -s / --session flag.",
-                yaml_path.to_str().unwrap()
+                yaml_path_str
             );
             exit(1);
         }

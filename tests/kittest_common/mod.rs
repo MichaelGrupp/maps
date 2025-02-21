@@ -44,6 +44,6 @@ pub fn snapshot_full_app(app_state: AppState, test_name: &str, size: egui::Vec2)
 pub fn _load_meta_with_fake_path(meta_path: &str) -> Meta {
     let mut meta = Meta::load_from_file(&PathBuf::from(meta_path)).expect("Failed to load map");
     let fake_parent = PathBuf::from("/fake_path_for_testing/");
-    meta.yaml_path = fake_parent.join(meta.yaml_path.file_name().unwrap());
+    meta.yaml_path = fake_parent.join(meta.yaml_path.file_name().expect("huh?"));
     meta
 }

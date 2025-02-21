@@ -36,13 +36,11 @@ impl AppState {
         });
 
         let map_name = self.options.pose_edit.selected_map.clone();
-        let map_pose = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose);
-        if map_pose.is_none() {
+        let Some(map_pose) = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose) else {
             ui.label("Select a map to edit its pose.");
             self.options.active_movable = ActiveMovable::Grid;
             return;
-        }
-        let map_pose = map_pose.unwrap();
+        };
         let original_map_pose = map_pose.clone();
 
         ui.add_space(SPACE);
@@ -223,11 +221,9 @@ impl AppState {
             .clone();
 
         for map_name in selected_maps {
-            let map_pose = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose);
-            if map_pose.is_none() {
+            let Some(map_pose) = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose) else {
                 continue;
-            }
-            let map_pose = map_pose.unwrap();
+            };
             *map_pose = map_pose_to_copy.clone();
         }
     }
