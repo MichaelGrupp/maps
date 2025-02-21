@@ -41,7 +41,11 @@ pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
 }
 
 fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::DynamicImage {
-    let mut resized_img = ResizeImage::new(width, height, img.pixel_type().unwrap());
+    let mut resized_img = ResizeImage::new(
+        width,
+        height,
+        img.pixel_type().expect("can't determine pixel type"),
+    );
     let mut resizer = Resizer::new();
 
     #[allow(unused_unsafe)]
@@ -54,27 +58,33 @@ fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::Dyn
     }
 
     let options = ResizeOptions::default();
-    resizer.resize(img, &mut resized_img, &options).unwrap();
+    resizer
+        .resize(img, &mut resized_img, &options)
+        .expect("failed to resize image");
 
     match img.color() {
         image::ColorType::L8 => {
             let buffer: ImageBuffer<image::Luma<u8>, _> =
-                image::ImageBuffer::from_raw(width, height, resized_img.into_vec()).unwrap();
+                image::ImageBuffer::from_raw(width, height, resized_img.into_vec())
+                    .expect("failed to create L8 image buffer");
             image::DynamicImage::ImageLuma8(buffer)
         }
         image::ColorType::La8 => {
             let buffer: ImageBuffer<image::LumaA<u8>, _> =
-                image::ImageBuffer::from_raw(width, height, resized_img.into_vec()).unwrap();
+                image::ImageBuffer::from_raw(width, height, resized_img.into_vec())
+                    .expect("failed to create La8 image buffer");
             image::DynamicImage::ImageLumaA8(buffer)
         }
         image::ColorType::Rgb8 => {
             let buffer: ImageBuffer<image::Rgb<u8>, _> =
-                image::ImageBuffer::from_raw(width, height, resized_img.into_vec()).unwrap();
+                image::ImageBuffer::from_raw(width, height, resized_img.into_vec())
+                    .expect("failed to create Rgb8 image buffer");
             image::DynamicImage::ImageRgb8(buffer)
         }
         image::ColorType::Rgba8 => {
             let buffer: ImageBuffer<image::Rgba<u8>, _> =
-                image::ImageBuffer::from_raw(width, height, resized_img.into_vec()).unwrap();
+                image::ImageBuffer::from_raw(width, height, resized_img.into_vec())
+                    .expect("failed to create Rgba8 image buffer");
             image::DynamicImage::ImageRgba8(buffer)
         }
         _ => panic!("Unsupported color type: {:?}", img.color()),
