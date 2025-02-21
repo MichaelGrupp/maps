@@ -242,7 +242,7 @@ impl AppState {
             if Lens::with(&mut self.options.lens).show_on_hover(ui, map, texture_id)
                 && self.options.view_mode != ViewMode::Aligned
             {
-                self.status.active_tool = Some(map.meta.yaml_path.to_str().unwrap().to_string());
+                self.status.active_tool = Some(map_id.to_string());
             }
         }
     }

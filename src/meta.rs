@@ -76,7 +76,7 @@ impl From<MetaYamlAnnotated> for Meta {
                 meta_yaml_annotated
                     .yaml_path
                     .parent()
-                    .unwrap()
+                    .expect("YAML file has no parent directory")
                     .join(&meta_yaml.image)
             },
             yaml_path: meta_yaml_annotated.yaml_path,
