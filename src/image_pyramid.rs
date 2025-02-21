@@ -73,7 +73,9 @@ impl ImagePyramid {
         {
             Some(closest) => {
                 trace!("Returning pyramid level for size: {}", closest);
-                self.levels_by_size.get(closest).unwrap()
+                self.levels_by_size
+                    .get(closest)
+                    .expect("non-existing pyramid level")
             }
             None => {
                 trace!(
