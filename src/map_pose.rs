@@ -167,4 +167,12 @@ impl MapPose {
             }),
         }
     }
+
+    #[cfg(target_arch = "wasm32")]
+    pub fn to_bytes(&self) -> Result<Vec<u8>, Error> {
+        match self.to_yaml() {
+            Ok(yaml) => Ok(yaml.into_bytes()),
+            Err(e) => Err(e),
+        }
+    }
 }

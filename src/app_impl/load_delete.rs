@@ -213,6 +213,7 @@ impl AppState {
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
         if ui
             .button("💾 Save Pose")
