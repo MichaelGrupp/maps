@@ -19,6 +19,7 @@ use crate::map_pose::MapPose;
 use crate::value_interpretation;
 
 impl AppState {
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn make_yaml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
         FileDialog::new()
             .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
@@ -42,6 +43,7 @@ impl AppState {
             )
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn make_toml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
         FileDialog::new()
             .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
@@ -77,6 +79,7 @@ impl AppState {
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn load_meta_button(&mut self, ui: &mut egui::Ui) {
         if ui.button("📂 Load Maps").clicked() {
             self.load_meta_file_dialog.pick_multiple();
@@ -101,38 +104,41 @@ impl AppState {
         }
     }
 
+    pub(crate) fn add_map(&mut self, name: &String, meta: Meta, image_pyramid: Arc<ImagePyramid>) {
+        let use_interpretation = meta.value_interpretation.mode != value_interpretation::Mode::Raw;
+        if use_interpretation {
+            // We need to set this to not loose the values in the next frame.
+            self.options.tint_settings.active_tint_selection = Some(name.clone());
+        }
+        self.tile_manager.add_pane(Pane { id: name.clone() });
+        self.data.maps.insert(
+            name.clone(),
+            MapState {
+                meta,
+                pose: MapPose::default(),
+                visible: true,
+                image_pyramid: image_pyramid.clone(),
+                texture_states: HashMap::new(),
+                tint: None,
+                color_to_alpha: None,
+                use_value_interpretation: use_interpretation,
+            },
+        );
+        self.data.draw_order.add(name.clone());
+        info!("Loaded map: {}", name);
+        self.status.unsaved_changes = true;
+    }
+
     pub(crate) fn load_map(&mut self, meta: Meta) -> Result<String, Error> {
         match load_image(&meta.image_path) {
             Ok(image) => {
+                let image_pyramid = Arc::new(ImagePyramid::new(image));
                 let name = meta
                     .yaml_path
                     .to_str()
                     .expect("invalid unicode path, can't use as map name")
                     .to_owned();
-                self.tile_manager.add_pane(Pane { id: name.clone() });
-                let image_pyramid = Arc::new(ImagePyramid::new(image));
-                let use_interpretation =
-                    meta.value_interpretation.mode != value_interpretation::Mode::Raw;
-                if use_interpretation {
-                    // We need to set this to not loose the values in the next frame.
-                    self.options.tint_settings.active_tint_selection = Some(name.clone());
-                }
-                self.data.maps.insert(
-                    name.clone(),
-                    MapState {
-                        meta,
-                        pose: MapPose::default(),
-                        visible: true,
-                        image_pyramid: image_pyramid.clone(),
-                        texture_states: HashMap::new(),
-                        tint: None,
-                        color_to_alpha: None,
-                        use_value_interpretation: use_interpretation,
-                    },
-                );
-                self.data.draw_order.add(name.clone());
-                info!("Loaded map: {}", name);
-                self.status.unsaved_changes = true;
+                self.add_map(&name, meta, image_pyramid);
                 Ok(name)
             }
             Err(e) => Err(Error {
@@ -164,6 +170,17 @@ impl AppState {
         }
     }
 
+    pub(crate) fn add_map_pose(&mut self, name: &str, map_pose: MapPose) {
+        if let Some(map) = self.data.maps.get_mut(name) {
+            map.pose = map_pose;
+            info!("Loaded pose file: {}", name);
+            self.status.unsaved_changes = true;
+        } else {
+            error!("Tried to add pose to non-existing map: {}", name);
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn load_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
         if ui
             .button("📂 Load Pose")
@@ -178,14 +195,7 @@ impl AppState {
             debug!("Loading pose file: {:?}", path);
             match MapPose::from_yaml_file(&path) {
                 Ok(map_pose) => {
-                    info!("Loaded pose file: {:?}", path);
-                    let Some(map) = self.data.maps.get_mut(map_name) else {
-                        self.status.error =
-                            format!("Can't load pose, map doesn't exist: {}", map_name);
-                        error!("{}", self.status.error);
-                        return;
-                    };
-                    map.pose = map_pose;
+                    self.add_map_pose(map_name, map_pose);
                     // Start from the same path the next time, also for saving.
                     self.load_map_pose_file_dialog
                         .config_mut()

@@ -1,6 +1,8 @@
 /target
-/assets
 
 /tests/snapshots/*new.png
 /tests/snapshots/*old.png
 /tests/snapshots/*diff.png
+/dist
+
+.DS_Store

@@ -49,10 +49,22 @@ impl MetaYamlAnnotated {
             }),
         }
     }
+
+    fn from_bytes(bytes: &[u8], yaml_name: &str) -> Result<MetaYamlAnnotated, Error> {
+        match serde_yaml_ng::from_slice::<MetaYaml>(bytes) {
+            Ok(meta_yaml) => Ok(MetaYamlAnnotated {
+                yaml_path: PathBuf::from(yaml_name),
+                meta_yaml,
+            }),
+            Err(e) => Err(Error {
+                message: format!("Failed to parse yaml from bytes: {}", e),
+            }),
+        }
+    }
 }
 
 /// Internal representation of the metadata.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Meta {
     pub image_path: PathBuf,
     pub yaml_path: PathBuf,
@@ -95,6 +107,17 @@ impl Meta {
             Ok(meta_yaml_annotated) => {
                 let meta = Meta::from(meta_yaml_annotated);
                 debug!("Parsed metadata: {:?}", meta);
+                Ok(meta)
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn load_from_bytes(bytes: &[u8], yaml_name: &str) -> Result<Meta, Error> {
+        match MetaYamlAnnotated::from_bytes(bytes, yaml_name) {
+            Ok(meta_yaml_annotated) => {
+                let meta = Meta::from(meta_yaml_annotated);
+                debug!("Parsed metadata from bytes: {:?}", meta);
                 Ok(meta)
             }
             Err(e) => Err(e),

@@ -33,6 +33,23 @@ pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageErr
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage, image::ImageError> {
+    match ImageReader::new(std::io::Cursor::new(bytes))
+        .with_guessed_format()?
+        .decode()
+    {
+        Ok(img) => {
+            debug!("Loaded image from bytes: {:?}", img.dimensions());
+            Ok(img)
+        }
+        Err(e) => {
+            error!("Error decoding image from bytes: {:?}", e);
+            Err(e)
+        }
+    }
+}
+
 pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
     let size = [img.width() as usize, img.height() as usize];
     // TODO: rgba might make sense here if we want to use alpha later?
