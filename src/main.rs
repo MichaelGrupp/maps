@@ -255,7 +255,8 @@ fn main() {
             .expect("maps_canvas_id was not a HtmlCanvasElement");
 
         let app_state = AppState::init(Vec::new(), AppOptions::default())
-            .expect("Failed to initialize AppState");
+            .expect("Failed to initialize AppState")
+            .with_build_info(build_info_string());
 
         let _ = eframe::WebRunner::new()
             .start(canvas, web_options, Box::new(|_cc| Ok(Box::new(app_state))))
