@@ -18,6 +18,7 @@ use strum::VariantNames;
 
 const MIN_SIZE: egui::Vec2 = egui::vec2(300., 200.);
 
+#[cfg(not(target_arch = "wasm32"))]
 #[derive(Parser, Debug)]
 #[command(name = "maps", version, author = "Michael Grupp", about)]
 struct Args {
@@ -94,6 +95,7 @@ fn build_info_string() -> String {
     )
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn load_icon() -> egui::IconData {
     let (icon_rgba, icon_width, icon_height) = {
         let icon = include_bytes!("../data/icon.png");
