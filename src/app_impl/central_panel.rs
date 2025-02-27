@@ -259,7 +259,13 @@ impl AppState {
                         ui.add_space(SPACE);
                         self.load_meta_button(ui);
                         ui.add_space(SPACE);
+
+                        #[cfg(not(target_arch = "wasm32"))]
                         self.load_session_button(ui);
+                        #[cfg(target_arch = "wasm32")]
+                        ui.add_enabled_ui(false, |ui| {
+                            self.load_session_button(ui);
+                        });
 
                         #[cfg(target_arch = "wasm32")]
                         {
