@@ -19,7 +19,14 @@ impl AppState {
                             "Save the app options when the window is closed.\n\
                         The options are loaded when the app is started.",
                         );
+                        #[cfg(not(target_arch = "wasm32"))]
                         ui.checkbox(&mut self.options.persistence.autosave, "");
+                        #[cfg(target_arch = "wasm32")]
+                        ui.label(
+                            egui::RichText::new("Only supported in native builds.")
+                                .weak()
+                                .italics(),
+                        );
                         ui.end_row();
                         ui.end_row();
 
