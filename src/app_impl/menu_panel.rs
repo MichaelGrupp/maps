@@ -53,8 +53,18 @@ impl AppState {
         ui.horizontal(|ui| {
             self.load_meta_button(ui);
             ui.separator();
+            #[cfg(not(target_arch = "wasm32"))]
             self.load_session_button(ui);
+            #[cfg(target_arch = "wasm32")]
+            ui.add_enabled_ui(false, |ui| {
+                self.load_session_button(ui);
+            });
+            #[cfg(not(target_arch = "wasm32"))]
             self.save_session_button(ui, false);
+            #[cfg(target_arch = "wasm32")]
+            ui.add_enabled_ui(false, |ui| {
+                self.save_session_button(ui, false);
+            });
         });
         ui.separator();
 

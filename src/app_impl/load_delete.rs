@@ -303,6 +303,7 @@ impl AppState {
         if ui
             .button("📂 Load Session")
             .on_hover_text("Load a session from a file.")
+            .on_disabled_hover_text("Only supported in native builds.")
             .clicked()
         {
             self.load_session_file_dialog.pick_file();
@@ -323,6 +324,7 @@ impl AppState {
         if ui
             .button(text.to_owned())
             .on_hover_text("Save the current session to a file.")
+            .on_disabled_hover_text("Only supported in native builds.")
             .clicked()
         {
             self.save_session_file_dialog.save_file();
