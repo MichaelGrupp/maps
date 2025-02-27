@@ -5,7 +5,7 @@ use log::info;
 use rfd::{AsyncFileDialog, FileHandle};
 
 use crate::app::AppState;
-use crate::map_pose::{self, MapPose};
+use crate::map_pose::MapPose;
 use crate::wasm::async_data::AsyncData;
 
 #[cfg(target_arch = "wasm32")]
@@ -94,28 +94,7 @@ fn pick_save_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String, map_pose: M
         let Some(file_handle) = future.await else {
             return;
         };
-        if let Ok(bytes) = map_pose.to_bytes() {
-            match file_handle.write(bytes.as_slice()).await {
-                Ok(_) => {
-                    info!(
-                        "Saved map pose file for map {} as bytes: {:?}",
-                        map_name,
-                        file_handle.file_name()
-                    );
-                }
-                Err(e) => {
-                    locked_data.error.clone_from(&format!(
-                        "Error saving map pose file for map {}: {:?}",
-                        map_name, e
-                    ));
-                }
-            }
-        } else {
-            locked_data.error.clone_from(&format!(
-                "Error serializing map pose file for map {}",
-                map_name
-            ));
-        }
+        save_map_pose(&mut locked_data, file_handle, map_name.as_str(), &map_pose).await;
     });
 }
 
@@ -123,7 +102,7 @@ impl AppState {
     /// wasm-compatible replacement for load_map_pose_button.
     #[cfg(target_arch = "wasm32")]
     pub(crate) fn load_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
-        if ui.button("📂 Load Map Pose").clicked() {
+        if ui.button("📂 Load Pose").clicked() {
             pick_load_map_pose(self.data.wasm_io.clone(), map_name.to_string());
         }
         // ui repaint is needed to trigger the handler also without ui interaction.
@@ -132,7 +111,7 @@ impl AppState {
 
     /// wasm-compatible replacement for save_map_pose_button.
     pub(crate) fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
-        if ui.button("💾 Save Map Pose").clicked() {
+        if ui.button("💾 Save Pose").clicked() {
             let Some(map_pose) = self.data.maps.get(map_name).map(|map| map.pose.clone()) else {
                 self.status.error = format!("Can't save pose, map {} not found.", map_name);
                 return;

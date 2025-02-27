@@ -14,6 +14,5 @@ pub(crate) struct AsyncData {
     pub metas: Vec<Meta>,
     pub images: Vec<Arc<ImagePyramid>>,
     pub map_poses: HashMap<String, MapPose>,
-    pub save_map_pose: Option<(String, MapPose)>,
     pub error: String,
 }
