@@ -190,12 +190,31 @@ You can also build completely from source if you want.
 <details>
 <summary>Details</summary>
 
+### Native build
+
 Clone this repository, then:
 ```bash
 cargo install --path maps/
 ```
 
 (or `cargo build --release` if you just want to build)
+
+### Web assembly build
+
+You can use [trunk](https://trunkrs.dev/) to directly build & serve the wasm version of `maps` from source. Just run:
+
+```
+trunk serve --release
+```
+and go to: http://localhost:8080/index.html/#dev
+
+
+A `dist/` target folder for a specific URL can be generated with:
+
+```
+trunk build --release --public-url <url>
+```
+
 
 </details>
 
