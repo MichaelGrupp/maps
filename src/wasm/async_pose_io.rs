@@ -110,6 +110,7 @@ impl AppState {
     }
 
     /// wasm-compatible replacement for save_map_pose_button.
+    #[cfg(target_arch = "wasm32")]
     pub(crate) fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
         if ui.button("💾 Save Pose").clicked() {
             let Some(map_pose) = self.data.maps.get(map_name).map(|map| map.pose.clone()) else {
