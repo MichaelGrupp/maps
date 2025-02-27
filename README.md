@@ -5,9 +5,40 @@
 | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_0.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_1.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_2.png" width="250" /> |
 |---|---|---|
 
-```
-cargo install maps
-```
+`maps` can compile & run natively or as web assembly.
+
+<table border="0">
+ <tr>
+    <td> 🖥️ <code>cargo install maps</code> </td>
+    <td> <a href="https://michaelgrupp.github.io/maps/" target="_blank">🌍 web demo</a> </td>
+ </tr>
+</table>
+
+<details>
+<summary> click to show differences </summary>
+
+#### Performance
+The native app is of course faster, but the wasm build comes pretty close in performance! Unless you use several large maps, the difference will be probably not noticeable.
+
+#### IO & Features
+
+Filesystem interaction is obviously limited in a sandboxed browser environment. File IO in the web build is handled via `<input>` fields by the browser instead of an egui file dialog.
+
+Apart from the things listed below, the wasm target offers exactly the same UI & features:
+
+* It's not possible to load only the YAML file of a map and get the corresponding image automatically, you need to pass both YAML and image file.
+* Saving & loading sessions is not supported.
+* (Auto)saving of options is not supported.
+* No command line interface obviously.
+
+#### Recommendation
+
+* For quick, sporadic tasks (e.g. viewing a map, taking a measurement etc), the web version is totally sufficient and doesn't require you to install anything.
+* For more complex tasks (e.g. alignment of multiple maps), the native app is better suited.
+
+**Note**: Both web & native run purely local in your OS or browser, no data is uploaded anywhere.
+
+</details>
 
 ## Audience
 
