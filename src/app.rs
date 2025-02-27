@@ -122,11 +122,11 @@ impl AppState {
         let mut state = AppState::default();
         state.options = options;
 
-        let mut default_dir = None;
+        let mut _default_dir = None;
         for meta in metas {
             // Use the directory of a meta file as the file dialogs default,
             // this is usually more handy than cwd when file are passed via CLI.
-            default_dir = absolute(meta.yaml_path.parent().expect("No parent dir?")).ok();
+            _default_dir = absolute(meta.yaml_path.parent().expect("No parent dir?")).ok();
 
             state.load_map(meta)?;
         }
@@ -136,13 +136,13 @@ impl AppState {
 
         #[cfg(not(target_arch = "wasm32"))]
         {
-            state.load_meta_file_dialog = Self::make_yaml_file_dialog(&default_dir);
-            state.load_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir);
-            state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&default_dir)
+            state.load_meta_file_dialog = Self::make_yaml_file_dialog(&_default_dir);
+            state.load_map_pose_file_dialog = Self::make_yaml_file_dialog(&_default_dir);
+            state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&_default_dir)
                 .allow_file_overwrite(true)
                 .default_file_name("map_pose.yaml");
-            state.load_session_file_dialog = Self::make_toml_file_dialog(&default_dir);
-            state.save_session_file_dialog = Self::make_toml_file_dialog(&default_dir)
+            state.load_session_file_dialog = Self::make_toml_file_dialog(&_default_dir);
+            state.save_session_file_dialog = Self::make_toml_file_dialog(&_default_dir)
                 .allow_file_overwrite(true)
                 .default_file_name("maps_session.toml");
         }
