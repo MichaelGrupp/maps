@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use eframe::egui;
-use image::imageops::FilterType;
 
 use crate::app::AppState;
 use crate::grid_options::MarkerVisibility;
@@ -21,36 +20,41 @@ impl AppState {
             "_demo_button",
             to_egui_image(
                 load_image_from_bytes(include_bytes!("../../data/doc/demo.png"))
-                    .expect("broken demo")
-                    .resize(350, 300, FilterType::Lanczos3),
+                    .expect("broken demo"),
             ),
             Default::default(),
         );
-        if ui.add(egui::ImageButton::new(&demo_img_texture)).clicked() {
+        if ui
+            .add(
+                egui::ImageButton::new(egui::Image::new(&demo_img_texture).max_height(200.))
+                    .corner_radius(5.),
+            )
+            .clicked()
+        {
             self.load_dummy_maps();
         }
     }
 
     fn load_dummy_maps(&mut self) {
-        let name_1 = "dummy_map_hires.yaml".to_string();
+        let name_1 = "dummy_map_lores.yaml".to_string();
         let img_1 = Arc::new(ImagePyramid::new(
-            load_image_from_bytes(include_bytes!("../../data/dummy_maps/dummy_map_hires.png"))
+            load_image_from_bytes(include_bytes!("../../data/dummy_maps/dummy_map_lores.png"))
                 .expect("broken demo"),
         ));
         let meta_1 = Meta::load_from_bytes(
-            include_bytes!("../../data/dummy_maps/dummy_map_hires.yaml"),
+            include_bytes!("../../data/dummy_maps/dummy_map_lores.yaml"),
             &name_1,
         )
         .expect("broken demo");
         self.add_map(&name_1, meta_1, img_1);
 
-        let name_2 = "dummy_map_lores.yaml".to_string();
+        let name_2 = "dummy_map_hires.yaml".to_string();
         let img_2 = Arc::new(ImagePyramid::new(
-            load_image_from_bytes(include_bytes!("../../data/dummy_maps/dummy_map_lores.png"))
+            load_image_from_bytes(include_bytes!("../../data/dummy_maps/dummy_map_hires.png"))
                 .expect("broken demo"),
         ));
         let meta_2 = Meta::load_from_bytes(
-            include_bytes!("../../data/dummy_maps/dummy_map_lores.yaml"),
+            include_bytes!("../../data/dummy_maps/dummy_map_hires.yaml"),
             &name_2,
         )
         .expect("broken demo");
@@ -78,5 +82,6 @@ impl AppState {
         self.options.grid.marker_visibility = MarkerVisibility::All;
         self.options.grid.marker_length_meters = 5.;
         self.options.grid.marker_width_meters = 1.;
+        self.options.canvas_settings.theme_preference = egui::ThemePreference::Dark;
     }
 }
