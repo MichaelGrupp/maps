@@ -269,7 +269,7 @@ impl AppState {
 
                         #[cfg(target_arch = "wasm32")]
                         {
-                            ui.add_space(SPACE * 4.);
+                            ui.add_space(SPACE * 3.);
                             ui.label(
                                 egui::RichText::new(
                                     "Filesystem IO is limited in the web assembly app.",
@@ -283,6 +283,8 @@ impl AppState {
                                 )
                                 .open_in_new_tab(true),
                             );
+                            ui.add_space(SPACE * 1.);
+                            self.load_demo_maps_button(ui);
                         }
                     });
                 });
