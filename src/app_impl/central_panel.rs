@@ -283,6 +283,7 @@ impl AppState {
                                 )
                                 .open_in_new_tab(true),
                             );
+                            self.load_demo_maps_button(ui);
                         }
                     });
                 });
