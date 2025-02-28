@@ -276,8 +276,9 @@ impl AppState {
                                 )
                                 .color(egui::Color32::ORANGE),
                             );
-                            ui.label(
-                                "Full functionality is available in the natively compiled app.",
+                            ui.hyperlink_to(
+                                "Click here to learn more.",
+                                "https://github.com/MichaelGrupp/maps?tab=readme-ov-file#maps",
                             );
                         }
                     });
