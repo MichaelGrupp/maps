@@ -49,6 +49,11 @@ impl AppState {
             }
 
             // Get the obects that can be currently dragged.
+            let drag_amount = match self.options.active_movable {
+                ActiveMovable::MapPose => self.options.pose_edit.movable_amounts.drag,
+                ActiveMovable::Grid => self.options.grid.movable_amounts.drag,
+                _ => Default::default(),
+            };
             let draggable: Option<&mut dyn Draggable> = match self.options.active_movable {
                 ActiveMovable::MapPose => {
                     match self
@@ -64,7 +69,6 @@ impl AppState {
                 _ => None,
             };
 
-            let drag_amount = self.options.pose_edit.movable_amounts.drag;
             if let Some(draggable) = draggable {
                 let previous_offset = draggable.offset_rhs();
                 if i.key_down(egui::Key::W) {
