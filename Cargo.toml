@@ -7,7 +7,7 @@ repository = "https://www.github.com/MichaelGrupp/maps"
 homepage = "https://www.github.com/MichaelGrupp/maps"
 categories = ["science::robotics", "visualization", "gui", "multimedia::images"]
 keywords = ["map", "navigation", "SLAM", "ROS", "egui"]
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 readme = "README.md"
 build = "build.rs"
@@ -57,8 +57,6 @@ env_logger = "0.11.5"
 wasm-bindgen-futures = "0.4"
 web-sys = "0.3.70"
 console_error_panic_hook = "0.1.7"  # wasm error messages in the browser console
-# Transient dependency, needs js flag for wasm:
-getrandom = { version = "*", features = ["js"] }
 rfd = "0.15.2"
 
 [profile.release]

@@ -2504,7 +2504,7 @@ dependencies = [
 
 [[package]]
 name = "maps"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "built",
  "clap",
@@ -2518,7 +2518,6 @@ dependencies = [
  "egui_tiles",
  "env_logger",
  "fast_image_resize",
- "getrandom",
  "image",
  "imageproc",
  "lazy_static",
