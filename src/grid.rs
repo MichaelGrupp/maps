@@ -291,7 +291,7 @@ impl Grid {
 
         let label_text_options: Option<LabelTextOptions> = match line_type {
             LineType::Main => {
-                let label_font_size = (spacing_points / 3.).min(15.);
+                let label_font_size = (spacing_points / 4.).min(15.);
                 Some(LabelTextOptions {
                     font_id: egui::FontId::new(label_font_size, egui::FontFamily::Monospace),
                     offset: egui::vec2(0., label_font_size / 2.),
