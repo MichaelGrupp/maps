@@ -15,7 +15,7 @@
 </table>
 
 <details>
-<summary> click to show differences </summary>
+<summary> click to show <b>differences</b> </summary>
 
 #### Performance
 The native app is of course faster, but the wasm build comes pretty close in performance! Unless you use several large maps, the difference will be probably not noticeable.
@@ -24,7 +24,9 @@ The native app is of course faster, but the wasm build comes pretty close in per
 
 Filesystem interaction is obviously limited in a sandboxed browser environment. File IO in the web build is handled via `<input>` fields by the browser instead of an egui file dialog.
 
-Apart from the things listed below, the wasm target offers exactly the same UI & features:
+Apart from the things listed below, the wasm target offers exactly the same UI & features.
+
+***Differences in wasm:***
 
 * It's not possible to load only the YAML file of a map and get the corresponding image automatically, you need to pass both YAML and image file.
 * Saving & loading sessions is not supported.
