@@ -276,9 +276,12 @@ impl AppState {
                                 )
                                 .color(egui::Color32::ORANGE),
                             );
-                            ui.hyperlink_to(
-                                "Click here to learn more.",
-                                "https://github.com/MichaelGrupp/maps?tab=readme-ov-file#maps",
+                            ui.add(
+                                egui::Hyperlink::from_label_and_url(
+                                    "Click here to learn more.",
+                                    "https://github.com/MichaelGrupp/maps?tab=readme-ov-file#maps",
+                                )
+                                .open_in_new_tab(true),
                             );
                         }
                     });
