@@ -3,7 +3,7 @@ use std::default;
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 
-use crate::movable::Draggable;
+use crate::movable::{Draggable, MovableAmounts};
 
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum GridLineDimension {
@@ -99,6 +99,8 @@ pub struct GridOptions {
     pub measure_end: Option<egui::Pos2>,   // metric
     pub measure_stroke: egui::Stroke,
     pub lens_magnification: f32,
+    #[serde(skip)]
+    pub movable_amounts: MovableAmounts,
 }
 
 impl default::Default for GridOptions {
@@ -136,6 +138,7 @@ impl default::Default for GridOptions {
             measure_end: None,
             measure_stroke: egui::Stroke::new(2., egui::Color32::ORANGE),
             lens_magnification: 5.,
+            movable_amounts: MovableAmounts::default(),
         }
     }
 }

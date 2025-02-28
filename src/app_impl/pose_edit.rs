@@ -67,20 +67,19 @@ impl AppState {
 
         ui.add_space(SPACE);
         ui.vertical(|ui| {
+            let movable_amounts = match self.options.active_movable {
+                ActiveMovable::MapPose => &mut self.options.pose_edit.movable_amounts,
+                ActiveMovable::Grid => &mut self.options.grid.movable_amounts,
+                _ => unreachable!(),
+            };
             ui.label("x/y step (m)")
                 .on_hover_text("The amount of translation per key press.");
-            ui.add(egui::Slider::new(
-                &mut self.options.pose_edit.movable_amounts.drag,
-                0.0..=10.0,
-            ));
+            ui.add(egui::Slider::new(&mut movable_amounts.drag, 0.0..=10.0));
             if self.options.active_movable == ActiveMovable::MapPose {
                 ui.end_row();
                 ui.label("θ step (rad)")
                     .on_hover_text("The amount of rotation per key press.");
-                ui.add(egui::Slider::new(
-                    &mut self.options.pose_edit.movable_amounts.rotate,
-                    0.0..=0.1,
-                ));
+                ui.add(egui::Slider::new(&mut movable_amounts.rotate, 0.0..=0.1));
             }
             ui.add_space(SPACE);
             ui.horizontal(|ui| {
@@ -89,24 +88,24 @@ impl AppState {
                     .on_hover_text("Quick setting for slow, fine movement.")
                     .clicked()
                 {
-                    self.options.pose_edit.movable_amounts.drag = 0.01;
-                    self.options.pose_edit.movable_amounts.rotate = 0.001;
+                    movable_amounts.drag = 0.01;
+                    movable_amounts.rotate = 0.001;
                 }
                 if ui
                     .button("Medium")
                     .on_hover_text("Quick setting for medium step movements.")
                     .clicked()
                 {
-                    self.options.pose_edit.movable_amounts.drag = 0.1;
-                    self.options.pose_edit.movable_amounts.rotate = 0.01;
+                    movable_amounts.drag = 0.1;
+                    movable_amounts.rotate = 0.01;
                 }
                 if ui
                     .button("Coarse")
                     .on_hover_text("Quick setting for fast, coarse movement.")
                     .clicked()
                 {
-                    self.options.pose_edit.movable_amounts.drag = 1.;
-                    self.options.pose_edit.movable_amounts.rotate = 0.1;
+                    movable_amounts.drag = 1.;
+                    movable_amounts.rotate = 0.1;
                 }
             });
         });
