@@ -16,18 +16,30 @@ use crate::value_interpretation::Mode;
 #[cfg(target_arch = "wasm32")]
 impl AppState {
     pub(crate) fn load_demo_maps_button(&mut self, ui: &mut egui::Ui) {
-        let demo_img_texture = ui.ctx().load_texture(
-            "_demo_button",
-            to_egui_image(
-                load_image_from_bytes(include_bytes!("../../data/doc/demo.png"))
-                    .expect("broken demo"),
-            ),
-            Default::default(),
-        );
+        if self.data.demo_button_image_handle.is_none() {
+            self.data.demo_button_image_handle = Some(
+                ui.ctx().load_texture(
+                    "_demo_button",
+                    to_egui_image(
+                        load_image_from_bytes(include_bytes!("../../data/doc/demo.png"))
+                            .expect("broken demo"),
+                    ),
+                    Default::default(),
+                ),
+            );
+        }
         if ui
             .add(
-                egui::ImageButton::new(egui::Image::new(&demo_img_texture).max_height(200.))
-                    .corner_radius(5.),
+                egui::ImageButton::new(
+                    egui::Image::new(
+                        self.data
+                            .demo_button_image_handle
+                            .as_ref()
+                            .expect("missing demo image"),
+                    )
+                    .max_height(200.),
+                )
+                .corner_radius(5.),
             )
             .clicked()
         {
