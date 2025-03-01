@@ -95,6 +95,9 @@ pub struct SessionData {
     #[cfg(target_arch = "wasm32")]
     #[serde(skip)]
     pub(crate) wasm_io: Arc<Mutex<AsyncData>>,
+    #[cfg(target_arch = "wasm32")]
+    #[serde(skip)]
+    pub(crate) demo_button_image_handle: Option<egui::TextureHandle>,
 }
 
 /// Main application state, implements the `eframe::App` trait.
