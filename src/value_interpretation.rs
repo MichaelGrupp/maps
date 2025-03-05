@@ -112,7 +112,12 @@ impl ValueInterpretation {
     /// image had an alpha channel. This is necessary for some implementation quirks.
     pub fn apply(&self, img: &mut DynamicImage, original_has_alpha: bool) {
         match self.mode {
-            Mode::Raw => {}
+            Mode::Raw => {
+                map_colors_mut(img, |c| {
+                    // Only colormap without interpretation in raw mode.
+                    self.colormap.get().map(c[0])
+                });
+            }
             Mode::Trinary | Mode::Scale => {
                 map_colors_mut(img, |c| {
                     self.colormap
