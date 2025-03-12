@@ -57,6 +57,14 @@ pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
     egui::ColorImage::from_rgba_unmultiplied(size, &pixels)
 }
 
+pub fn from_egui_image(egui_img: &egui::ColorImage) -> image::DynamicImage {
+    let (width, height) = (egui_img.width() as u32, egui_img.height() as u32);
+    let buffer: ImageBuffer<image::Rgba<u8>, _> =
+        image::ImageBuffer::from_raw(width, height, egui_img.as_raw().iter().cloned().collect())
+            .expect("failed to convert egui::ColorImage to image::DynamicImage (RGBA8)");
+    image::DynamicImage::ImageRgba8(buffer)
+}
+
 fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::DynamicImage {
     let mut resized_img = ResizeImage::new(
         width,

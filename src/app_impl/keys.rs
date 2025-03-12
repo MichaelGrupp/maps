@@ -11,6 +11,7 @@ impl AppState {
             || self.save_map_pose_file_dialog.state() == DialogState::Open
             || self.load_session_file_dialog.state() == DialogState::Open
             || self.save_session_file_dialog.state() == DialogState::Open
+            || self.save_screenshot_dialog.state() == DialogState::Open
             || self.status.quit_modal_active
             || !self.status.error.is_empty()
     }
@@ -25,6 +26,7 @@ impl AppState {
             return;
         }
 
+        let mut request_screenshot = false;
         ui.input(|i| {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
@@ -46,6 +48,9 @@ impl AppState {
             }
             if i.key_released(egui::Key::G) {
                 self.options.grid.lines_visible = !self.options.grid.lines_visible;
+            }
+            if i.key_released(egui::Key::P) {
+                request_screenshot = true;
             }
 
             // Get the obects that can be currently dragged.
@@ -139,5 +144,11 @@ impl AppState {
                 self.status.move_action = Some("+".to_string());
             }
         });
+
+        if request_screenshot {
+            // Has to be called here outside of the input closure to not block.
+            #[cfg(not(target_arch = "wasm32"))]
+            self.request_screenshot(ui);
+        }
     }
 }

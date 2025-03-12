@@ -13,5 +13,6 @@ pub(crate) mod load_delete;
 pub(crate) mod menu_panel;
 pub(crate) mod pose_edit;
 pub(crate) mod quit_modal;
+pub(crate) mod screenshot;
 pub(crate) mod settings_panel;
 pub(crate) mod tint_settings;
