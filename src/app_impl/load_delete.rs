@@ -108,8 +108,9 @@ impl AppState {
     }
 
     pub(crate) fn add_map(&mut self, name: &String, meta: Meta, image_pyramid: Arc<ImagePyramid>) {
-        let use_interpretation = meta.value_interpretation.mode != value_interpretation::Mode::Raw;
+        let use_interpretation = meta.value_interpretation.explicit_mode;
         if use_interpretation {
+            // This map has an explicitly specified value interpretation.
             // We need to set this to not loose the values in the next frame.
             self.options.tint_settings.active_tint_selection = Some(name.clone());
         }

@@ -21,6 +21,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = false
 mode = "raw"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_raw.yaml".meta.original_value_interpretation]
@@ -28,6 +29,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = false
 mode = "raw"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_raw.yaml".pose]
@@ -67,6 +69,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = true
 mode = "raw"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_raw_negate.yaml".meta.original_value_interpretation]
@@ -74,6 +77,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = true
 mode = "raw"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_raw_negate.yaml".pose]
@@ -113,6 +117,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = false
 mode = "scale"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_scale.yaml".meta.original_value_interpretation]
@@ -120,6 +125,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = false
 mode = "scale"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_scale.yaml".pose]
@@ -159,6 +165,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = true
 mode = "scale"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_scale_negate.yaml".meta.original_value_interpretation]
@@ -166,6 +173,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = true
 mode = "scale"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_scale_negate.yaml".pose]
@@ -205,6 +213,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = false
 mode = "trinary"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_trinary.yaml".meta.original_value_interpretation]
@@ -212,6 +221,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = false
 mode = "trinary"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_trinary.yaml".pose]
@@ -251,6 +261,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = true
 mode = "trinary"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_trinary_negate.yaml".meta.original_value_interpretation]
@@ -258,6 +269,7 @@ free = 0.19599999487400055
 occupied = 0.6499999761581421
 negate = true
 mode = "trinary"
+explicit_mode = true
 quirks = "Ros1MapServer"
 
 [maps."tests/maps/dummy_map_trinary_negate.yaml".pose]
