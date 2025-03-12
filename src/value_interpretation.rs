@@ -117,8 +117,11 @@ impl ValueInterpretation {
     pub fn apply(&self, img: &mut DynamicImage, original_has_alpha: bool) {
         match self.mode {
             Mode::Raw => {
-                map_colors_mut(img, |c| {
+                map_colors_mut(img, |mut c| {
                     // Only colormap without interpretation in raw mode.
+                    if self.negate {
+                        c[0] = 255 - c[0];
+                    }
                     self.colormap.get().map(c[0])
                 });
             }
