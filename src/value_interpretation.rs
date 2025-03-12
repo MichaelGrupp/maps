@@ -25,9 +25,9 @@ use crate::value_colormap::ColorMap;
 #[serde(rename_all = "lowercase")]
 pub enum Mode {
     /// Raw mode: no interpretation.
-    #[default]
     Raw,
     /// Trinary mode: values are thresholded into free, occupied, unknown.
+    #[default]
     Trinary,
     /// Scale mode: values are scaled into a continuous range between free and occupied.
     Scale,
