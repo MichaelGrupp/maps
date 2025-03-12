@@ -30,12 +30,14 @@ impl TextureState {
         }
     }
 
-    pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
-        let changed = self.desired_size != request.desired_rect.size()
+    fn changed(&self, request: &TextureRequest) -> bool {
+        self.desired_size != request.desired_rect.size()
             || self.desired_color_to_alpha != request.color_to_alpha
-            || self.desired_thresholding != request.thresholding;
+            || self.desired_thresholding != request.thresholding
+    }
 
-        if changed {
+    pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
+        if self.changed(request) {
             // Free the old texture if the size changed.
             self.texture_handle = None;
         }
@@ -78,14 +80,17 @@ impl TextureState {
         }
     }
 
+    fn changed_crop(&self, request: &RotatedCropRequest) -> bool {
+        if self.changed(&request.uncropped) {
+            return true;
+        }
+        return self.desired_uv != request.uv;
+    }
+
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
 
-        let mut unchanged = self.desired_size == desired_size && self.desired_uv == request.uv;
-        unchanged &= request.uncropped.color_to_alpha == self.desired_color_to_alpha;
-        unchanged &= self.desired_thresholding.unwrap_or_default()
-            == request.uncropped.thresholding.unwrap_or_default();
-        if unchanged {
+        if !self.changed_crop(request) {
             return;
         }
         self.desired_size = desired_size;
