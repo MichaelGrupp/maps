@@ -54,6 +54,8 @@ pub struct ValueInterpretation {
     pub occupied: f32,
     pub negate: bool,
     pub mode: Mode,
+    #[serde(default)]
+    pub explicit_mode: bool,
     pub quirks: Quirks,
     #[serde(default)]
     pub colormap: ColorMap,
@@ -66,6 +68,7 @@ impl Default for ValueInterpretation {
             occupied: MAP_SERVER_OCCUPIED_DEFAULT,
             negate: false,
             mode: Mode::default(),
+            explicit_mode: false,
             quirks: Quirks::default(),
             colormap: ColorMap::default(),
         }
@@ -79,6 +82,7 @@ impl ValueInterpretation {
             occupied,
             negate,
             mode: mode.unwrap_or_default(),
+            explicit_mode: mode.is_some(),
             quirks: Quirks::default(),
             colormap: ColorMap::default(),
         }
