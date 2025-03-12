@@ -9,6 +9,10 @@ pub struct DrawOrder {
 
 impl DrawOrder {
     pub fn add(&mut self, name: String) {
+        if self.contains(name.as_str()) {
+            // Handle corner case of reloading a map that was already inserted.
+            return;
+        }
         self.keys.push(name);
     }
 
@@ -18,6 +22,10 @@ impl DrawOrder {
 
     pub fn keys(&self) -> &Vec<String> {
         self.keys.as_ref()
+    }
+
+    pub fn contains(&self, name: &str) -> bool {
+        self.keys.contains(&name.to_string())
     }
 
     pub fn ui(&mut self, ui: &mut egui::Ui) {
