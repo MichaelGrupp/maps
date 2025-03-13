@@ -2,6 +2,7 @@
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::absolute;
+use std::sync::Arc;
 use std::vec::Vec;
 
 use eframe::egui;
@@ -25,7 +26,7 @@ use crate::tiles::Tiles;
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;
 #[cfg(target_arch = "wasm32")]
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
@@ -91,6 +92,7 @@ pub struct SessionData {
     #[serde(skip)]
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
+    pub screenshot: Option<Arc<egui::ColorImage>>,
 
     #[cfg(target_arch = "wasm32")]
     #[serde(skip)]
@@ -112,6 +114,7 @@ pub struct AppState {
     pub save_map_pose_file_dialog: FileDialog,
     pub load_session_file_dialog: FileDialog,
     pub save_session_file_dialog: FileDialog,
+    pub save_screenshot_dialog: FileDialog,
     pub tile_manager: Tiles,
 }
 
@@ -148,6 +151,8 @@ impl AppState {
             state.save_session_file_dialog = Self::make_toml_file_dialog(&_default_dir)
                 .allow_file_overwrite(true)
                 .default_file_name("maps_session.toml");
+            state.save_screenshot_dialog =
+                Self::make_png_file_dialog(&_default_dir).default_file_name("maps_screenshot.png");
         }
 
         Ok(state)
@@ -177,6 +182,8 @@ impl eframe::App for AppState {
             self.info_window(ui);
             self.debug_window(ctx, ui);
         });
+
+        self.handle_new_screenshot(&ctx);
 
         #[cfg(target_arch = "wasm32")]
         self.consume_wasm_io();
