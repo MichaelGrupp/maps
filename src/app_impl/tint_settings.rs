@@ -93,6 +93,7 @@ impl AppState {
 
             if reset {
                 *value_interpretation = ValueInterpretation::default();
+                self.options.tint_settings.use_value_interpretation_for_all = false;
             }
 
             for map in self.data.maps.values_mut() {
@@ -103,6 +104,7 @@ impl AppState {
                     map.meta.value_interpretation = *value_interpretation;
                 } else {
                     map.meta.reset_value_interpretation();
+                    map.use_value_interpretation = false;
                 }
             }
         } else if let Some(map) = self.data.maps.get_mut(selected) {
@@ -111,6 +113,8 @@ impl AppState {
 
             if reset {
                 map.meta.reset_value_interpretation();
+                // If the map has an explicit value interpretation, enable it by default.
+                map.use_value_interpretation = map.meta.value_interpretation.explicit_mode;
             }
             pick(
                 ui,
