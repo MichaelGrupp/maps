@@ -1,10 +1,11 @@
 use eframe::egui;
 use log::{debug, error, info};
+use strum::Display;
 
 use crate::app::AppState;
 use crate::image::from_egui_image;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Display)]
 pub enum Viewport {
     Full,
     Clipped,
@@ -12,11 +13,14 @@ pub enum Viewport {
 
 impl AppState {
     pub(crate) fn request_screenshot(&self, ui: &egui::Ui, viewport: Viewport) {
+        debug!(
+            "{} screenshot requested for the next frame.",
+            viewport.to_string()
+        );
         ui.ctx()
             .send_viewport_cmd(egui::ViewportCommand::Screenshot(egui::UserData::new(
                 viewport,
             )));
-        debug!("Screenshot requested for the next frame.");
     }
 
     pub(crate) fn handle_new_screenshot(&mut self, ctx: &egui::Context, clip_rect: &egui::Rect) {
@@ -37,7 +41,6 @@ impl AppState {
         });
 
         if let Some(event) = event_data {
-            info!("Captured screenshot.");
             self.save_screenshot_dialog.save_file();
 
             let viewport: Viewport = match event.1.data {
@@ -50,13 +53,18 @@ impl AppState {
                     return;
                 }
             };
+            info!(
+                "Captured {} screenshot.",
+                viewport.to_string().to_lowercase()
+            );
+
             let image = match viewport {
                 Viewport::Full => from_egui_image(&event.0),
                 Viewport::Clipped => from_egui_image(&event.0).crop(
-                    clip_rect.min.x as u32,
-                    clip_rect.min.y as u32,
-                    clip_rect.width() as u32,
-                    clip_rect.height() as u32,
+                    (clip_rect.min.x * ctx.pixels_per_point()) as u32,
+                    (clip_rect.min.y * ctx.pixels_per_point()) as u32,
+                    (clip_rect.width() * ctx.pixels_per_point()) as u32,
+                    (clip_rect.height() * ctx.pixels_per_point()) as u32,
                 ),
             };
             self.data.screenshot = Some(image);
