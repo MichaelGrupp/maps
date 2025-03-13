@@ -202,11 +202,13 @@ fn pick_quirks(ui: &mut egui::Ui, quirks: &mut Quirks) {
 }
 
 fn pick_mode(ui: &mut egui::Ui, mode: &mut Mode) {
-    ui.label("Mode")
-        .on_hover_text("How to display the pixel values.");
+    ui.label("Mode").on_hover_text(
+        "How to interpret the pixel values.\n\
+         Interpreted pixels are colored in a subsequent step.",
+    );
     ui.horizontal(|ui| {
         ui.selectable_value(mode, Mode::Raw, "Raw")
-            .on_hover_text("No interpretation, just display the pixel values.");
+            .on_hover_text("No interpretation, just use the raw pixel values.");
         ui.selectable_value(mode, Mode::Trinary, "Trinary")
             .on_hover_text("Threshold pixel values as free, occupied, or unknown.");
         ui.selectable_value(mode, Mode::Scale, "Scale")
@@ -219,7 +221,7 @@ fn pick_mode(ui: &mut egui::Ui, mode: &mut Mode) {
 
 fn pick_colormap(ui: &mut egui::Ui, colormap: &mut ColorMap) {
     ui.label("Coloring")
-        .on_hover_text("Select a colormap for the visualization.");
+        .on_hover_text("Select a colormap for the visualization of interpreted pixels.");
     egui::ComboBox::from_label("")
         .selected_text(colormap.to_string())
         .show_ui(ui, |ui| {
