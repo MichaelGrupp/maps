@@ -26,7 +26,7 @@ use crate::tiles::Tiles;
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;
 #[cfg(target_arch = "wasm32")]
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
