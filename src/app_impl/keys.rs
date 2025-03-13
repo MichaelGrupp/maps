@@ -2,6 +2,7 @@ use eframe::egui;
 use egui_file_dialog::DialogState;
 
 use crate::app::{ActiveMovable, ActiveTool, AppState};
+use crate::app_impl::screenshot;
 use crate::movable::{DragDirection, Draggable, Rotatable};
 
 impl AppState {
@@ -26,7 +27,7 @@ impl AppState {
             return;
         }
 
-        let mut request_screenshot = false;
+        let mut screenshot_request: Option<screenshot::Viewport> = None;
         ui.input(|i| {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
@@ -49,8 +50,12 @@ impl AppState {
             if i.key_released(egui::Key::G) {
                 self.options.grid.lines_visible = !self.options.grid.lines_visible;
             }
-            if i.key_released(egui::Key::P) {
-                request_screenshot = true;
+
+            // Screenshot shortcuts.
+            if i.modifiers.shift && i.key_released(egui::Key::P) {
+                screenshot_request = Some(screenshot::Viewport::Clipped);
+            } else if i.key_released(egui::Key::P) {
+                screenshot_request = Some(screenshot::Viewport::Full);
             }
 
             // Get the obects that can be currently dragged.
@@ -145,10 +150,10 @@ impl AppState {
             }
         });
 
-        if request_screenshot {
+        #[cfg(not(target_arch = "wasm32"))]
+        if let Some(viewport) = screenshot_request {
             // Has to be called here outside of the input closure to not block.
-            #[cfg(not(target_arch = "wasm32"))]
-            self.request_screenshot(ui);
+            self.request_screenshot(ui, viewport);
         }
     }
 }

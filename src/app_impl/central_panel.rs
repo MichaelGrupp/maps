@@ -292,10 +292,16 @@ impl AppState {
         );
     }
 
-    pub(crate) fn central_panel(&mut self, ui: &mut egui::Ui) {
+    /// Central panel that shows the map content.
+    /// Returns the rect of the viewport for screenshot purposes.
+    pub(crate) fn central_panel(&mut self, ui: &mut egui::Ui) -> egui::Rect {
+        let mut viewport_rect = egui::Rect::ZERO;
+
         egui::CentralPanel::default()
             .frame(egui::Frame::default().fill(self.options.canvas_settings.background_color))
             .show(ui.ctx(), |ui| {
+                viewport_rect = ui.clip_rect();
+
                 if self.data.maps.is_empty() {
                     self.show_empty(ui);
                     return;
@@ -317,5 +323,7 @@ impl AppState {
                     }
                 }
             });
+
+        viewport_rect
     }
 }

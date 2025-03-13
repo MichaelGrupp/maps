@@ -2,11 +2,11 @@
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::absolute;
-use std::sync::Arc;
 use std::vec::Vec;
 
 use eframe::egui;
 use egui_file_dialog::FileDialog;
+use image::DynamicImage;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString, VariantNames};
 
@@ -26,7 +26,7 @@ use crate::tiles::Tiles;
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;
 #[cfg(target_arch = "wasm32")]
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
@@ -92,7 +92,8 @@ pub struct SessionData {
     #[serde(skip)]
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
-    pub screenshot: Option<Arc<egui::ColorImage>>,
+    #[serde(skip)]
+    pub screenshot: Option<DynamicImage>,
 
     #[cfg(target_arch = "wasm32")]
     #[serde(skip)]
@@ -166,6 +167,8 @@ impl AppState {
 
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let mut central_rect = egui::Rect::ZERO;
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ctx.set_theme(self.options.canvas_settings.theme_preference);
 
@@ -177,13 +180,14 @@ impl eframe::App for AppState {
             self.menu_panel(ui);
             self.footer_panel(ui);
             self.settings_panel(ui);
-            self.central_panel(ui);
+            central_rect = self.central_panel(ui);
 
             self.info_window(ui);
             self.debug_window(ctx, ui);
         });
 
-        self.handle_new_screenshot(&ctx);
+        #[cfg(not(target_arch = "wasm32"))]
+        self.handle_new_screenshot(&ctx, &central_rect);
 
         #[cfg(target_arch = "wasm32")]
         self.consume_wasm_io();
