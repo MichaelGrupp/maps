@@ -72,6 +72,7 @@ pub struct AppOptions {
     pub tint_settings: TintOptions,
     pub pose_edit: PoseEditOptions,
     pub active_movable: ActiveMovable,
+    #[serde(skip)]
     pub active_tool: ActiveTool,
 }
 
@@ -208,12 +209,6 @@ impl eframe::App for AppState {
         if !self.options.persistence.autosave {
             return;
         }
-
-        // Clear some settings that should not be saved.
-        self.options.grid.measure_start = None;
-        self.options.grid.measure_end = None;
-        self.options.active_tool = ActiveTool::None;
-
         save_app_options(&self.options);
     }
 }

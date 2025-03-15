@@ -95,8 +95,10 @@ pub struct GridOptions {
     pub marker_z_color: egui::Color32,
     pub tick_labels_visible: bool,
     pub tick_labels_color: egui::Color32,
+    #[serde(skip)]
     pub measure_start: Option<egui::Pos2>, // metric
-    pub measure_end: Option<egui::Pos2>,   // metric
+    #[serde(skip)]
+    pub measure_end: Option<egui::Pos2>, // metric
     pub measure_stroke: egui::Stroke,
     pub lens_magnification: f32,
     #[serde(skip)]
