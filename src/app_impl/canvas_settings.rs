@@ -7,6 +7,10 @@ use crate::app_impl::constants::SPACE;
 const MIN_STACK_SCALE: f32 = 1.0;
 const MAX_STACK_SCALE: f32 = 10.0;
 
+const fn default_stack_scale_factor() -> f32 {
+    MIN_STACK_SCALE
+}
+
 fn default_theme_pref() -> egui::ThemePreference {
     // TODO: add default() to egui::ThemePreference
     // See: https://github.com/emilk/egui/pull/5702
@@ -18,7 +22,7 @@ pub struct CanvasOptions {
     pub background_color: egui::Color32,
     #[serde(default = "default_theme_pref")]
     pub theme_preference: egui::ThemePreference,
-    #[serde(skip)]
+    #[serde(skip, default = "default_stack_scale_factor")]
     pub stack_scale_factor: f32,
 }
 
