@@ -5,6 +5,9 @@ use strum::Display;
 use crate::app::AppState;
 use crate::image::from_egui_image;
 
+#[cfg(target_arch = "wasm32")]
+use crate::wasm::async_image_io;
+
 #[derive(Clone, Debug, Display)]
 pub enum Viewport {
     Full,
@@ -41,8 +44,6 @@ impl AppState {
         });
 
         if let Some(event) = event_data {
-            self.save_screenshot_dialog.save_file();
-
             let viewport: Viewport = match event.1.data {
                 Some(data) => data
                     .downcast_ref::<Viewport>()
@@ -67,19 +68,37 @@ impl AppState {
                     (clip_rect.height() * ctx.pixels_per_point()) as u32,
                 ),
             };
-            self.data.screenshot = Some(image);
-        }
-        self.save_screenshot_dialog.update(ctx);
 
-        if let Some(file_path) = self.save_screenshot_dialog.take_picked() {
-            if let Some(image) = self.data.screenshot.take() {
-                match image.save(file_path.clone()) {
-                    Ok(_) => {
-                        info!("Saved screenshot to {:?}", file_path);
-                    }
-                    Err(e) => {
-                        self.status.error = format!("Error saving screenshot: {:?}", e.to_string());
-                        error!("{}", self.status.error);
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                self.data.screenshot = Some(image);
+                self.save_screenshot_dialog.save_file();
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                async_image_io::pick_save_png(
+                    self.data.wasm_io.clone(),
+                    "maps_screenshot.png".to_string(),
+                    image,
+                );
+            }
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.save_screenshot_dialog.update(ctx);
+
+            if let Some(file_path) = self.save_screenshot_dialog.take_picked() {
+                if let Some(image) = self.data.screenshot.take() {
+                    match image.save(file_path.clone()) {
+                        Ok(_) => {
+                            info!("Saved screenshot to {:?}", file_path);
+                        }
+                        Err(e) => {
+                            self.status.error =
+                                format!("Error saving screenshot: {:?}", e.to_string());
+                            error!("{}", self.status.error);
+                        }
                     }
                 }
             }

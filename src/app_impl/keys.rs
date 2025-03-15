@@ -150,7 +150,6 @@ impl AppState {
             }
         });
 
-        #[cfg(not(target_arch = "wasm32"))]
         if let Some(viewport) = screenshot_request {
             // Has to be called here outside of the input closure to not block.
             self.request_screenshot(ui, viewport);

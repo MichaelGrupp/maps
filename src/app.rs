@@ -6,7 +6,6 @@ use std::vec::Vec;
 
 use eframe::egui;
 use egui_file_dialog::FileDialog;
-use image::DynamicImage;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString, VariantNames};
 
@@ -27,6 +26,9 @@ use crate::tiles::Tiles;
 use crate::wasm::async_data::AsyncData;
 #[cfg(target_arch = "wasm32")]
 use std::sync::{Arc, Mutex};
+
+#[cfg(not(target_arch = "wasm32"))]
+use image::DynamicImage;
 
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
@@ -92,6 +94,8 @@ pub struct SessionData {
     #[serde(skip)]
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
+
+    #[cfg(not(target_arch = "wasm32"))]
     #[serde(skip)]
     pub screenshot: Option<DynamicImage>,
 
@@ -186,7 +190,6 @@ impl eframe::App for AppState {
             self.debug_window(ctx, ui);
         });
 
-        #[cfg(not(target_arch = "wasm32"))]
         self.handle_new_screenshot(&ctx, &central_rect);
 
         #[cfg(target_arch = "wasm32")]

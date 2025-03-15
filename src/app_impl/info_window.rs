@@ -54,16 +54,13 @@ impl AppState {
                         ui.end_row();
 
                         // Screenshots
-                        #[cfg(not(target_arch = "wasm32"))]
-                        {
-                            ui.label("p");
-                            ui.label("Take a picture of the full UI and save the screenshot.");
-                            ui.end_row();
-                            ui.label("shift + p");
-                            ui.label("Take a screenshot containing only the central maps panel.");
-                            ui.end_row();
-                            ui.end_row();
-                        }
+                        ui.label("p");
+                        ui.label("Take a picture of the full UI and save the screenshot.");
+                        ui.end_row();
+                        ui.label("shift + p");
+                        ui.label("Take a screenshot containing only the central maps panel.");
+                        ui.end_row();
+                        ui.end_row();
 
                         // General
                         ui.label("m");
