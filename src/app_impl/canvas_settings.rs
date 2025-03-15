@@ -1,8 +1,11 @@
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 
-use crate::app::AppState;
+use crate::app::{AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
+
+const MIN_STACK_SCALE: f32 = 1.0;
+const MAX_STACK_SCALE: f32 = 10.0;
 
 fn default_theme_pref() -> egui::ThemePreference {
     // TODO: add default() to egui::ThemePreference
@@ -15,6 +18,8 @@ pub struct CanvasOptions {
     pub background_color: egui::Color32,
     #[serde(default = "default_theme_pref")]
     pub theme_preference: egui::ThemePreference,
+    #[serde(skip)]
+    pub stack_scale_factor: f32,
 }
 
 impl Default for CanvasOptions {
@@ -22,6 +27,7 @@ impl Default for CanvasOptions {
         Self {
             background_color: egui::Visuals::default().faint_bg_color,
             theme_preference: default_theme_pref(),
+            stack_scale_factor: MIN_STACK_SCALE,
         }
     }
 }
@@ -43,5 +49,17 @@ impl AppState {
         ui.end_row();
         ui.label("Background color");
         ui.color_edit_button_srgba(&mut self.options.canvas_settings.background_color);
+
+        if self.options.view_mode == ViewMode::Stacked {
+            ui.end_row();
+            ui.label("Stack scale factor").on_hover_text(
+                "Scale factor for the stacked view. \
+                 1.0 fits all maps into the canvas.",
+            );
+            ui.add(egui::Slider::new(
+                &mut self.options.canvas_settings.stack_scale_factor,
+                MIN_STACK_SCALE..=MAX_STACK_SCALE,
+            ));
+        }
     }
 }

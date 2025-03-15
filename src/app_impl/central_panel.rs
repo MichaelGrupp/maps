@@ -38,7 +38,7 @@ impl AppState {
             egui::pos2(
                 ui.available_width(),
                 ui.available_height() / num_visible as f32,
-            ),
+            ) * self.options.canvas_settings.stack_scale_factor,
         );
         self.status.active_tool = None;
         for name in self.data.draw_order.keys() {
