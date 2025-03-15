@@ -157,7 +157,7 @@ or to align with a fixed layout, etc.
 
 Also with transparency enabled, you might want to reorder the map layers.
 
-Changing the draw is just a matter of using drag & drop in the map list of the menu panel:
+Changing the draw order is just a matter of using drag & drop in the map list of the menu panel:
 
 https://github.com/user-attachments/assets/0d68e18b-2980-4ffa-bf93-470fe7a9612d
 
@@ -177,6 +177,13 @@ This allows for example to tune the free/occupied thresholds for your applicatio
 > 💩 The implementation in map_server is not fully consistent with the documentation.
 > This is a "standard" that most likely will stay, but worth to consider that there are slight differences in case you rely on the documentation.
 > Hence `maps` defaults to a reimplementation of that map_server quirk, but an implementation that follows the Wiki docs / occupancy grid message definition can be chosen as alternative.
+
+### 📸 Screenshot
+
+`maps` has a built-in screenshot feature.
+
+* Press `p` to save a picture of the full application.
+* Press `shift + p` to save a picture containing only the central panel that shows the maps.
 
 ### Session files
 
