@@ -101,9 +101,12 @@ impl AppState {
                     ui.vertical_centered(|ui| {
                         ui.heading("maps");
                         ui.add_space(SPACE);
-                        ui.hyperlink_to(
-                            egui::RichText::new(egui::special_emojis::GITHUB).heading(),
-                            "https://www.github.com/MichaelGrupp/maps",
+                        ui.add(
+                            egui::Hyperlink::from_label_and_url(
+                                egui::RichText::new(egui::special_emojis::GITHUB).heading(),
+                                "https://www.github.com/MichaelGrupp/maps",
+                            )
+                            .open_in_new_tab(true),
                         );
                         ui.add_space(SPACE);
                         ui.label("© Michael Grupp. Licensed under the Apache 2.0 license.");
