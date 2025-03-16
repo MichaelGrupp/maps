@@ -11,8 +11,16 @@ use crate::image_pyramid::ImagePyramid;
 use crate::meta::Meta;
 use crate::wasm::async_data::AsyncData;
 
+const YAML_EXTENSIONS: [&str; 2] = ["yml", "yaml"];
+const IMAGE_EXTENSIONS: [&str; 4] = ["png", "jpg", "jpeg", "pgm"];
+const ALL_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "pgm", "yml", "yaml"];
+
+struct Error {
+    message: String,
+}
+
 #[cfg(target_arch = "wasm32")]
-async fn load_image(data: &mut AsyncData, file_handle: FileHandle) {
+async fn load_image(file_handle: &FileHandle) -> Result<Arc<ImagePyramid>, Error> {
     let img_bytes = file_handle.read().await;
     match load_image_from_bytes(&img_bytes) {
         Ok(image) => {
@@ -20,18 +28,16 @@ async fn load_image(data: &mut AsyncData, file_handle: FileHandle) {
                 "Loaded image file from bytes: {:?}",
                 file_handle.file_name()
             );
-            data.images.push(Arc::new(ImagePyramid::new(image)));
+            Ok(Arc::new(ImagePyramid::new(image)))
         }
-        Err(e) => {
-            data.error
-                .clone_from(&format!("Error loading image file: {:?}", e));
-            return;
-        }
+        Err(e) => Err(Error {
+            message: format!("Error loading image file: {}", e.to_string()),
+        }),
     }
 }
 
 #[cfg(target_arch = "wasm32")]
-async fn load_meta(data: &mut AsyncData, file_handle: FileHandle) {
+async fn load_meta(file_handle: &FileHandle) -> Result<Meta, Error> {
     match Meta::load_from_bytes(
         file_handle.read().await.as_slice(),
         file_handle.file_name().as_str(),
@@ -41,25 +47,40 @@ async fn load_meta(data: &mut AsyncData, file_handle: FileHandle) {
                 "Loaded metadata file as bytes: {:?}",
                 file_handle.file_name()
             );
-            data.metas.push(meta);
+            Ok(meta)
         }
-        Err(e) => {
-            data.error
-                .clone_from(&format!("Error loading metadata file: {}", e.message));
-            return;
-        }
+        Err(e) => Err(Error {
+            message: format!("Error loading metadata file: {}", e.message),
+        }),
     }
+}
+
+fn file_handles_with_extension<'a>(
+    file_handles: &'a Vec<FileHandle>,
+    extensions: &[&str],
+) -> Vec<&'a FileHandle> {
+    file_handles
+        .iter()
+        .filter(|file_handle| {
+            match PathBuf::from(file_handle.file_name())
+                .extension()
+                .unwrap_or_default()
+                .to_str()
+                .expect("non-utf8 extension?")
+            {
+                ext if extensions.contains(&ext) => true,
+                _ => false,
+            }
+        })
+        .collect()
 }
 
 /// Pick map YAML and image files via rfd dialog (websys -> <input> html).
 #[cfg(target_arch = "wasm32")]
 fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
     let dialog = AsyncFileDialog::new()
-        .set_title("Select a map YAML and the corresponding image file:")
-        .add_filter(
-            "YAML or image",
-            &["yml", "yaml", "png", "jpg", "jpeg", "pgm"],
-        );
+        .set_title("Select pairs of YAML and corresponding image files:")
+        .add_filter("YAML or image", &ALL_EXTENSIONS);
 
     let future = dialog.pick_files();
 
@@ -68,32 +89,51 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
             return;
         };
 
-        if let Some(file_handles) = future.await {
-            if file_handles.len() != 2 {
-                locked_data
-                    .error
-                    .clone_from(&"Select exactly one YAML and one image file.".to_string());
-                return;
-            }
-            for file_handle in file_handles {
-                match PathBuf::from(file_handle.file_name())
-                    .extension()
-                    .unwrap_or_default()
-                    .to_str()
-                    .expect("failed to get extension")
-                {
-                    "yaml" | "yml" => {
-                        load_meta(&mut locked_data, file_handle).await;
+        let Some(file_handles) = future.await else {
+            return;
+        };
+        let yaml_handles = file_handles_with_extension(&file_handles, &YAML_EXTENSIONS);
+        let image_handles = file_handles_with_extension(&file_handles, &IMAGE_EXTENSIONS);
+        if yaml_handles.len() != image_handles.len() {
+            locked_data
+                .error
+                .clone_from(&"Select a YAML and image file pair for each map.".to_string());
+            return;
+        }
+
+        for yaml_file in yaml_handles {
+            let meta = match load_meta(yaml_file).await {
+                Ok(meta) => meta,
+                Err(e) => {
+                    locked_data.error.clone_from(&e.message);
+                    return;
+                }
+            };
+
+            let expected_image = &meta.image_path;
+            match image_handles
+                .iter()
+                .find(|image_handle| PathBuf::from(image_handle.file_name()) == *expected_image)
+            {
+                Some(image_file) => match load_image(image_file).await {
+                    Ok(image) => {
+                        locked_data.metas.push(meta);
+                        locked_data.images.push(image);
                     }
-                    "png" | "jpg" | "jpeg" | "pgm" => {
-                        load_image(&mut locked_data, file_handle).await;
+                    Err(e) => {
+                        locked_data.error.clone_from(&e.message);
+                        return;
                     }
-                    _ => {
-                        locked_data.error.clone_from(&format!(
-                            "Unsupported file type: {:?}",
-                            file_handle.file_name()
-                        ));
-                    }
+                },
+                None => {
+                    locked_data.error.clone_from(&format!(
+                        "No matching image file found for {:?}. YAML metadata points to {:?}, but \
+                         this file was not selected. Make sure to select the correct image file \
+                         for each YAML file.",
+                        yaml_file.file_name(),
+                        expected_image
+                    ));
+                    return;
                 }
             }
         }
