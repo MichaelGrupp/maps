@@ -33,20 +33,27 @@ impl ImagePyramid {
         ImagePyramid {
             levels_by_size: |original: &image::DynamicImage| -> HashMap<u32, image::DynamicImage> {
                 let mut levels: HashMap<u32, image::DynamicImage> = HashMap::new();
+                let mut parent = None;
                 for size in SIZES {
-                    let image_to_downscale = match levels.get(&(size / 2)) {
+                    let image_to_downscale = match levels.get(&parent.unwrap_or(0)) {
                         Some(parent_level) => parent_level,
                         None => original,
                     };
                     if max(original.width(), original.height()) < size {
                         continue;
                     }
-                    debug!("Creating pyramid level for size: {}", size);
+                    debug!(
+                        "Creating pyramid level for target size {} from {} image size {:?}",
+                        size,
+                        parent.map_or("original".to_string(), |_| "parent".to_string()),
+                        (image_to_downscale.width(), image_to_downscale.height())
+                    );
                     let level = fit_image(
                         image_to_downscale,
                         egui::Vec2::new(size as f32, size as f32),
                     );
                     levels.insert(size, level);
+                    parent = Some(size);
                 }
                 levels
             }(&original),
