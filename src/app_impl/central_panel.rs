@@ -99,7 +99,7 @@ impl AppState {
         }
 
         let grid = Grid::new(ui, "main_grid", options.scale).with_origin_offset(options.offset);
-        grid.show_maps(ui, &mut self.data.maps, &options, &self.data.draw_order);
+        grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
         if options.lines_visible {
             grid.draw(ui, options, LineType::Main);
         }
@@ -200,7 +200,7 @@ impl AppState {
         window.show(ui.ctx(), |ui| {
             if let Some(center_pos) = center_pos {
                 let mini_grid = Grid::new(ui, id, grid_lens_scale).centered_at(center_pos);
-                mini_grid.show_maps(ui, &mut self.data.maps, &options, &self.data.draw_order);
+                mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
                     mini_grid.draw(ui, options, LineType::Main);
                 }

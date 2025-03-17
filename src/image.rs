@@ -24,17 +24,13 @@ pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, Error> {
             }
             Err(img_error) => Err(Error::new(format!(
                 "Error decoding image {:?}: {}",
-                path,
-                img_error.to_string()
+                path, img_error
             ))
             .and_log_it()),
         },
-        Err(img_error) => Err(Error::new(format!(
-            "Error loading image {:?}: {}",
-            path,
-            img_error.to_string()
-        ))
-        .and_log_it()),
+        Err(img_error) => {
+            Err(Error::new(format!("Error loading image {:?}: {}", path, img_error)).and_log_it())
+        }
     }
 }
 
@@ -73,7 +69,7 @@ pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
 pub fn from_egui_image(egui_img: &egui::ColorImage) -> image::DynamicImage {
     let (width, height) = (egui_img.width() as u32, egui_img.height() as u32);
     let buffer: ImageBuffer<image::Rgba<u8>, _> =
-        image::ImageBuffer::from_raw(width, height, egui_img.as_raw().iter().cloned().collect())
+        image::ImageBuffer::from_raw(width, height, egui_img.as_raw().to_vec())
             .expect("failed to convert egui::ColorImage to image::DynamicImage (RGBA8)");
     image::DynamicImage::ImageRgba8(buffer)
 }
