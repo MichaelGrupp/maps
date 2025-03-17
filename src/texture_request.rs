@@ -85,20 +85,25 @@ impl RotatedCropRequest {
         // Enable debug log level to see what is going on (I spent too much time figuring this out).
         let rotated = rotate(&image_rect, rotation, origin_in_points);
         let transformed = rotated.translate(translation);
-        debug_paint(ui, transformed, egui::Color32::RED);
+        debug_paint(ui, transformed, egui::Color32::RED, "transformed");
 
         let transformed_visible = transformed.intersect(viewport_rect);
-        debug_paint(ui, transformed_visible, egui::Color32::GOLD);
+        debug_paint(
+            ui,
+            transformed_visible,
+            egui::Color32::GOLD,
+            "transformed_visible",
+        );
 
         let min_crop = rotate(
             &transformed_visible.translate(-translation),
             rotation.inverse(),
             origin_in_points,
         );
-        debug_paint(ui, min_crop, egui::Color32::BLUE);
+        debug_paint(ui, min_crop, egui::Color32::BLUE, "min_crop");
 
         let visible_rect = min_crop.intersect(image_rect);
-        debug_paint(ui, visible_rect, egui::Color32::GREEN);
+        debug_paint(ui, visible_rect, egui::Color32::GREEN, "visible_rect");
 
         RotatedCropRequest {
             uncropped,
