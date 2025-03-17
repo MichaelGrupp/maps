@@ -6,6 +6,7 @@ use log::info;
 use rfd::{AsyncFileDialog, FileHandle};
 
 use crate::app::AppState;
+use crate::error::Error;
 use crate::image::load_image_from_bytes;
 use crate::image_pyramid::ImagePyramid;
 use crate::meta::Meta;
@@ -14,10 +15,6 @@ use crate::wasm::async_data::AsyncData;
 const YAML_EXTENSIONS: [&str; 2] = ["yml", "yaml"];
 const IMAGE_EXTENSIONS: [&str; 4] = ["png", "jpg", "jpeg", "pgm"];
 const ALL_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "pgm", "yml", "yaml"];
-
-struct Error {
-    message: String,
-}
 
 #[cfg(target_arch = "wasm32")]
 async fn load_image(file_handle: &FileHandle) -> Result<Arc<ImagePyramid>, Error> {
@@ -30,29 +27,20 @@ async fn load_image(file_handle: &FileHandle) -> Result<Arc<ImagePyramid>, Error
             );
             Ok(Arc::new(ImagePyramid::new(image)))
         }
-        Err(e) => Err(Error {
-            message: format!("Error loading image file: {}", e.to_string()),
-        }),
+        Err(e) => Err(Error::new(format!(
+            "Error loading image file {:?}: {}",
+            e.message,
+            file_handle.file_name()
+        ))),
     }
 }
 
 #[cfg(target_arch = "wasm32")]
 async fn load_meta(file_handle: &FileHandle) -> Result<Meta, Error> {
-    match Meta::load_from_bytes(
+    Meta::load_from_bytes(
         file_handle.read().await.as_slice(),
         file_handle.file_name().as_str(),
-    ) {
-        Ok(meta) => {
-            info!(
-                "Loaded metadata file as bytes: {:?}",
-                file_handle.file_name()
-            );
-            Ok(meta)
-        }
-        Err(e) => Err(Error {
-            message: format!("Error loading metadata file: {}", e.message),
-        }),
-    }
+    )
 }
 
 fn file_handles_with_extension<'a>(

@@ -8,6 +8,7 @@
 pub mod app;
 mod app_impl;
 mod draw_order;
+pub mod error;
 mod grid;
 mod grid_options;
 mod image;

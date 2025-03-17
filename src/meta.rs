@@ -5,6 +5,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+use crate::error::Error;
 use crate::path_helpers::resolve_symlink;
 use crate::value_interpretation::{Mode, ValueInterpretation};
 
@@ -26,11 +27,6 @@ struct MetaYamlAnnotated {
     pub yaml_path: PathBuf,
 }
 
-#[derive(Debug)]
-pub struct Error {
-    pub message: String,
-}
-
 impl MetaYamlAnnotated {
     fn from(yaml_path: &PathBuf) -> Result<MetaYamlAnnotated, Error> {
         let yaml_path = resolve_symlink(yaml_path);
@@ -40,13 +36,9 @@ impl MetaYamlAnnotated {
                     meta_yaml,
                     yaml_path,
                 }),
-                Err(e) => Err(Error {
-                    message: format!("Failed to parse yaml: {}", e),
-                }),
+                Err(e) => Err(Error::new(format!("Failed to parse yaml: {}", e))),
             },
-            Err(e) => Err(Error {
-                message: format!("Failed to read yaml file: {}", e),
-            }),
+            Err(e) => Err(Error::new(format!("Failed to read yaml file: {}", e))),
         }
     }
 
@@ -56,9 +48,10 @@ impl MetaYamlAnnotated {
                 yaml_path: PathBuf::from(yaml_name),
                 meta_yaml,
             }),
-            Err(e) => Err(Error {
-                message: format!("Failed to parse yaml from bytes: {}", e),
-            }),
+            Err(e) => Err(Error::new(format!(
+                "Failed to parse yaml from bytes: {}",
+                e
+            ))),
         }
     }
 }

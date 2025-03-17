@@ -6,14 +6,10 @@ use serde::{Deserialize, Serialize};
 use toml;
 
 use crate::app::{AppOptions, SessionData};
+use crate::error::Error;
 
 const APP_NAME: &str = "maps";
 const APP_OPTIONS_NAME: &str = "app_options";
-
-#[derive(Debug)]
-pub struct Error {
-    pub message: String,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PersistenceOptions {
@@ -76,16 +72,12 @@ pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<(), Error> 
             match std::fs::write(path, toml) {
                 Ok(_) => (),
                 Err(e) => {
-                    return Err(Error {
-                        message: format!("Error saving session: {}", e),
-                    });
+                    return Err(Error::new(format!("Error saving session: {}", e)));
                 }
             }
         }
         Err(e) => {
-            return Err(Error {
-                message: format!("Error serializing session: {}", e),
-            });
+            return Err(Error::new(format!("Error serializing session: {}", e)));
         }
     }
     Ok(())
@@ -96,12 +88,8 @@ pub fn load_session(path: &PathBuf) -> Result<SessionData, Error> {
     match std::fs::read_to_string(path) {
         Ok(toml) => match toml::from_str(&toml) {
             Ok(maps) => Ok(maps),
-            Err(e) => Err(Error {
-                message: format!("Error deserializing session: {}", e),
-            }),
+            Err(e) => Err(Error::new(format!("Error deserializing session: {}", e))),
         },
-        Err(e) => Err(Error {
-            message: format!("Error loading session: {}", e),
-        }),
+        Err(e) => Err(Error::new(format!("Error loading session: {}", e))),
     }
 }

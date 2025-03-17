@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use eframe::emath;
 use serde::{Deserialize, Serialize};
 
+use crate::error::Error;
 use crate::movable::{Draggable, Rotatable};
 use crate::path_helpers::resolve_symlink;
 
@@ -47,11 +48,6 @@ pub struct Translation {
     /// Placeholder for z. Not used by the maps app.
     #[serde(default)]
     pub z: f32,
-}
-
-#[derive(Debug)]
-pub struct Error {
-    pub message: String,
 }
 
 impl Draggable for MapPose {
@@ -128,13 +124,9 @@ impl MapPose {
         match std::fs::File::open(resolve_symlink(yaml_path)) {
             Ok(file) => match serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file) {
                 Ok(map_pose) => Ok(map_pose.normalized()),
-                Err(error) => Err(Error {
-                    message: error.to_string(),
-                }),
+                Err(error) => Err(Error::new(error)),
             },
-            Err(error) => Err(Error {
-                message: error.to_string(),
-            }),
+            Err(error) => Err(Error::new(error)),
         }
     }
 
@@ -142,9 +134,7 @@ impl MapPose {
     pub fn from_bytes(bytes: &[u8]) -> Result<MapPose, Error> {
         match serde_yaml_ng::from_slice::<MapPose>(bytes) {
             Ok(map_pose) => Ok(map_pose.normalized()),
-            Err(error) => Err(Error {
-                message: error.to_string(),
-            }),
+            Err(error) => Err(Error::new(error)),
         }
     }
 
@@ -152,9 +142,7 @@ impl MapPose {
     pub fn to_yaml(&self) -> Result<String, Error> {
         match serde_yaml_ng::to_string(self) {
             Ok(yaml) => Ok(yaml),
-            Err(error) => Err(Error {
-                message: error.to_string(),
-            }),
+            Err(error) => Err(Error::new(error)),
         }
     }
 
@@ -162,9 +150,7 @@ impl MapPose {
     pub fn to_yaml_file(&self, yaml_path: &PathBuf) -> Result<(), Error> {
         match std::fs::write(yaml_path, self.to_yaml()?) {
             Ok(_) => Ok(()),
-            Err(error) => Err(Error {
-                message: error.to_string(),
-            }),
+            Err(error) => Err(Error::new(error)),
         }
     }
 

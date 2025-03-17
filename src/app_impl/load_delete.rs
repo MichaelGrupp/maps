@@ -100,9 +100,10 @@ impl AppState {
                 Ok(_) => Ok(true),
                 Err(e) => Err(e),
             },
-            Err(e) => Err(Error {
-                message: format!("Error loading metadata file: {}", e.message),
-            }),
+            Err(e) => Err(Error::new(format!(
+                "Error loading metadata file: {}",
+                e.message
+            ))),
         }
     }
 
@@ -169,9 +170,10 @@ impl AppState {
                 self.add_map(&name, meta, image_pyramid);
                 Ok(name)
             }
-            Err(e) => Err(Error {
-                message: format!("Error loading image {:?}: {}", &meta.image_path, e),
-            }),
+            Err(e) => Err(Error::new(format!(
+                "Error loading image {:?}: {}",
+                &meta.image_path, e.message
+            ))),
         }
     }
 
