@@ -5,14 +5,15 @@ use fast_image_resize::images::Image as ResizeImage;
 use fast_image_resize::{IntoImageView, ResizeOptions, Resizer};
 use image::{GenericImageView, ImageBuffer, ImageReader};
 use imageproc::map::map_colors_mut;
-use log::{debug, error, info};
+use log::{debug, info};
 
 #[allow(unused_imports)]
 use fast_image_resize::CpuExtensions;
 
+use crate::error::Error;
 use crate::path_helpers::resolve_symlink;
 
-pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageError> {
+pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, Error> {
     let path = resolve_symlink(path);
     info!("Loading image: {:?}", path);
     match ImageReader::open(&path) {
@@ -21,32 +22,44 @@ pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, image::ImageErr
                 debug!("Loaded image: {:?} {:?}", path, img.dimensions());
                 Ok(img)
             }
-            Err(e) => {
-                error!("Error decoding image: {:?}", e);
-                Err(e)
-            }
+            Err(img_error) => Err(Error::new(format!(
+                "Error decoding image {:?}: {}",
+                path,
+                img_error.to_string()
+            ))
+            .and_log_it()),
         },
-        Err(e) => {
-            error!("Error loading image {:?}: {}", path, e.to_string());
-            Err(image::ImageError::IoError(e))
-        }
+        Err(img_error) => Err(Error::new(format!(
+            "Error loading image {:?}: {}",
+            path,
+            img_error.to_string()
+        ))
+        .and_log_it()),
     }
 }
 
 #[cfg(target_arch = "wasm32")]
-pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage, image::ImageError> {
-    match ImageReader::new(std::io::Cursor::new(bytes))
-        .with_guessed_format()?
-        .decode()
-    {
+pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage, Error> {
+    let img_io = match ImageReader::new(std::io::Cursor::new(bytes)).with_guessed_format() {
+        Ok(reader) => reader,
+        Err(img_error) => {
+            return Err(Error::new(format!(
+                "Error creating image reader from bytes: {}",
+                img_error.to_string()
+            ))
+            .and_log_it());
+        }
+    };
+    match img_io.decode() {
         Ok(img) => {
             debug!("Loaded image from bytes: {:?}", img.dimensions());
             Ok(img)
         }
-        Err(e) => {
-            error!("Error decoding image from bytes: {:?}", e);
-            Err(e)
-        }
+        Err(img_error) => Err(Error::new(format!(
+            "Error decoding image from bytes: {}",
+            img_error.to_string()
+        ))
+        .and_log_it()),
     }
 }
 

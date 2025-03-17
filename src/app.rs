@@ -12,6 +12,7 @@ use strum_macros::{Display, EnumString, VariantNames};
 pub use crate::app_impl::canvas_settings::CanvasOptions;
 pub use crate::app_impl::pose_edit::PoseEditOptions;
 pub use crate::app_impl::tint_settings::TintOptions;
+pub use crate::error::Error;
 pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
 pub use crate::value_colormap::ColorMap;
@@ -122,11 +123,6 @@ pub struct AppState {
     pub save_session_file_dialog: FileDialog,
     pub save_screenshot_dialog: FileDialog,
     pub tile_manager: Tiles,
-}
-
-#[derive(Debug)]
-pub struct Error {
-    pub message: String,
 }
 
 impl AppState {
