@@ -187,7 +187,7 @@ impl eframe::App for AppState {
             self.debug_window(ctx, ui);
         });
 
-        self.handle_new_screenshot(&ctx, &central_rect);
+        self.handle_new_screenshot(ctx, &central_rect);
 
         #[cfg(target_arch = "wasm32")]
         self.consume_wasm_io();

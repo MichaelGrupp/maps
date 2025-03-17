@@ -84,7 +84,7 @@ impl TextureState {
         if self.changed(&request.uncropped) {
             return true;
         }
-        return self.desired_uv != request.uv;
+        self.desired_uv != request.uv
     }
 
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
