@@ -5,7 +5,7 @@
 | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_0.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_1.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_2.png" width="250" /> |
 |---|---|---|
 
-`maps` is 100% Rust and compiles & runs natively or as web assembly.
+`maps` is 100% Rust and compiles & runs natively (cross-platform) or as web assembly.
 
 <table border="0">
  <tr>
@@ -51,6 +51,7 @@ Apart from the things listed below, the wasm target offers exactly the same UI &
 * ...you want to quickly work with the map files, but other tools are either...
   * ...better suited for live data streams (e.g. RViz, Rerun, Foxglove etc)
   * ...not supporting grid coordinates (most image viewers)
+  * ...bloated, vendor-locked or unsuited for dev workflows (commercial fleet/layout tools)
 * ...you want to display in a shared coordinate system, take measurements etc.
 * ...you want to align multiple, potentially very large maps.
 
@@ -255,7 +256,6 @@ A `dist/` target folder for a specific URL can be generated with:
 trunk build --release --public-url <url>
 ```
 
-
 </details>
 
 ## Run
@@ -277,6 +277,9 @@ maps some/map.yaml some/other/map.yaml
 See `maps --help` for all command line options.
 
 ## Development / Testing
+
+CI pipelines run for Linux, macOS, Windows and wasm targets:  
+[![Rust](https://github.com/MichaelGrupp/maps/actions/workflows/rust.yml/badge.svg)](https://github.com/MichaelGrupp/maps/actions/workflows/rust.yml) 
 
 There are integration tests in the `tests/` directory that are run in pull requests.
 These include kit tests that check if the UI stays consistent, using the snapshot diff feature of `egui_kittest`.
@@ -300,6 +303,8 @@ RUST_LOG=maps=info cargo test --profile kittest --verbose --no-default-features 
 ```
 
 </details>
+
+`maps` has only a small public library. But in case you are interested: https://docs.rs/maps/latest/maps/
 
 ---
 
