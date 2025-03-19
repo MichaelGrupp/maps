@@ -33,6 +33,7 @@ impl AppState {
 
         locked_data.metas.clear();
         locked_data.images.clear();
+        locked_data.map_poses.clear();
         drop(locked_data);
 
         for (meta, image_pyramid) in metas_and_images {
