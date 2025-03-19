@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 
 use eframe::emath;
+use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
@@ -123,7 +124,14 @@ impl MapPose {
     pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
         match std::fs::File::open(resolve_symlink(yaml_path)) {
             Ok(file) => match serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file) {
-                Ok(map_pose) => Ok(map_pose.normalized()),
+                Ok(map_pose) => {
+                    let map_pose = map_pose.normalized();
+                    debug!(
+                        "Loaded and normalized map pose from {:?}: {:?}",
+                        yaml_path, map_pose
+                    );
+                    Ok(map_pose)
+                }
                 Err(error) => Err(Error::new(error)),
             },
             Err(error) => Err(Error::new(error)),
@@ -133,7 +141,11 @@ impl MapPose {
     #[cfg(target_arch = "wasm32")]
     pub fn from_bytes(bytes: &[u8]) -> Result<MapPose, Error> {
         match serde_yaml_ng::from_slice::<MapPose>(bytes) {
-            Ok(map_pose) => Ok(map_pose.normalized()),
+            Ok(map_pose) => {
+                let map_pose = map_pose.normalized();
+                debug!("Loaded and normalized map pose from bytes: {:?}", map_pose);
+                Ok(map_pose)
+            }
             Err(error) => Err(Error::new(error)),
         }
     }

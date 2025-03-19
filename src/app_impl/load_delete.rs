@@ -101,8 +101,8 @@ impl AppState {
                 Err(e) => Err(e),
             },
             Err(e) => Err(Error::new(format!(
-                "Error loading metadata file: {}",
-                e.message
+                "Error loading metadata file {:?}: {}",
+                yaml_path, e.message
             ))),
         }
     }
@@ -119,7 +119,6 @@ impl AppState {
                 ui.ctx().request_repaint();
                 match self.load_meta(&path) {
                     Ok(_) => {
-                        info!("Loaded metadata file: {:?}", path);
                         // Start from the same path the next time.
                         self.load_meta_file_dialog.config_mut().initial_directory = path;
                     }
@@ -200,13 +199,13 @@ impl AppState {
         }
     }
 
-    pub(crate) fn add_map_pose(&mut self, name: &str, map_pose: MapPose) {
-        if let Some(map) = self.data.maps.get_mut(name) {
+    pub(crate) fn add_map_pose(&mut self, map_name: &str, map_pose: MapPose) {
+        if let Some(map) = self.data.maps.get_mut(map_name) {
             map.pose = map_pose;
-            info!("Loaded pose file: {}", name);
+            info!("Loaded pose for: {}", map_name);
             self.status.unsaved_changes = true;
         } else {
-            error!("Tried to add pose to non-existing map: {}", name);
+            error!("Tried to add pose to non-existing map: {}", map_name);
         }
     }
 
@@ -236,7 +235,8 @@ impl AppState {
                     self.status.unsaved_changes = true;
                 }
                 Err(e) => {
-                    self.status.error = format!("Error loading pose file: {}", e.message);
+                    self.status.error =
+                        format!("Error loading pose file {:?}: {}", path, e.message);
                     error!("{}", self.status.error);
                 }
             }
