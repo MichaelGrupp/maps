@@ -33,6 +33,15 @@ Apart from the things listed below, the wasm target offers exactly the same UI &
 * (Auto)saving of options is not supported.
 * No command line interface obviously.
 
+| | Native | Web |
+|---|---|---|
+| Open maps | <ul> <li> CLI: `maps map1.yaml map2.yaml` </li> <li> GUI: select `map1.yaml` and `map2.yaml` using "Load Maps" button </li> </ul> | GUI: select `map1.yaml`, `map1.png`, `map2.yaml`, `map2.png` using "Load Maps" button |
+| Save [session](#session-files) | "Save Session" button | not supported |
+| Reload session | <ul> <li> CLI: `maps -s session.toml` </li> <li> GUI: select file using "Load Session" button | not supported |
+| Load/Save [poses](#pose-alignment) | supported | supported |
+| [Screenshots](#-screenshot) | supported | supported |
+
+
 #### Recommendation
 
 * For quick, sporadic tasks (e.g. viewing a map, taking a measurement etc), the web version is totally sufficient and doesn't require you to install anything.
