@@ -17,6 +17,7 @@ pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
 pub use crate::value_colormap::ColorMap;
 
+use crate::app_impl::CUSTOM_TITLEBAR_SUPPORTED;
 use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::meta::Meta;
@@ -58,11 +59,20 @@ pub enum ActiveTool {
     Measure,
 }
 
+#[derive(Clone, Debug, Default, PartialEq)]
+pub enum TitleBar {
+    #[default]
+    Default,
+    Custom,
+}
+
 /// Contains all configurable options of the application.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
     pub version: String,
     pub persistence: PersistenceOptions,
+    #[serde(skip)]
+    pub titlebar: TitleBar,
     pub canvas_settings: CanvasOptions,
     pub menu_visible: bool,
     pub settings_visible: bool,
@@ -75,6 +85,22 @@ pub struct AppOptions {
     pub active_movable: ActiveMovable,
     #[serde(skip)]
     pub active_tool: ActiveTool,
+}
+
+impl AppOptions {
+    /// Enables a more compact custom titlebar on platforms that support it.
+    /// Shows the app header UI in the titlebar next to the window controls.
+    pub fn with_custom_titlebar(mut self) -> Self {
+        if CUSTOM_TITLEBAR_SUPPORTED {
+            self.titlebar = TitleBar::Custom;
+        }
+        self
+    }
+
+    /// Shall the main window use a custom titlebar?
+    pub fn custom_titlebar(&self) -> bool {
+        self.titlebar == TitleBar::Custom
+    }
 }
 
 #[derive(Default)]

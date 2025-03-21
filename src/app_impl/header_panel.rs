@@ -1,7 +1,7 @@
 use eframe::egui;
 
 use crate::app::{ActiveTool, AppState, ViewMode};
-use crate::app_impl::constants::ICON_SIZE;
+use crate::app_impl::constants::{HEADER_PANEL_INDENT, ICON_SIZE};
 
 impl AppState {
     fn tool_buttons(&mut self, ui: &mut egui::Ui) {
@@ -65,11 +65,16 @@ impl AppState {
             }
         };
 
+        let fullscreen = ui.ctx().input(|i| i.viewport().fullscreen.unwrap_or(false));
+
         egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Top, "header").show(
             ui.ctx(),
             |ui| {
                 ui.horizontal(|ui| {
                     ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                        if !fullscreen && self.options.custom_titlebar() {
+                            ui.add_space(HEADER_PANEL_INDENT);
+                        }
                         add_toggle_button(ui, "☰", "Show Menu", &mut self.options.menu_visible);
                         ui.add_space(ICON_SIZE);
                         self.tool_buttons(ui);
