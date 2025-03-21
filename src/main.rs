@@ -10,7 +10,7 @@ use log::{error, info, Level};
 // GUI
 use eframe::egui;
 
-use maps::app::{AppOptions, AppState, ViewMode};
+use maps::app::{AppOptions, AppState, ViewMode, CUSTOM_TITLEBAR};
 use maps::map_pose::MapPose;
 use maps::meta::Meta;
 use maps::persistence::load_app_options;
@@ -214,7 +214,10 @@ fn main() -> eframe::Result {
         viewport: egui::ViewportBuilder::default()
             .with_icon(load_icon())
             .with_inner_size(size)
-            .with_min_inner_size(MIN_SIZE),
+            .with_min_inner_size(MIN_SIZE)
+            .with_fullsize_content_view(CUSTOM_TITLEBAR)
+            .with_titlebar_shown(!CUSTOM_TITLEBAR)
+            .with_title_shown(!CUSTOM_TITLEBAR),
         renderer: eframe::Renderer::Wgpu,
         ..Default::default()
     };

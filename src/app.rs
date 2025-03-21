@@ -12,6 +12,7 @@ use strum_macros::{Display, EnumString, VariantNames};
 pub use crate::app_impl::canvas_settings::CanvasOptions;
 pub use crate::app_impl::pose_edit::PoseEditOptions;
 pub use crate::app_impl::tint_settings::TintOptions;
+pub use crate::app_impl::CUSTOM_TITLEBAR;
 pub use crate::error::Error;
 pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
