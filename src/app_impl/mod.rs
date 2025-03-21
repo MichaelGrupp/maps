@@ -17,4 +17,4 @@ pub(crate) mod screenshot;
 pub(crate) mod settings_panel;
 pub(crate) mod tint_settings;
 
-pub use constants::CUSTOM_TITLEBAR;
+pub use constants::CUSTOM_TITLEBAR_SUPPORTED;

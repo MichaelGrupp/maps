@@ -72,7 +72,7 @@ impl AppState {
             |ui| {
                 ui.horizontal(|ui| {
                     ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                        if !fullscreen {
+                        if !fullscreen && self.options.custom_titlebar() {
                             ui.add_space(HEADER_PANEL_INDENT);
                         }
                         add_toggle_button(ui, "☰", "Show Menu", &mut self.options.menu_visible);

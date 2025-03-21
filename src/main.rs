@@ -10,7 +10,7 @@ use log::{error, info, Level};
 // GUI
 use eframe::egui;
 
-use maps::app::{AppOptions, AppState, ViewMode, CUSTOM_TITLEBAR};
+use maps::app::{AppOptions, AppState, ViewMode};
 use maps::map_pose::MapPose;
 use maps::meta::Meta;
 use maps::persistence::load_app_options;
@@ -177,7 +177,7 @@ fn main() -> eframe::Result {
         None => None,
     };
 
-    let mut options: AppOptions = load_app_options(&args.config);
+    let mut options: AppOptions = load_app_options(&args.config).with_custom_titlebar();
     options.version = built_info::PKG_VERSION.to_string();
     options.persistence.custom_config_path = args.config;
     options.view_mode = args.view_mode.unwrap_or(options.view_mode);
@@ -215,9 +215,9 @@ fn main() -> eframe::Result {
             .with_icon(load_icon())
             .with_inner_size(size)
             .with_min_inner_size(MIN_SIZE)
-            .with_fullsize_content_view(CUSTOM_TITLEBAR)
-            .with_titlebar_shown(!CUSTOM_TITLEBAR)
-            .with_title_shown(!CUSTOM_TITLEBAR),
+            .with_fullsize_content_view(app_state.options.custom_titlebar())
+            .with_titlebar_shown(!app_state.options.custom_titlebar())
+            .with_title_shown(!app_state.options.custom_titlebar()),
         renderer: eframe::Renderer::Wgpu,
         ..Default::default()
     };
