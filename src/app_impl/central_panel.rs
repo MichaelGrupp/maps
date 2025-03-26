@@ -85,9 +85,13 @@ impl AppState {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::Default);
                 }
             }
+
+            // Grid area is not a widget. Avoid accidental grid dragging when
+            // any widget intersecting it is being dragged (e.g. a lens window).
+            let dragging_others = ui.ctx().dragged_id().is_some();
             ui.input(|i| {
                 clicked = i.pointer.primary_released();
-                if i.pointer.primary_down() {
+                if i.pointer.primary_down() && !dragging_others {
                     // Scaled because meters are expected for drag().
                     options.drag(i.pointer.delta() / options.scale);
                 }
