@@ -21,6 +21,17 @@ impl AppState {
                     ui.collapsing("Memory", |ui| {
                         ctx.memory_ui(ui);
                     });
+                    #[cfg(not(target_arch = "wasm32"))]
+                    egui::CollapsingHeader::new("Timing")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            ui.label(format!(
+                                "Last {} durations of {} in seconds",
+                                self.tracing.buffer_size(),
+                                self.tracing.name.as_str()
+                            ));
+                            self.tracing.plot(ui);
+                        });
                     egui::CollapsingHeader::new("Textures")
                         .default_open(true)
                         .show(ui, |ui| {

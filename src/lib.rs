@@ -28,5 +28,8 @@ mod tiles_behavior;
 pub mod value_colormap;
 pub mod value_interpretation;
 
+#[cfg(not(target_arch = "wasm32"))]
+mod tracing;
+
 #[cfg(target_arch = "wasm32")]
 mod wasm;

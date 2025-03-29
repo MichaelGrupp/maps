@@ -1373,6 +1373,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "egui_plot"
+version = "0.31.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1794c66fb727dac28dffed2e4b548e5118d1cccc331d368a35411d68725dde71"
+dependencies = [
+ "ahash",
+ "egui",
+ "emath",
+]
+
+[[package]]
 name = "egui_tiles"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2418,7 +2429,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -2515,6 +2526,7 @@ dependencies = [
  "egui_dnd",
  "egui_extras",
  "egui_kittest",
+ "egui_plot",
  "egui_tiles",
  "env_logger",
  "fast_image_resize",

@@ -30,6 +30,8 @@ use crate::wasm::async_data::AsyncData;
 use std::sync::{Arc, Mutex};
 
 #[cfg(not(target_arch = "wasm32"))]
+use crate::tracing::Tracing;
+#[cfg(not(target_arch = "wasm32"))]
 use image::DynamicImage;
 
 #[derive(
@@ -154,6 +156,8 @@ pub struct AppState {
     pub build_info: String,
     pub data: SessionData,
     pub status: StatusInfo,
+    #[cfg(not(target_arch = "wasm32"))]
+    pub tracing: Tracing,
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
     pub save_map_pose_file_dialog: FileDialog,
@@ -193,6 +197,9 @@ impl AppState {
                 .default_file_name("maps_session.toml");
             state.save_screenshot_dialog =
                 Self::make_png_file_dialog(&_default_dir).default_file_name("maps_screenshot.png");
+
+            const TRACING_BUFFER_SIZE: usize = 600;
+            state.tracing = Tracing::new("frame update time", TRACING_BUFFER_SIZE);
         }
 
         Ok(state)
@@ -206,6 +213,9 @@ impl AppState {
 
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        #[cfg(not(target_arch = "wasm32"))]
+        self.tracing.start();
+
         let mut central_rect = egui::Rect::ZERO;
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -237,6 +247,9 @@ impl eframe::App for AppState {
             ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
             self.status.quit_modal_active = true;
         }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        self.tracing.measure();
     }
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
