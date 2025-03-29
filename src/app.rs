@@ -23,6 +23,7 @@ use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::persistence::{save_app_options, PersistenceOptions};
 use crate::tiles::Tiles;
+use crate::tracing::Tracing;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;
@@ -154,6 +155,7 @@ pub struct AppState {
     pub build_info: String,
     pub data: SessionData,
     pub status: StatusInfo,
+    pub tracing: Tracing,
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
     pub save_map_pose_file_dialog: FileDialog,
@@ -195,6 +197,9 @@ impl AppState {
                 Self::make_png_file_dialog(&_default_dir).default_file_name("maps_screenshot.png");
         }
 
+        const TRACING_BUFFER_SIZE: usize = 600;
+        state.tracing = Tracing::new("frame update", TRACING_BUFFER_SIZE);
+
         Ok(state)
     }
 
@@ -206,6 +211,8 @@ impl AppState {
 
 impl eframe::App for AppState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.tracing.start();
+
         let mut central_rect = egui::Rect::ZERO;
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -237,6 +244,8 @@ impl eframe::App for AppState {
             ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
             self.status.quit_modal_active = true;
         }
+
+        self.tracing.measure();
     }
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {

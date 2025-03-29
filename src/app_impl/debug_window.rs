@@ -21,6 +21,16 @@ impl AppState {
                     ui.collapsing("Memory", |ui| {
                         ctx.memory_ui(ui);
                     });
+                    egui::CollapsingHeader::new("Timing")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            ui.label(format!(
+                                "Last {} {} durations in seconds",
+                                self.tracing.buffer_size(),
+                                self.tracing.name.as_str()
+                            ));
+                            self.tracing.plot(ui);
+                        });
                     egui::CollapsingHeader::new("Textures")
                         .default_open(true)
                         .show(ui, |ui| {
