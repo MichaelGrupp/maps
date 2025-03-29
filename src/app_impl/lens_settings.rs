@@ -2,13 +2,17 @@ use eframe::egui;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
+use crate::app_impl::ui_helpers::section_heading;
 use crate::lens::LensOptions;
 
 impl AppState {
     pub(crate) fn lens_settings(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Lens");
+        section_heading(ui, "Lens", &mut self.options.collapsed.lens_settings);
         if ui.button("Reset").clicked() {
             self.options.lens = LensOptions::default();
+        }
+        if self.options.collapsed.lens_settings {
+            return;
         }
         ui.add_space(SPACE);
         ui.end_row();

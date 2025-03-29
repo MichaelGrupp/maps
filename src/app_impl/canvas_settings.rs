@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::{AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
+use crate::app_impl::ui_helpers::section_heading;
 
 const MIN_STACK_SCALE: f32 = 1.0;
 const MAX_STACK_SCALE: f32 = 10.0;
@@ -38,9 +39,12 @@ impl Default for CanvasOptions {
 
 impl AppState {
     pub(crate) fn canvas_settings(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Canvas");
+        section_heading(ui, "Canvas", &mut self.options.collapsed.canvas_settings);
         if ui.button("Reset").clicked() {
             self.options.canvas_settings = CanvasOptions::default();
+        }
+        if self.options.collapsed.canvas_settings {
+            return;
         }
         ui.add_space(SPACE);
         ui.end_row();

@@ -95,5 +95,12 @@ impl AppState {
         self.options.grid.marker_length_meters = 5.;
         self.options.grid.marker_width_meters = 1.;
         self.options.canvas_settings.theme_preference = egui::ThemePreference::Dark;
+
+        // Collapse some settings to be less overwhelming and to show that it's possible.
+        // (show grid settings expanded)
+        self.options.collapsed.app_settings = true;
+        self.options.collapsed.canvas_settings = true;
+        self.options.collapsed.tint_settings = true;
+        self.options.collapsed.tool_settings = true;
     }
 }
