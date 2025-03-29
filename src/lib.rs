@@ -25,6 +25,7 @@ mod texture_request;
 mod texture_state;
 mod tiles;
 mod tiles_behavior;
+mod tracing;
 pub mod value_colormap;
 pub mod value_interpretation;
 
