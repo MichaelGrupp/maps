@@ -66,6 +66,16 @@ pub enum TitleBar {
     Custom,
 }
 
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct CollapsedState {
+    pub app_settings: bool,
+    pub canvas_settings: bool,
+    pub tint_settings: bool,
+    pub lens_settings: bool,
+    pub grid_settings: bool,
+    pub tool_settings: bool,
+}
+
 /// Contains all configurable options of the application.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
@@ -85,6 +95,8 @@ pub struct AppOptions {
     pub active_movable: ActiveMovable,
     #[serde(skip)]
     pub active_tool: ActiveTool,
+    #[serde(default)]
+    pub collapsed: CollapsedState,
 }
 
 impl AppOptions {

@@ -2,13 +2,17 @@ use eframe::egui;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
+use crate::app_impl::ui_helpers::section_heading;
 use crate::grid_options::{GridLineDimension, GridOptions, SubLineVisibility};
 
 impl AppState {
     pub(crate) fn grid_settings(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Grid");
+        section_heading(ui, "Grid", &mut self.options.collapsed.grid_settings);
         if ui.button("Reset").clicked() {
             self.options.grid = GridOptions::default();
+        }
+        if self.options.collapsed.grid_settings {
+            return;
         }
         ui.add_space(SPACE);
         ui.end_row();
@@ -58,10 +62,12 @@ impl AppState {
             &mut self.options.grid.scroll_delta_percent,
             0.01..=10.,
         ));
-        ui.end_row();
-        ui.end_row();
+    }
 
-        ui.heading("Tools");
+    pub fn tool_settings(&mut self, ui: &mut egui::Ui) {
+        if !section_heading(ui, "Tools", &mut self.options.collapsed.tool_settings) {
+            return;
+        }
         ui.add_space(SPACE);
         ui.end_row();
         ui.label("Measurement color")

@@ -13,20 +13,7 @@ impl AppState {
                     .num_columns(2)
                     .striped(false)
                     .show(ui, |ui| {
-                        ui.heading("App");
-                        ui.end_row();
-                        ui.label("Autosave options").on_hover_text(
-                            "Save the app options when the window is closed.\n\
-                        The options are loaded when the app is started.",
-                        );
-                        #[cfg(not(target_arch = "wasm32"))]
-                        ui.checkbox(&mut self.options.persistence.autosave, "");
-                        #[cfg(target_arch = "wasm32")]
-                        ui.label(
-                            egui::RichText::new("Only supported in native builds.")
-                                .weak()
-                                .italics(),
-                        );
+                        self.app_settings(ui);
                         ui.end_row();
                         ui.end_row();
 
@@ -50,6 +37,7 @@ impl AppState {
                             self.grid_settings(ui);
                             ui.end_row();
                             ui.end_row();
+                            self.tool_settings(ui);
                         }
                     });
             });

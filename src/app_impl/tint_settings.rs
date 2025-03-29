@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
+use crate::app_impl::ui_helpers::section_heading;
 use crate::value_colormap::ColorMap;
 use crate::value_interpretation::{Mode, Quirks, ValueInterpretation};
 
@@ -41,7 +42,9 @@ impl default::Default for TintOptions {
 
 impl AppState {
     pub(crate) fn tint_settings(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Blend");
+        if !section_heading(ui, "Blend", &mut self.options.collapsed.tint_settings) {
+            return;
+        }
         ui.add_space(SPACE);
         ui.end_row();
 
