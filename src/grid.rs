@@ -319,7 +319,7 @@ impl Grid {
         );
 
         let pos = match pose {
-            Some(p) => self.to_point(&(flip(p.vec2())).to_pos2()),
+            Some(p) => self.to_point(&(p.vec2()).to_pos2()),
             None => self.origin_in_points,
         };
         let x_vec = match pose {
