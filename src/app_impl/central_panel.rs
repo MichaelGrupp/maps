@@ -203,6 +203,13 @@ impl AppState {
         }
         window.show(ui.ctx(), |ui| {
             if let Some(center_pos) = center_pos {
+                // Ensure that the lens uses the same background color as the main grid canvas.
+                ui.painter().rect_filled(
+                    ui.clip_rect(),
+                    0.,
+                    self.options.canvas_settings.background_color,
+                );
+                // Show the lens grid.
                 let mini_grid = Grid::new(ui, id, grid_lens_scale).centered_at(center_pos);
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
@@ -243,8 +250,12 @@ impl AppState {
         }
 
         if let Some(map) = self.data.maps.get_mut(map_id) {
-            if Lens::with(&mut self.options.lens).show_on_hover(ui, map, texture_id)
-                && self.options.view_mode != ViewMode::Aligned
+            if Lens::with(&mut self.options.lens).show_on_hover(
+                ui,
+                map,
+                texture_id,
+                &self.options.canvas_settings,
+            ) && self.options.view_mode != ViewMode::Aligned
             {
                 self.status.active_tool = Some(map_id.to_string());
             }
