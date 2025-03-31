@@ -4,6 +4,7 @@ use eframe::egui;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
+use crate::app::CanvasOptions;
 use crate::image::{color_to_alpha, to_egui_image};
 use crate::map_state::MapState;
 use crate::texture_state::TextureState;
@@ -43,6 +44,7 @@ impl<'a> Lens<'a> {
         ui: &mut egui::Ui,
         map: &mut MapState,
         texture_state_id: &str,
+        canvas_settings: &CanvasOptions,
     ) -> bool {
         let options = &mut self.options;
 
@@ -150,9 +152,13 @@ impl<'a> Lens<'a> {
             overlay_rect,
             1.,
             stroke,
-            egui::StrokeKind::Middle,
+            egui::StrokeKind::Outside,
         ));
 
+        // Ensure that the lens has the same background color as the canvas.
+        // (e.g. if color_to_alpha is used)
+        ui.painter()
+            .rect_filled(overlay_rect, 0., canvas_settings.background_color);
         // TODO: use TextureRequest to load the overlay image.
         ui.put(
             overlay_rect,
