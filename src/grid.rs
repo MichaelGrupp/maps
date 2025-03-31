@@ -25,6 +25,12 @@ struct GridMapRelation {
     ulc_to_origin_in_points_translated: egui::Vec2, // Includes map pose translation.
 }
 
+/// Switches from left- to right-handed coordinate system or vice versa.
+/// Screen is a LHS system.
+fn flip(vec: egui::Vec2) -> egui::Vec2 {
+    vec * egui::vec2(1., -1.)
+}
+
 impl GridMapRelation {
     fn new(grid: &Grid, map: &mut MapState, id: &str) -> GridMapRelation {
         let points_per_meter = 1. / map.meta.resolution;
@@ -38,14 +44,11 @@ impl GridMapRelation {
         );
         let scaled_size = original_size * scale_factor;
 
-        let rhs_to_lhs = egui::vec2(1., -1.); // Screen is a LHS system.
-
         // Meta origin is lower left corner of image in ROS.
-        let llc_to_origin_in_points =
-            map.meta.origin_xy * rhs_to_lhs * points_per_meter * scale_factor;
+        let llc_to_origin_in_points = flip(map.meta.origin_xy) * points_per_meter * scale_factor;
         let ulc_to_origin_in_points = llc_to_origin_in_points - egui::Vec2::new(0., scaled_size.y);
 
-        let translation_in_points = map.pose.vec2() * rhs_to_lhs * points_per_meter * scale_factor;
+        let translation_in_points = flip(map.pose.vec2()) * points_per_meter * scale_factor;
         let ulc_to_origin_in_points_translated = translation_in_points + ulc_to_origin_in_points;
 
         GridMapRelation {
@@ -87,16 +90,16 @@ impl Grid {
     }
 
     pub fn centered_at(self, metric_pos: egui::Pos2) -> Self {
-        let offset = -metric_pos.to_vec2() * self.points_per_meter;
+        let offset = flip(-metric_pos.to_vec2()) * self.points_per_meter;
         self.with_origin_offset(offset)
     }
 
     pub fn to_metric(&self, point: &egui::Pos2) -> egui::Pos2 {
-        ((*point - self.origin_in_points) / self.points_per_meter).to_pos2()
+        (flip(*point - self.origin_in_points) / self.points_per_meter).to_pos2()
     }
 
     pub fn to_point(&self, metric: &egui::Pos2) -> egui::Pos2 {
-        *metric * self.points_per_meter + self.origin_in_points.to_vec2()
+        flip(metric.to_vec2()).to_pos2() * self.points_per_meter + self.origin_in_points.to_vec2()
     }
 
     pub fn show_map(
@@ -316,7 +319,7 @@ impl Grid {
         );
 
         let pos = match pose {
-            Some(p) => self.to_point(&(p.vec2() * egui::vec2(1., -1.)).to_pos2()),
+            Some(p) => self.to_point(&(flip(p.vec2())).to_pos2()),
             None => self.origin_in_points,
         };
         let x_vec = match pose {
