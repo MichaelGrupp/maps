@@ -15,6 +15,27 @@ impl AppState {
         });
     }
 
+    fn deselect_toggle(&mut self, ui: &mut egui::Ui) {
+        if self.data.maps.is_empty() {
+            return;
+        }
+        let mut all_off = self.data.maps.iter().all(|(_, map)| !map.visible);
+        let icon = if all_off { "☑" } else { "⛶" };
+        let action = if all_off { "Select" } else { "Deselect" };
+        // Toggle value is less obtrusive than a button / check box.
+        // Only highlighted if all are off.
+        if ui
+            .toggle_value(&mut all_off, icon)
+            .on_hover_text(format!("{action} all."))
+            .clicked()
+        {
+            for (name, map) in &mut self.data.maps {
+                map.visible = !all_off;
+                self.tile_manager.set_visible(name, !all_off);
+            }
+        }
+    }
+
     fn maps_list(&mut self, ui: &mut egui::Ui) {
         let mut to_delete: Vec<String> = Vec::new();
         egui::Grid::new("maps_list")
@@ -72,8 +93,14 @@ impl AppState {
         egui::CollapsingHeader::new("List")
             .default_open(true)
             .show(ui, |ui| {
-                ui.toggle_value(&mut self.status.draw_order_edit_active, "⬆⬇")
-                    .on_hover_text("Click to view and edit the draw order via drag and drop.");
+                ui.horizontal(|ui| {
+                    ui.toggle_value(&mut self.status.draw_order_edit_active, "⬆⬇")
+                        .on_hover_text("Click to view and edit the draw order via drag and drop.");
+                    if !self.status.draw_order_edit_active {
+                        ui.separator();
+                        self.deselect_toggle(ui);
+                    }
+                });
                 if self.status.draw_order_edit_active {
                     self.data.draw_order.ui(ui);
                 } else {
