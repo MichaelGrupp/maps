@@ -33,6 +33,9 @@ impl AppState {
                     a pose and 'Move Map' is selected.",
                         );
                         ui.end_row();
+                        ui.label("1/2/3");
+                        ui.label("Switch to fine, medium, or coarse movement sensitivity presets.");
+                        ui.end_row();
                         ui.end_row();
 
                         // Mouse

@@ -48,9 +48,21 @@ pub struct MovableAmounts {
 
 impl Default for MovableAmounts {
     fn default() -> Self {
-        MovableAmounts {
-            drag: 5.,
-            rotate: 0.01,
-        }
+        MovableAmounts::PRESET_COARSE
     }
+}
+
+impl MovableAmounts {
+    pub const PRESET_FINE: Self = Self {
+        drag: 0.01,
+        rotate: 0.001,
+    };
+    pub const PRESET_MEDIUM: Self = Self {
+        drag: 0.1,
+        rotate: 0.01,
+    };
+    pub const PRESET_COARSE: Self = Self {
+        drag: 1.0,
+        rotate: 0.1,
+    };
 }

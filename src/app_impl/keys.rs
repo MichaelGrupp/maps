@@ -3,7 +3,7 @@ use egui_file_dialog::DialogState;
 
 use crate::app::{ActiveMovable, ActiveTool, AppState};
 use crate::app_impl::screenshot;
-use crate::movable::{DragDirection, Draggable, Rotatable};
+use crate::movable::{DragDirection, Draggable, MovableAmounts, Rotatable};
 
 impl AppState {
     fn dialogs_open(&self) -> bool {
@@ -28,6 +28,7 @@ impl AppState {
         }
 
         let mut screenshot_request: Option<screenshot::Viewport> = None;
+        let mut selected_move_preset: Option<MovableAmounts> = None;
         ui.input(|i| {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
@@ -148,11 +149,27 @@ impl AppState {
                     .zoom(self.options.grid.scroll_delta_percent);
                 self.status.move_action = Some("+".to_string());
             }
+
+            if i.key_released(egui::Key::Num1) {
+                selected_move_preset = Some(MovableAmounts::PRESET_FINE);
+            } else if i.key_released(egui::Key::Num2) {
+                selected_move_preset = Some(MovableAmounts::PRESET_MEDIUM);
+            } else if i.key_released(egui::Key::Num3) {
+                selected_move_preset = Some(MovableAmounts::PRESET_COARSE);
+            }
         });
 
         if let Some(viewport) = screenshot_request {
             // Has to be called here outside of the input closure to not block.
             self.request_screenshot(ui, viewport);
+        }
+
+        if let Some(preset) = selected_move_preset {
+            match self.options.active_movable {
+                ActiveMovable::MapPose => self.options.pose_edit.movable_amounts = preset,
+                ActiveMovable::Grid => self.options.grid.movable_amounts = preset,
+                _ => (),
+            }
         }
     }
 }
