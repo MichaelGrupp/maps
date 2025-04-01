@@ -88,24 +88,21 @@ impl AppState {
                     .on_hover_text("Quick setting for slow, fine movement.")
                     .clicked()
                 {
-                    movable_amounts.drag = 0.01;
-                    movable_amounts.rotate = 0.001;
+                    *movable_amounts = MovableAmounts::PRESET_FINE;
                 }
                 if ui
                     .button("Medium")
                     .on_hover_text("Quick setting for medium step movements.")
                     .clicked()
                 {
-                    movable_amounts.drag = 0.1;
-                    movable_amounts.rotate = 0.01;
+                    *movable_amounts = MovableAmounts::PRESET_MEDIUM;
                 }
                 if ui
                     .button("Coarse")
                     .on_hover_text("Quick setting for fast, coarse movement.")
                     .clicked()
                 {
-                    movable_amounts.drag = 1.;
-                    movable_amounts.rotate = 0.1;
+                    *movable_amounts = MovableAmounts::PRESET_COARSE;
                 }
             });
         });
