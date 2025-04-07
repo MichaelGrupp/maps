@@ -21,7 +21,7 @@ impl AppState {
                 ui.ctx().load_texture(
                     "_demo_button",
                     to_egui_image(
-                        load_image_from_bytes(include_bytes!("../../data/doc/demo.png"))
+                        load_image_from_bytes(include_bytes!("../../data/doc/demo_scaled.png"))
                             .expect("broken demo"),
                     ),
                     Default::default(),
