@@ -8,6 +8,7 @@ use eframe::egui;
 use crate::image_pyramid::ImagePyramid;
 use crate::map_pose::MapPose;
 use crate::meta::Meta;
+use crate::render_options::TextureFilter;
 use crate::texture_state::TextureState;
 use crate::value_interpretation::ValueInterpretation;
 
@@ -18,6 +19,8 @@ pub struct MapState {
     pub visible: bool,
     pub tint: Option<egui::Color32>,
     pub color_to_alpha: Option<egui::Color32>,
+    #[serde(default)]
+    pub texture_filter: TextureFilter,
     #[serde(default)]
     pub use_value_interpretation: bool,
 

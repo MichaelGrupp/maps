@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::section_heading;
+use crate::render_options::TextureFilter;
 use crate::value_colormap::ColorMap;
 use crate::value_interpretation::{Mode, Quirks, ValueInterpretation};
 
@@ -24,6 +25,8 @@ pub struct TintOptions {
     pub value_interpretation_for_all: ValueInterpretation,
     #[serde(default, skip)]
     pub colormap_for_all: ColorMap,
+    #[serde(default)]
+    pub texture_filter_for_all: TextureFilter,
 }
 
 impl default::Default for TintOptions {
@@ -36,6 +39,7 @@ impl default::Default for TintOptions {
             use_value_interpretation_for_all: false,
             value_interpretation_for_all: ValueInterpretation::default(),
             colormap_for_all: ColorMap::default(),
+            texture_filter_for_all: TextureFilter::default(),
         }
     }
 }
@@ -77,12 +81,14 @@ impl AppState {
             self.options.tint_settings.use_value_interpretation_for_all = false;
             self.options.tint_settings.value_interpretation_for_all =
                 ValueInterpretation::default();
+            self.options.tint_settings.texture_filter_for_all = TextureFilter::default();
         }
 
         if *selected == all_key {
             let tint = &mut self.options.tint_settings.tint_for_all;
             let color_to_alpha = &mut self.options.tint_settings.color_to_alpha_for_all;
             let value_interpretation = &mut self.options.tint_settings.value_interpretation_for_all;
+            let texture_filter = &mut self.options.tint_settings.texture_filter_for_all;
 
             pick(
                 ui,
@@ -92,6 +98,7 @@ impl AppState {
                 &mut self.options.tint_settings.edit_color_to_alpha,
                 &mut self.options.tint_settings.use_value_interpretation_for_all,
                 value_interpretation,
+                texture_filter,
             );
 
             if reset {
@@ -102,6 +109,7 @@ impl AppState {
             for map in self.data.maps.values_mut() {
                 map.tint = Some(*tint);
                 map.color_to_alpha = *color_to_alpha;
+                map.texture_filter = *texture_filter;
                 if self.options.tint_settings.use_value_interpretation_for_all {
                     map.use_value_interpretation = true;
                     map.meta.value_interpretation = *value_interpretation;
@@ -127,6 +135,7 @@ impl AppState {
                 &mut self.options.tint_settings.edit_color_to_alpha,
                 &mut map.use_value_interpretation,
                 &mut map.meta.value_interpretation,
+                &mut map.texture_filter,
             )
         } else {
             self.options.tint_settings.active_tint_selection = None;
@@ -142,10 +151,12 @@ fn pick(
     edit_color_to_alpha: &mut bool,
     edit_value_interpretation: &mut bool,
     value_interpretation: &mut ValueInterpretation,
+    texture_filter: &mut TextureFilter,
 ) {
     if reset {
         *tint = NO_TINT;
         *color_to_alpha = None;
+        *texture_filter = TextureFilter::default();
     }
 
     pick_tint_color(ui, tint);
@@ -160,6 +171,9 @@ fn pick(
     } else {
         *color_to_alpha = None;
     }
+    ui.end_row();
+
+    pick_filter(ui, texture_filter);
     ui.end_row();
 
     ui.label("Use value interpretation").on_hover_text(
@@ -264,4 +278,15 @@ fn pick_value_interpretation(ui: &mut egui::Ui, value_interpretation: &mut Value
     pick_colormap(ui, &mut value_interpretation.colormap);
     ui.end_row();
     pick_quirks(ui, &mut value_interpretation.quirks);
+}
+
+fn pick_filter(ui: &mut egui::Ui, texture_filter: &mut TextureFilter) {
+    ui.label("Texture filter")
+        .on_hover_text("How the image texture shall be filtered when rendering.");
+    ui.horizontal(|ui| {
+        ui.selectable_value(texture_filter, TextureFilter::Smooth, "Smooth")
+            .on_hover_text("Linearly interpolate texels for smooth antialiased visualization.");
+        ui.selectable_value(texture_filter, TextureFilter::Crisp, "Crisp")
+            .on_hover_text("Show texels as sharp squares to see the grid map cells.");
+    });
 }

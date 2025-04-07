@@ -13,6 +13,7 @@ pub struct TextureRequest {
     pub color_to_alpha: Option<egui::Color32>,
     pub thresholding: Option<ValueInterpretation>,
     pub sense: egui::Sense,
+    pub texture_options: Option<egui::TextureOptions>,
 }
 
 impl TextureRequest {
@@ -24,6 +25,7 @@ impl TextureRequest {
             color_to_alpha: None,
             thresholding: None,
             sense: egui::Sense::hover(),
+            texture_options: None,
         }
     }
 
@@ -54,6 +56,14 @@ impl TextureRequest {
         thresholding: Option<&ValueInterpretation>,
     ) -> TextureRequest {
         self.thresholding = thresholding.copied();
+        self
+    }
+
+    pub fn with_texture_options(
+        mut self,
+        texture_options: &egui::TextureOptions,
+    ) -> TextureRequest {
+        self.texture_options = Some(*texture_options);
         self
     }
 }
