@@ -92,6 +92,7 @@ pub struct AppOptions {
     pub lens: LensOptions,
     pub grid: GridOptions,
     pub tint_settings: TintOptions,
+    #[serde(skip)]
     pub pose_edit: PoseEditOptions,
     pub active_movable: ActiveMovable,
     #[serde(skip)]
