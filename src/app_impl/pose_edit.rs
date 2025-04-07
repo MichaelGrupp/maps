@@ -1,19 +1,16 @@
 use std::f32::consts::PI;
 
 use eframe::egui;
-use serde::{Deserialize, Serialize};
 
 use crate::app::{ActiveMovable, AppState};
 use crate::app_impl::constants::SPACE;
 use crate::movable::MovableAmounts;
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default)]
 pub struct PoseEditOptions {
-    #[serde(skip_serializing, skip_deserializing)]
     pub selected_map: String,
     pub edit_root_frame: bool,
     pub edit_map_frame: bool,
-    #[serde(skip)]
     pub movable_amounts: MovableAmounts,
 }
 
