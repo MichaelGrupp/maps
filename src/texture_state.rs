@@ -20,6 +20,7 @@ pub struct TextureState {
     pub desired_uv: [egui::Pos2; 2],
     pub desired_color_to_alpha: Option<egui::Color32>,
     pub desired_thresholding: Option<ValueInterpretation>,
+    pub texture_options: egui::TextureOptions,
 }
 
 impl TextureState {
@@ -34,6 +35,7 @@ impl TextureState {
         self.desired_size != request.desired_rect.size()
             || self.desired_color_to_alpha != request.color_to_alpha
             || self.desired_thresholding != request.thresholding
+            || self.texture_options != request.texture_options.unwrap_or_default()
     }
 
     pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
@@ -45,6 +47,7 @@ impl TextureState {
         self.desired_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
         self.desired_color_to_alpha = request.color_to_alpha;
         self.desired_thresholding = request.thresholding;
+        self.texture_options = request.texture_options.unwrap_or_default();
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
             trace!("Fitting and reloading texture for {:?}", request);
@@ -59,7 +62,7 @@ impl TextureState {
             ui.ctx().load_texture(
                 request.client.clone(),
                 to_egui_image(image),
-                Default::default(),
+                self.texture_options,
             )
         });
     }
@@ -97,6 +100,7 @@ impl TextureState {
         self.desired_uv = request.uv;
         self.desired_color_to_alpha = request.uncropped.color_to_alpha;
         self.desired_thresholding = request.uncropped.thresholding;
+        self.texture_options = request.uncropped.texture_options.unwrap_or_default();
 
         if request.visible_rect.is_negative() || request.uv[0] == request.uv[1] {
             self.texture_handle = None;
@@ -126,7 +130,7 @@ impl TextureState {
         self.texture_handle = Some(ui.ctx().load_texture(
             request.uncropped.client.clone(),
             to_egui_image(cropped_image),
-            Default::default(),
+            self.texture_options,
         ));
     }
 

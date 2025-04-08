@@ -14,6 +14,7 @@ use crate::image_pyramid::ImagePyramid;
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::persistence;
+use crate::render_options::TextureFilter;
 use crate::tiles::Pane;
 
 use crate::app::{AppState, Error};
@@ -149,6 +150,7 @@ impl AppState {
                 texture_states: HashMap::new(),
                 tint: None,
                 color_to_alpha: None,
+                texture_filter: TextureFilter::default(),
                 use_value_interpretation: use_interpretation,
             },
         );
