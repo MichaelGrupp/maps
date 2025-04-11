@@ -146,9 +146,9 @@ impl TextureState {
                 .fit_to_exact_size(request.visible_rect.size())
                 .tint(request.uncropped.tint);
             image.paint_at(ui, request.visible_rect.translate(request.translation));
-            // TODO: this doesn't get the hover response in the rotated texture.
-            self.image_response =
-                Some(ui.interact(request.visible_rect, ui.id(), egui::Sense::hover()));
+            // We can't get a proper image response from a rotated/translated manual paint,
+            // and also don't need one (grid interaction is handled elsewhere).
+            self.image_response = None;
         }
     }
 }
