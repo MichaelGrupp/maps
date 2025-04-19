@@ -27,6 +27,7 @@ impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
         let mut tiles_response = egui_tiles::UiResponse::None;
         if let Some(map) = self.maps.get_mut(&pane.id) {
             let request = TextureRequest::new(pane.id.clone(), ui.clip_rect())
+                .invert_color(map.invert_color)
                 .with_color_to_alpha(map.color_to_alpha)
                 .with_tint(map.tint)
                 .with_thresholding(map.get_value_interpretation())

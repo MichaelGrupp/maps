@@ -148,6 +148,7 @@ impl AppState {
                 visible: true,
                 image_pyramid: image_pyramid.clone(),
                 texture_states: HashMap::new(),
+                invert_color: false,
                 tint: None,
                 color_to_alpha: None,
                 texture_filter: TextureFilter::default(),
@@ -297,6 +298,7 @@ impl AppState {
                             let map_state = self.data.maps.get_mut(&map_name).expect("missing map");
                             map_state.pose = map.pose;
                             map_state.visible = map.visible;
+                            map_state.invert_color = map.invert_color;
                             map_state.tint = map.tint;
                             if map_state.tint.is_some()
                                 || map_state.meta.value_interpretation.mode

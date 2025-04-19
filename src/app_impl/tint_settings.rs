@@ -20,6 +20,8 @@ pub struct TintOptions {
     pub edit_color_to_alpha: bool,
     pub color_to_alpha_for_all: Option<egui::Color32>,
     #[serde(default, skip)]
+    pub invert_all: bool,
+    #[serde(default, skip)]
     pub use_value_interpretation_for_all: bool,
     #[serde(default, skip)]
     pub value_interpretation_for_all: ValueInterpretation,
@@ -36,6 +38,7 @@ impl default::Default for TintOptions {
             tint_for_all: NO_TINT,
             edit_color_to_alpha: false,
             color_to_alpha_for_all: None,
+            invert_all: false,
             use_value_interpretation_for_all: false,
             value_interpretation_for_all: ValueInterpretation::default(),
             colormap_for_all: ColorMap::default(),
@@ -78,6 +81,7 @@ impl AppState {
         // TODO: clean code below up a bit.
         if reset {
             self.options.tint_settings.edit_color_to_alpha = false;
+            self.options.tint_settings.invert_all = false;
             self.options.tint_settings.use_value_interpretation_for_all = false;
             self.options.tint_settings.value_interpretation_for_all =
                 ValueInterpretation::default();
@@ -87,6 +91,7 @@ impl AppState {
         if *selected == all_key {
             let tint = &mut self.options.tint_settings.tint_for_all;
             let color_to_alpha = &mut self.options.tint_settings.color_to_alpha_for_all;
+            let invert = &mut self.options.tint_settings.invert_all;
             let value_interpretation = &mut self.options.tint_settings.value_interpretation_for_all;
             let texture_filter = &mut self.options.tint_settings.texture_filter_for_all;
 
@@ -94,6 +99,7 @@ impl AppState {
                 ui,
                 reset,
                 tint,
+                invert,
                 color_to_alpha,
                 &mut self.options.tint_settings.edit_color_to_alpha,
                 &mut self.options.tint_settings.use_value_interpretation_for_all,
@@ -107,6 +113,7 @@ impl AppState {
             }
 
             for map in self.data.maps.values_mut() {
+                map.invert_color = *invert;
                 map.tint = Some(*tint);
                 map.color_to_alpha = *color_to_alpha;
                 map.texture_filter = *texture_filter;
@@ -131,6 +138,7 @@ impl AppState {
                 ui,
                 reset,
                 tint,
+                &mut map.invert_color,
                 color_to_alpha,
                 &mut self.options.tint_settings.edit_color_to_alpha,
                 &mut map.use_value_interpretation,
@@ -147,6 +155,7 @@ fn pick(
     ui: &mut egui::Ui,
     reset: bool,
     tint: &mut egui::Color32,
+    invert: &mut bool,
     color_to_alpha: &mut Option<egui::Color32>,
     edit_color_to_alpha: &mut bool,
     edit_value_interpretation: &mut bool,
@@ -155,9 +164,17 @@ fn pick(
 ) {
     if reset {
         *tint = NO_TINT;
+        *invert = false;
         *color_to_alpha = None;
         *texture_filter = TextureFilter::default();
     }
+
+    ui.label("Invert color").on_hover_text(
+        "Inverts the pixels of the image.\n\
+        This is applied before any other processing steps.",
+    );
+    ui.checkbox(invert, "");
+    ui.end_row();
 
     pick_tint_color(ui, tint);
     ui.end_row();

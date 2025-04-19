@@ -1,6 +1,7 @@
 use std::default;
 
 use eframe::egui;
+use image::imageops::invert;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
@@ -109,6 +110,9 @@ impl<'a> Lens<'a> {
             return false;
         }
         let mut cropped_image = original_image.crop_imm(min_x, min_y, max_x - min_x, max_y - min_y);
+        if map.invert_color {
+            invert(&mut cropped_image);
+        }
         color_to_alpha(&mut cropped_image, map.color_to_alpha);
         if map.use_value_interpretation {
             map.meta.value_interpretation.apply(

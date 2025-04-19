@@ -2,6 +2,7 @@ use std::option::Option;
 use std::sync::Arc;
 
 use eframe::egui;
+use image::imageops::invert;
 use log::trace;
 
 use crate::image::{color_to_alpha, fit_image, to_egui_image};
@@ -18,6 +19,7 @@ pub struct TextureState {
     pub texture_handle: Option<egui::TextureHandle>,
     pub desired_size: egui::Vec2,
     pub desired_uv: [egui::Pos2; 2],
+    pub invert_color: bool,
     pub desired_color_to_alpha: Option<egui::Color32>,
     pub desired_thresholding: Option<ValueInterpretation>,
     pub texture_options: egui::TextureOptions,
@@ -33,6 +35,7 @@ impl TextureState {
 
     fn changed(&self, request: &TextureRequest) -> bool {
         self.desired_size != request.desired_rect.size()
+            || self.invert_color != request.invert_color
             || self.desired_color_to_alpha != request.color_to_alpha
             || self.desired_thresholding != request.thresholding
             || self.texture_options != request.texture_options.unwrap_or_default()
@@ -45,6 +48,7 @@ impl TextureState {
         }
         self.desired_size = request.desired_rect.size();
         self.desired_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
+        self.invert_color = request.invert_color;
         self.desired_color_to_alpha = request.color_to_alpha;
         self.desired_thresholding = request.thresholding;
         self.texture_options = request.texture_options.unwrap_or_default();
@@ -55,6 +59,9 @@ impl TextureState {
                 self.image_pyramid.get_level(self.desired_size),
                 self.desired_size,
             );
+            if request.invert_color {
+                invert(&mut image);
+            }
             color_to_alpha(&mut image, request.color_to_alpha);
             if let Some(thresholding) = &request.thresholding {
                 thresholding.apply(&mut image, self.image_pyramid.original_has_alpha);
@@ -98,6 +105,7 @@ impl TextureState {
         }
         self.desired_size = desired_size;
         self.desired_uv = request.uv;
+        self.invert_color = request.uncropped.invert_color;
         self.desired_color_to_alpha = request.uncropped.color_to_alpha;
         self.desired_thresholding = request.uncropped.thresholding;
         self.texture_options = request.uncropped.texture_options.unwrap_or_default();
@@ -121,6 +129,10 @@ impl TextureState {
             trace!("Crop resulted in empty image.");
             self.texture_handle = None;
             return;
+        }
+
+        if request.uncropped.invert_color {
+            invert(&mut cropped_image);
         }
         color_to_alpha(&mut cropped_image, request.uncropped.color_to_alpha);
         if let Some(thresholding) = &request.uncropped.thresholding {

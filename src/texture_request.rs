@@ -10,6 +10,7 @@ pub struct TextureRequest {
     pub client: String,
     pub desired_rect: egui::Rect,
     pub tint: egui::Color32,
+    pub invert_color: bool,
     pub color_to_alpha: Option<egui::Color32>,
     pub thresholding: Option<ValueInterpretation>,
     pub sense: egui::Sense,
@@ -22,6 +23,7 @@ impl TextureRequest {
             client,
             desired_rect,
             tint: NO_TINT,
+            invert_color: false,
             color_to_alpha: None,
             thresholding: None,
             sense: egui::Sense::hover(),
@@ -48,6 +50,11 @@ impl TextureRequest {
 
     pub fn with_color_to_alpha(mut self, color_to_alpha: Option<egui::Color32>) -> TextureRequest {
         self.color_to_alpha = color_to_alpha;
+        self
+    }
+
+    pub fn invert_color(mut self, inverted: bool) -> TextureRequest {
+        self.invert_color = inverted;
         self
     }
 

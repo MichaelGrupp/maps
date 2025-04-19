@@ -51,7 +51,8 @@ impl AppState {
                 continue;
             }
             ui.with_layout(egui::Layout::top_down(egui::Align::TOP), |ui| {
-                let request = &TextureRequest::new(name.clone(), rect_per_image)
+                let request = &&TextureRequest::new(name.clone(), rect_per_image)
+                    .invert_color(map.invert_color)
                     .with_tint(map.tint)
                     .with_color_to_alpha(map.color_to_alpha)
                     .with_thresholding(map.get_value_interpretation())

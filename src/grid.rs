@@ -124,6 +124,7 @@ impl Grid {
         let origin_rotation = map.meta.origin_theta.inverse();
 
         let uncropped = TextureRequest::new(map_name.to_string(), rect)
+            .invert_color(map.invert_color)
             .with_tint(map.tint)
             .with_color_to_alpha(map.color_to_alpha)
             .with_thresholding(map.get_value_interpretation())

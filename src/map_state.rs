@@ -17,6 +17,8 @@ pub struct MapState {
     pub meta: Meta,
     pub pose: MapPose,
     pub visible: bool,
+    #[serde(default)]
+    pub invert_color: bool,
     pub tint: Option<egui::Color32>,
     pub color_to_alpha: Option<egui::Color32>,
     #[serde(default)]
