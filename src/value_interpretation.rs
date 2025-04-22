@@ -54,6 +54,9 @@ pub struct ValueInterpretation {
     pub occupied: f32,
     pub negate: bool,
     pub mode: Mode,
+    /// Whether the interpretation is set explicitly,
+    /// either by the optional `mode` field in the YAML
+    /// or by the user through the UI.
     #[serde(default)]
     pub explicit_mode: bool,
     pub quirks: Quirks,

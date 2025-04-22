@@ -187,6 +187,9 @@ fn pick(
         ui.end_row();
         pick_value_interpretation(ui, value_interpretation);
     }
+    // Remember when the user explicitly selects/deselect value interpretation.
+    // This way it's picked up correctly when saved to a session and then reloaded.
+    value_interpretation.explicit_mode = *edit_value_interpretation;
 }
 
 fn pick_color_to_alpha(ui: &mut egui::Ui, color_to_alpha: &mut Option<egui::Color32>) {
