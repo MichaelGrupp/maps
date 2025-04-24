@@ -21,6 +21,7 @@ pub struct Grid {
 // Relations of a RHS metric coordinate map to the LHS point coordinate grid.
 struct GridMapRelation {
     scaled_size: egui::Vec2,
+    points_per_cell: f32,
     ulc_to_origin_in_points: egui::Vec2, // Upper left corner to map origin in points.
     ulc_to_origin_in_points_translated: egui::Vec2, // Includes map pose translation.
 }
@@ -35,6 +36,7 @@ impl GridMapRelation {
     fn new(grid: &Grid, map: &mut MapState, id: &str) -> GridMapRelation {
         let points_per_meter = 1. / map.meta.resolution;
         let scale_factor = grid.points_per_meter / points_per_meter;
+        let points_per_cell = points_per_meter * map.meta.resolution * scale_factor;
 
         let texture_state = map.get_or_create_texture_state(id);
 
@@ -53,6 +55,7 @@ impl GridMapRelation {
 
         GridMapRelation {
             scaled_size,
+            points_per_cell,
             ulc_to_origin_in_points,
             ulc_to_origin_in_points_translated,
         }
@@ -134,6 +137,7 @@ impl Grid {
             pose_rotation * origin_rotation,
             relation.ulc_to_origin_in_points_translated - relation.ulc_to_origin_in_points,
             relation.ulc_to_origin_in_points,
+            relation.points_per_cell,
         );
         map.get_or_create_texture_state(self.name.as_str())
             .crop_and_put(ui, &request);
