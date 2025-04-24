@@ -1,6 +1,6 @@
 use eframe::egui;
 
-use crate::rect_helpers::{debug_paint, rotate};
+use crate::rect_helpers::{debug_paint, quantized_intersection, rotate};
 use crate::value_interpretation::ValueInterpretation;
 
 pub const NO_TINT: egui::Color32 = egui::Color32::WHITE;
@@ -76,6 +76,7 @@ pub struct RotatedCropRequest {
     pub rotation: eframe::emath::Rot2,
     pub translation: egui::Vec2,
     pub rotation_center_in_uv: egui::Vec2,
+    pub points_per_pixel: f32,
 }
 
 impl RotatedCropRequest {
@@ -85,6 +86,7 @@ impl RotatedCropRequest {
         rotation: egui::emath::Rot2,
         translation: egui::Vec2,
         rotation_center_in_points: egui::Vec2,
+        points_per_pixel: f32,
     ) -> RotatedCropRequest {
         let viewport_rect = ui.clip_rect();
         let image_rect = uncropped.desired_rect;
@@ -112,8 +114,17 @@ impl RotatedCropRequest {
         );
         debug_paint(ui, min_crop, egui::Color32::BLUE, "min_crop");
 
-        let visible_rect = min_crop.intersect(image_rect);
-        debug_paint(ui, visible_rect, egui::Color32::GREEN, "visible_rect");
+        // The minimal rectangle is the instersection of crop rectangle and image rectangle.
+        // The image cropping happens in pixel space, so we have to also quantize the rectangle
+        // to the next best multiple of the scaled pixel size.
+        // Otherwise the texture size/placement is not exact, especially at high zoom levels.
+        let visible_rect = quantized_intersection(&image_rect, &min_crop, points_per_pixel);
+        debug_paint(
+            ui,
+            visible_rect,
+            egui::Color32::GREEN,
+            "visible_rect_quantized",
+        );
 
         RotatedCropRequest {
             uncropped,
@@ -136,6 +147,7 @@ impl RotatedCropRequest {
                 -(rotation_center_in_points.y + (visible_rect.min.y - image_rect.min.y))
                     / visible_rect.height(),
             ),
+            points_per_pixel,
         }
     }
 }

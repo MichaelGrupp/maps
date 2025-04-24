@@ -1,0 +1,8 @@
+# A tiny 5 x 5 image with 10m/px resolution for testing rendering.
+
+image: pixel_test.png
+resolution: 10
+origin: [0, 0, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
