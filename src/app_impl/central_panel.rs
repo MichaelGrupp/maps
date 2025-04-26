@@ -55,7 +55,7 @@ impl AppState {
                     .with_tint(map.tint)
                     .with_color_to_alpha(map.color_to_alpha)
                     .with_thresholding(map.get_value_interpretation())
-                    .with_texture_options(&map.texture_filter.get());
+                    .with_texture_options(&map.texture_filter.get(1.));
                 map.get_or_create_texture_state(STACKED_TEXTURE_ID)
                     .put(ui, request);
                 if let Some(response) = &map

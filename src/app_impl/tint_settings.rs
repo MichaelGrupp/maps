@@ -288,8 +288,13 @@ fn pick_filter(ui: &mut egui::Ui, texture_filter: &mut TextureFilter) {
         .on_hover_text("How the image texture shall be filtered when rendering.");
     ui.horizontal(|ui| {
         ui.selectable_value(texture_filter, TextureFilter::Smooth, "Smooth")
-            .on_hover_text("Linearly interpolate texels for smooth antialiased visualization.");
+            .on_hover_text("Always linearly interpolate texels for antialiased visualization.");
         ui.selectable_value(texture_filter, TextureFilter::Crisp, "Crisp")
-            .on_hover_text("Show texels as sharp squares to see the grid map cells.");
+            .on_hover_text("Always show texels as sharp squares to see the grid map cells.");
+        ui.selectable_value(texture_filter, TextureFilter::Auto, "Auto")
+            .on_hover_text(
+                "Choose the best option based on the number of pixels per texel:\n\
+                Crisp when magnified, Smooth when minified.",
+            );
     });
 }
