@@ -130,7 +130,7 @@ impl Grid {
             .with_tint(map.tint)
             .with_color_to_alpha(map.color_to_alpha)
             .with_thresholding(map.get_value_interpretation())
-            .with_texture_options(&map.texture_filter.get());
+            .with_texture_options(&map.texture_filter.get(relation.points_per_cell));
         let request = RotatedCropRequest::from_visible(
             ui,
             uncropped,
