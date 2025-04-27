@@ -22,6 +22,7 @@ use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::meta::Meta;
 use crate::persistence::{save_app_options, PersistenceOptions};
+use crate::render_options::default_crop_threshold;
 use crate::tiles::Tiles;
 use crate::tracing::Tracing;
 
@@ -149,10 +150,29 @@ pub struct SessionData {
     pub(crate) demo_button_image_handle: Option<egui::TextureHandle>,
 }
 
+/// Options that should not need to be changed by the (average) user.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AdvancedOptions {
+    /// Threshold for cropping large textures in the main grid.
+    /// Too low values cause unnecessary cropping (CPU overhead),
+    /// too high values lead to too high texture memory usage.
+    #[serde(default = "default_crop_threshold")]
+    pub grid_crop_threshold: u32,
+}
+
+impl Default for AdvancedOptions {
+    fn default() -> Self {
+        Self {
+            grid_crop_threshold: default_crop_threshold(),
+        }
+    }
+}
+
 /// Main application state, implements the `eframe::App` trait.
 #[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,
+    pub advanced: AdvancedOptions,
     pub build_info: String,
     pub data: SessionData,
     pub status: StatusInfo,

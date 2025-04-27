@@ -8,7 +8,7 @@ use crate::image::{fit_image, to_rgba8};
 
 // Side lengths used for the image pyramid levels.
 // These shall correspond roughly to zoom levels w.r.t. original images.
-const SIZES: [u32; 7] = [8000, 6000, 4000, 2000, 1000, 500, 250];
+const SIZES: [u32; 5] = [8000, 4000, 2000, 1000, 500];
 
 // Stores downscaled versions of an image for discrete sizes.
 // Intended for efficient on-screen rendering of images at different zoom levels.
