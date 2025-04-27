@@ -103,7 +103,9 @@ impl AppState {
             });
         }
 
-        let grid = Grid::new(ui, "main_grid", options.scale).with_origin_offset(options.offset);
+        let grid = Grid::new(ui, "main_grid", options.scale)
+            .with_origin_offset(options.offset)
+            .with_texture_crop_threshold(self.advanced.grid_crop_threshold);
         grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
         if options.lines_visible {
             grid.draw(ui, options, LineType::Main);
@@ -211,7 +213,10 @@ impl AppState {
                     self.options.canvas_settings.background_color,
                 );
                 // Show the lens grid.
-                let mini_grid = Grid::new(ui, id, grid_lens_scale).centered_at(center_pos);
+                // Crop threshold is set to 0 to always crop the textures in a lens.
+                let mini_grid = Grid::new(ui, id, grid_lens_scale)
+                    .centered_at(center_pos)
+                    .with_texture_crop_threshold(0);
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
                     mini_grid.draw(ui, options, LineType::Main);

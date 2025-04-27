@@ -80,23 +80,22 @@ pub struct RotatedCropRequest {
 }
 
 impl RotatedCropRequest {
-    pub fn from_visible(
+    /// Pre-calculate the minimal, unrotated crop that is needed to show the rotated surface in the viewport.
+    /// I.e. neither clipping too much nor making the texture unnecessarily large / inefficient.
+    /// Enable trace log level to see what is going on (I spent too much time figuring this out).
+    fn min_crop(
         ui: &egui::Ui,
-        uncropped: TextureRequest,
-        rotation: egui::emath::Rot2,
-        translation: egui::Vec2,
-        rotation_center_in_points: egui::Vec2,
+        image_rect: &egui::Rect,
+        rotation: &eframe::emath::Rot2,
+        translation: &egui::Vec2,
+        rotation_center_in_points: &egui::Vec2,
         points_per_pixel: f32,
-    ) -> RotatedCropRequest {
+    ) -> egui::Rect {
         let viewport_rect = ui.clip_rect();
-        let image_rect = uncropped.desired_rect;
-        let origin_in_points = (image_rect.min - rotation_center_in_points).to_vec2();
+        let origin_in_points = (image_rect.min - *rotation_center_in_points).to_vec2();
 
-        // Pre-calculate the minimal, unrotated crop that is needed to show the rotated surface in the viewport.
-        // I.e. neither clipping too much nor making the texture unnecessarily large / inefficient.
-        // Enable debug log level to see what is going on (I spent too much time figuring this out).
-        let rotated = rotate(&image_rect, rotation, origin_in_points);
-        let transformed = rotated.translate(translation);
+        let rotated = rotate(&image_rect, *rotation, origin_in_points);
+        let transformed = rotated.translate(*translation);
         debug_paint(ui, transformed, egui::Color32::RED, "transformed");
 
         let transformed_visible = transformed.intersect(viewport_rect);
@@ -108,7 +107,7 @@ impl RotatedCropRequest {
         );
 
         let min_crop = rotate(
-            &transformed_visible.translate(-translation),
+            &transformed_visible.translate(-*translation),
             rotation.inverse(),
             origin_in_points,
         );
@@ -125,6 +124,31 @@ impl RotatedCropRequest {
             egui::Color32::GREEN,
             "visible_rect_quantized",
         );
+        visible_rect
+    }
+
+    pub fn from_visible(
+        ui: &egui::Ui,
+        uncropped: TextureRequest,
+        rotation: egui::emath::Rot2,
+        translation: egui::Vec2,
+        rotation_center_in_points: egui::Vec2,
+        points_per_pixel: f32,
+        crop_threshold: u32,
+    ) -> RotatedCropRequest {
+        let image_rect = uncropped.desired_rect;
+        let visible_rect = if uncropped.desired_rect.size().max_elem() as u32 <= crop_threshold {
+            image_rect
+        } else {
+            Self::min_crop(
+                ui,
+                &image_rect,
+                &rotation,
+                &translation,
+                &rotation_center_in_points,
+                points_per_pixel,
+            )
+        };
 
         RotatedCropRequest {
             uncropped,

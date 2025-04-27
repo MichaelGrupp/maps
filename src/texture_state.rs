@@ -20,6 +20,7 @@ pub struct TextureState {
     pub desired_uv: [egui::Pos2; 2],
     pub desired_color_to_alpha: Option<egui::Color32>,
     pub desired_thresholding: Option<ValueInterpretation>,
+    pub used_level: u32,
     pub texture_options: egui::TextureOptions,
 }
 
@@ -32,8 +33,11 @@ impl TextureState {
     }
 
     fn changed(&self, request: &TextureRequest) -> bool {
-        self.desired_size != request.desired_rect.size()
-            || self.desired_color_to_alpha != request.color_to_alpha
+        self.desired_size != request.desired_rect.size() || self.changed_appearance(request)
+    }
+
+    fn changed_appearance(&self, request: &TextureRequest) -> bool {
+        self.desired_color_to_alpha != request.color_to_alpha
             || self.desired_thresholding != request.thresholding
             || self.texture_options != request.texture_options.unwrap_or_default()
     }
@@ -84,18 +88,19 @@ impl TextureState {
     }
 
     fn changed_crop(&self, request: &RotatedCropRequest) -> bool {
-        if self.changed(&request.uncropped) {
-            return true;
-        }
         self.desired_uv != request.uv
     }
 
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
 
-        if !self.changed_crop(request) {
+        let changed_uncropped = self.changed(&request.uncropped);
+        let changed_crop = self.changed_crop(request);
+        let changed_appearance = self.changed_appearance(&request.uncropped);
+        if !(changed_uncropped || changed_crop || changed_appearance) {
             return;
         }
+
         self.desired_size = desired_size;
         self.desired_uv = request.uv;
         self.desired_color_to_alpha = request.uncropped.color_to_alpha;
@@ -107,9 +112,18 @@ impl TextureState {
             return;
         }
 
-        trace!("Cropping and reloading texture for {:?}", request);
         let uncropped = self.image_pyramid.get_level(self.desired_size);
+        let level = uncropped.width().max(uncropped.height());
+        if self.texture_handle.is_some()
+            && !changed_crop
+            && !changed_appearance
+            && level == self.used_level
+        {
+            return;
+        }
+        self.used_level = level;
 
+        trace!("Cropping and reloading texture for {:?}", request);
         let uv_min = request.uv[0];
         let uv_max = request.uv[1];
         let min_x = (uv_min.x * uncropped.width() as f32).round() as u32;

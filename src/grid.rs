@@ -16,6 +16,7 @@ pub struct Grid {
     pub points_per_meter: f32,
     pub origin_in_points: egui::Pos2, // Location of the origin in point coordinates.
     pub left_offset: egui::Vec2,
+    texture_crop_threshold: u32,
 }
 
 // Relations of a RHS metric coordinate map to the LHS point coordinate grid.
@@ -84,6 +85,7 @@ impl Grid {
             points_per_meter,
             origin_in_points: (available_size / 2.).to_pos2() + ui_offset,
             left_offset,
+            texture_crop_threshold: 0,
         }
     }
 
@@ -95,6 +97,11 @@ impl Grid {
     pub fn centered_at(self, metric_pos: egui::Pos2) -> Self {
         let offset = flip(-metric_pos.to_vec2()) * self.points_per_meter;
         self.with_origin_offset(offset)
+    }
+
+    pub fn with_texture_crop_threshold(mut self, threshold: u32) -> Self {
+        self.texture_crop_threshold = threshold;
+        self
     }
 
     pub fn to_metric(&self, point: &egui::Pos2) -> egui::Pos2 {
@@ -138,6 +145,7 @@ impl Grid {
             relation.ulc_to_origin_in_points_translated - relation.ulc_to_origin_in_points,
             relation.ulc_to_origin_in_points,
             relation.points_per_cell,
+            self.texture_crop_threshold,
         );
         map.get_or_create_texture_state(self.name.as_str())
             .crop_and_put(ui, &request);
