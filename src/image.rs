@@ -19,17 +19,20 @@ pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, Error> {
     let path = resolve_symlink(path);
     info!("Loading image: {:?}", path);
     match ImageReader::open(&path) {
-        Ok(reader) => match reader.decode() {
-            Ok(img) => {
-                debug!("Loaded image: {:?} {:?}", path, img.dimensions());
-                Ok(img)
+        Ok(mut reader) => {
+            reader.no_limits();
+            match reader.decode() {
+                Ok(img) => {
+                    debug!("Loaded image: {:?} {:?}", path, img.dimensions());
+                    Ok(img)
+                }
+                Err(img_error) => Err(Error::new(format!(
+                    "Error decoding image {:?}: {}",
+                    path, img_error
+                ))
+                .and_log_it()),
             }
-            Err(img_error) => Err(Error::new(format!(
-                "Error decoding image {:?}: {}",
-                path, img_error
-            ))
-            .and_log_it()),
-        },
+        }
         Err(img_error) => {
             Err(Error::new(format!("Error loading image {:?}: {}", path, img_error)).and_log_it())
         }
