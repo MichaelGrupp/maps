@@ -17,7 +17,7 @@ pub struct ImagePyramid {
     pub original: image::DynamicImage,
     levels_by_size: HashMap<u32, image::DynamicImage>,
     aspect_ratio: f32,
-    original_size: egui::Vec2,
+    pub original_size: egui::Vec2,
     pub original_has_alpha: bool,
 }
 
