@@ -135,11 +135,16 @@ impl RotatedCropRequest {
         rotation_center_in_points: egui::Vec2,
         points_per_pixel: f32,
         crop_threshold: u32,
+        original_image_size: egui::Vec2,
     ) -> RotatedCropRequest {
         let image_rect = uncropped.desired_rect;
-        let visible_rect = if uncropped.desired_rect.size().max_elem() as u32 <= crop_threshold {
+        let visible_rect = if uncropped.desired_rect.size().max_elem() as u32 <= crop_threshold
+            || original_image_size.max_elem() as u32 <= crop_threshold
+        {
+            // Desired texture is small enough to not need cropping.
             image_rect
         } else {
+            // Desired texture is large, crop to the viewport.
             Self::min_crop(
                 ui,
                 &image_rect,

@@ -146,6 +146,7 @@ impl Grid {
             relation.ulc_to_origin_in_points,
             relation.points_per_cell,
             self.texture_crop_threshold,
+            map.image_pyramid.original_size,
         );
         map.get_or_create_texture_state(self.name.as_str())
             .crop_and_put(ui, &request);
