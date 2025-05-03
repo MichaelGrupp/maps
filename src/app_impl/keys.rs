@@ -29,6 +29,7 @@ impl AppState {
 
         let mut screenshot_request: Option<screenshot::Viewport> = None;
         let mut selected_move_preset: Option<MovableAmounts> = None;
+        let mut moving_via_keyboard = false;
         ui.input(|i| {
             if i.key_released(egui::Key::Escape) {
                 self.options.menu_visible = false;
@@ -95,6 +96,7 @@ impl AppState {
                     draggable.drag_directed(drag_amount, DragDirection::Right);
                 }
                 let delta = draggable.offset_rhs() - previous_offset;
+                moving_via_keyboard = delta != egui::Vec2::ZERO;
                 if delta.x != 0. && delta.y == 0. {
                     self.status.move_action = Some("⬌".to_string());
                 } else if delta.x == 0. && delta.y != 0. {
@@ -131,9 +133,11 @@ impl AppState {
                 if i.key_down(egui::Key::Q) {
                     rotatable.rotate_directed(rotation_amount, DragDirection::Left);
                     self.status.move_action = Some("⟲".to_string());
+                    moving_via_keyboard = true;
                 } else if i.key_down(egui::Key::E) {
                     rotatable.rotate_directed(rotation_amount, DragDirection::Right);
                     self.status.move_action = Some("⟳".to_string());
+                    moving_via_keyboard = true;
                 }
             }
 
@@ -162,6 +166,13 @@ impl AppState {
         if let Some(viewport) = screenshot_request {
             // Has to be called here outside of the input closure to not block.
             self.request_screenshot(ui, viewport);
+        }
+
+        if moving_via_keyboard {
+            // Trigger directly a repaint when movement keys are pressed,
+            // this makes the movement smooth and responsive.
+            // (otherwise there is a very short but noticeable delay / stutter)
+            ui.ctx().request_repaint();
         }
 
         if let Some(preset) = selected_move_preset {
