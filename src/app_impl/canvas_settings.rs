@@ -30,8 +30,8 @@ pub struct CanvasOptions {
 impl Default for CanvasOptions {
     fn default() -> Self {
         Self {
-            background_color: egui::Visuals::default().faint_bg_color,
             theme_preference: default_theme_pref(),
+            background_color: egui::Color32::from_black_alpha(70),
             stack_scale_factor: MIN_STACK_SCALE,
         }
     }
