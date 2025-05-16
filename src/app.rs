@@ -152,7 +152,7 @@ pub struct SessionData {
 
 /// Options that should not need to be changed by the (average) user.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AdvancedOptions {
+pub(crate) struct AdvancedOptions {
     /// Threshold for cropping large textures in the main grid.
     /// Too low values cause unnecessary cropping (CPU overhead),
     /// too high values lead to too high texture memory usage.
@@ -172,7 +172,7 @@ impl Default for AdvancedOptions {
 #[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,
-    pub advanced: AdvancedOptions,
+    pub(crate) advanced: AdvancedOptions,
     pub build_info: String,
     pub data: SessionData,
     pub status: StatusInfo,
