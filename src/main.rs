@@ -13,7 +13,7 @@ use eframe::egui;
 use maps::app::{AppOptions, AppState, ViewMode};
 use maps::map_pose::MapPose;
 use maps::meta::Meta;
-use maps::persistence::load_app_options;
+use maps::persistence::{load_app_options, save_session};
 use strum::VariantNames;
 
 const MIN_SIZE: egui::Vec2 = egui::vec2(300., 200.);
@@ -33,7 +33,8 @@ struct Args {
     #[clap(
         short,
         long,
-        help = "Map pose YAML file that will be applied to all maps that are loaded via CLI."
+        help = "Map pose YAML file that will be applied to all maps that are loaded via CLI.\n\
+        Note that this is not applied to maps that are loaded from a session file."
     )]
     pose: Option<PathBuf>,
     #[clap(
@@ -72,6 +73,13 @@ struct Args {
         Has no effect if a RUST_LOG environment variable is already defined."
     )]
     log_level: Level,
+    #[clap(
+        long,
+        help = "Exit after initialization without starting the GUI.\n\
+        Only load input files, initialize the app state, save/update a session file if specified.\n\
+        Can be used to test files or to build a session file, e.g. using a script."
+    )]
+    init_only: bool,
 }
 
 // Gather build information from build.rs during compile time.
@@ -198,15 +206,31 @@ fn main() -> eframe::Result {
         }
     };
 
-    if let Some(session) = args.session {
-        app_state.load_session(session);
-    }
-
     if let Some(pose) = map_pose {
         for (name, map) in app_state.data.maps.iter_mut() {
             info!("Applying pose to map: {}", name);
             map.pose = pose.clone();
         }
+    }
+
+    if let Some(session) = args.session.clone() {
+        if session.exists() {
+            app_state.load_session(session);
+        } else if !args.init_only {
+            // Ignore missing session file in init_only mode to allow creating it in a script.
+            error!("Session file does not exist: {:?}", session);
+            exit(1);
+        }
+    }
+
+    if args.init_only {
+        if let Some(session) = args.session {
+            save_session(&session, &app_state.data).unwrap_or_else(|e| {
+                error!("Failed to write session file. {}", e.message);
+                exit(1);
+            });
+        }
+        exit(0);
     }
 
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
