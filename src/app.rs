@@ -92,6 +92,7 @@ pub struct AppOptions {
     pub view_mode: ViewMode,
     pub lens: LensOptions,
     pub grid: GridOptions,
+    #[serde(skip)]
     pub tint_settings: TintOptions,
     #[serde(skip)]
     pub pose_edit: PoseEditOptions,
@@ -201,6 +202,9 @@ impl AppState {
         }
         for map in state.data.maps.values_mut() {
             map.tint = Some(state.options.tint_settings.tint_for_all);
+            if let Some(color_to_alpha) = state.options.tint_settings.color_to_alpha_for_all {
+                map.color_to_alpha = Some(color_to_alpha);
+            }
         }
 
         #[cfg(not(target_arch = "wasm32"))]

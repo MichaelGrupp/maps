@@ -14,18 +14,16 @@ use crate::texture_request::NO_TINT;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TintOptions {
-    #[serde(skip)]
+    // Note that these options are for operations on _all_ maps,
+    // and thus are skipped in the options autosave (see AppOptions).
+    // The equivalent options for individual maps are in MapState (and get serialized in sessions).
     pub active_tint_selection: Option<String>,
     pub tint_for_all: egui::Color32,
     pub edit_color_to_alpha: bool,
     pub color_to_alpha_for_all: Option<egui::Color32>,
-    #[serde(default, skip)]
     pub use_value_interpretation_for_all: bool,
-    #[serde(default, skip)]
     pub value_interpretation_for_all: ValueInterpretation,
-    #[serde(default, skip)]
     pub colormap_for_all: ColorMap,
-    #[serde(default)]
     pub texture_filter_for_all: TextureFilter,
 }
 
@@ -120,6 +118,7 @@ impl AppState {
             }
         } else if let Some(map) = self.data.maps.get_mut(selected) {
             let tint = map.tint.get_or_insert(NO_TINT);
+            let mut edit_color_to_alpha = map.color_to_alpha.is_some();
             let color_to_alpha = &mut map.color_to_alpha;
 
             if reset {
@@ -132,7 +131,7 @@ impl AppState {
                 reset,
                 tint,
                 color_to_alpha,
-                &mut self.options.tint_settings.edit_color_to_alpha,
+                &mut edit_color_to_alpha,
                 &mut map.use_value_interpretation,
                 &mut map.meta.value_interpretation,
                 &mut map.texture_filter,
