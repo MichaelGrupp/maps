@@ -53,6 +53,13 @@ struct Args {
     #[clap(
         short,
         long,
+        value_parser = parse_hex_color,
+        help = "Hex-color for color tint in all maps."
+    )]
+    tint_color: Option<egui::Color32>,
+    #[clap(
+        short,
+        long,
         num_args = 2,
         value_names = &["width", "height"],
         default_values_t = Vec::from(&[1500., 1000.]),
@@ -207,6 +214,10 @@ fn main() -> eframe::Result {
     options.version = built_info::PKG_VERSION.to_string();
     options.persistence.custom_config_path = args.config;
     options.view_mode = args.view_mode.unwrap_or(options.view_mode);
+
+    if let Some(tint_color) = args.tint_color {
+        options.tint_settings.tint_for_all = tint_color;
+    }
 
     // Looks like there is no faster way to edit just the alpha value of a Color32.
     if let Some(alpha) = args.alpha {
