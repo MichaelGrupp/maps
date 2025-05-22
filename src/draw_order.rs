@@ -28,6 +28,12 @@ impl DrawOrder {
         self.keys.contains(&name.to_string())
     }
 
+    pub fn extend(&mut self, other: &DrawOrder) {
+        for name in other.keys.iter() {
+            self.add(name.clone());
+        }
+    }
+
     pub fn ui(&mut self, ui: &mut egui::Ui) {
         dnd(ui, "draw_order").show_vec(&mut self.keys, |ui, item, handle, state| {
             ui.horizontal(|ui| {

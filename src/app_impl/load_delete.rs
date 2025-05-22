@@ -289,6 +289,13 @@ impl AppState {
                 // Start from the same path the next time.
                 self.load_session_file_dialog.config_mut().initial_directory = path.clone();
                 self.save_session_file_dialog.config_mut().initial_directory = path.clone();
+
+                // Keep the draw order of the session, if it was saved.
+                // If it was not saved (older versions), add_map() will take care of it.
+                self.data
+                    .draw_order
+                    .extend(&deserialized_session.draw_order);
+
                 // Not everything gets serialized. Load actual data.
                 for (name, map) in deserialized_session.maps {
                     debug!("Restoring map state: {}", name);

@@ -134,7 +134,7 @@ pub struct StatusInfo {
 #[derive(Default, Serialize, Deserialize)]
 pub struct SessionData {
     pub maps: BTreeMap<String, MapState>,
-    #[serde(skip)]
+    #[serde(default)]
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
 
