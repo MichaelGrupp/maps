@@ -46,6 +46,13 @@ struct Args {
     #[clap(
         short,
         long,
+        value_parser = parse_hex_color,
+        help = "Hex-color that will be set to transparent in all maps. Example: #FF0012"
+    )]
+    color_to_alpha: Option<egui::Color32>,
+    #[clap(
+        short,
+        long,
         num_args = 2,
         value_names = &["width", "height"],
         default_values_t = Vec::from(&[1500., 1000.]),
@@ -123,6 +130,17 @@ fn load_icon() -> egui::IconData {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
+fn parse_hex_color(hex_str: &str) -> Result<egui::Color32, std::io::Error> {
+    match egui::Color32::from_hex(hex_str) {
+        Ok(color) => Ok(color),
+        Err(_) => Err(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
+            "failed to parse hex string",
+        )),
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result {
     let args = Args::parse();
     let build_info = build_info_string();
@@ -196,6 +214,10 @@ fn main() -> eframe::Result {
         let new_alpha = (alpha * 255.) as u8;
         color = egui::Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), new_alpha);
         options.tint_settings.tint_for_all = color;
+    }
+
+    if let Some(color_to_alpha) = args.color_to_alpha {
+        options.tint_settings.color_to_alpha_for_all = Some(color_to_alpha);
     }
 
     let mut app_state = match AppState::init(metas, options) {
