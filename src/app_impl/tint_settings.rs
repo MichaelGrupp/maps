@@ -82,13 +82,14 @@ impl AppState {
             self.options.tint_settings.texture_filter_for_all = TextureFilter::default();
         }
 
+        let mut changes = false;
         if *selected == all_key {
             let tint = &mut self.options.tint_settings.tint_for_all;
             let color_to_alpha = &mut self.options.tint_settings.color_to_alpha_for_all;
             let value_interpretation = &mut self.options.tint_settings.value_interpretation_for_all;
             let texture_filter = &mut self.options.tint_settings.texture_filter_for_all;
 
-            pick(
+            changes = pick(
                 ui,
                 reset,
                 tint,
@@ -126,7 +127,7 @@ impl AppState {
                 // If the map has an explicit value interpretation, enable it by default.
                 map.use_value_interpretation = map.meta.value_interpretation.explicit_mode;
             }
-            pick(
+            changes = pick(
                 ui,
                 reset,
                 tint,
@@ -135,9 +136,13 @@ impl AppState {
                 &mut map.use_value_interpretation,
                 &mut map.meta.value_interpretation,
                 &mut map.texture_filter,
-            )
+            );
         } else {
             self.options.tint_settings.active_tint_selection = None;
+        }
+
+        if changes {
+            self.status.unsaved_changes = true;
         }
     }
 }
@@ -151,7 +156,15 @@ fn pick(
     edit_value_interpretation: &mut bool,
     value_interpretation: &mut ValueInterpretation,
     texture_filter: &mut TextureFilter,
-) {
+) -> bool {
+    // TODO: change detection could be done more elegantly.
+    let prev_tint = *tint;
+    let prev_color_to_alpha = *color_to_alpha;
+    let prev_edit_color_to_alpha = *edit_color_to_alpha;
+    let prev_edit_value_interpretation = *edit_value_interpretation;
+    let prev_value_interpretation = value_interpretation.clone();
+    let prev_texture_filter = *texture_filter;
+
     if reset {
         *tint = NO_TINT;
         *color_to_alpha = None;
@@ -189,6 +202,14 @@ fn pick(
     // Remember when the user explicitly selects/deselect value interpretation.
     // This way it's picked up correctly when saved to a session and then reloaded.
     value_interpretation.explicit_mode = *edit_value_interpretation;
+
+    let changes = prev_tint != *tint
+        || prev_color_to_alpha != *color_to_alpha
+        || prev_edit_color_to_alpha != *edit_color_to_alpha
+        || prev_edit_value_interpretation != *edit_value_interpretation
+        || prev_value_interpretation != *value_interpretation
+        || prev_texture_filter != *texture_filter;
+    changes
 }
 
 fn pick_color_to_alpha(ui: &mut egui::Ui, color_to_alpha: &mut Option<egui::Color32>) {
