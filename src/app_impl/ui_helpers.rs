@@ -17,3 +17,15 @@ pub(crate) fn section_heading(ui: &mut egui::Ui, heading: &str, collapsed: &mut 
     }
     !*collapsed
 }
+
+/// Shortens a path for UI usage if it's desired.
+pub(crate) fn display_path(path: &str, show_full_paths: bool) -> String {
+    if show_full_paths {
+        return path.to_string();
+    }
+    std::path::Path::new(path)
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or(path)
+        .to_string()
+}

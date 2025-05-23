@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
-use crate::app_impl::ui_helpers::section_heading;
+use crate::app_impl::ui_helpers::{display_path, section_heading};
 use crate::render_options::TextureFilter;
 use crate::value_colormap::ColorMap;
 use crate::value_interpretation::{Mode, Quirks, ValueInterpretation};
@@ -61,11 +61,16 @@ impl AppState {
         // Waiting for: https://github.com/emilk/egui/discussions/1829
         egui::ScrollArea::horizontal().show(ui, |ui| {
             egui::ComboBox::from_label("")
-                .selected_text(selected.to_string())
+                .selected_text(display_path(selected, self.options.display.show_full_paths))
                 .show_ui(ui, |ui| {
                     ui.selectable_value(selected, all_key.clone(), &all_key);
                     for name in self.data.maps.keys() {
-                        ui.selectable_value(selected, name.to_string(), name);
+                        ui.selectable_value(
+                            selected,
+                            name.to_string(),
+                            display_path(name, self.options.display.show_full_paths),
+                        )
+                        .on_hover_text(format!("Select {} for tinting", name));
                     }
                 });
         });

@@ -78,6 +78,11 @@ pub struct CollapsedState {
     pub tool_settings: bool,
 }
 
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct DisplayOptions {
+    pub show_full_paths: bool,
+}
+
 /// Contains all configurable options of the application.
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AppOptions {
@@ -103,6 +108,8 @@ pub struct AppOptions {
     pub active_tool: ActiveTool,
     #[serde(default)]
     pub collapsed: CollapsedState,
+    #[serde(default)]
+    pub display: DisplayOptions,
 }
 
 impl AppOptions {

@@ -2,6 +2,7 @@ use eframe::egui;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
+use crate::app_impl::ui_helpers::display_path;
 
 impl AppState {
     pub(crate) fn menu_panel(&mut self, ui: &mut egui::Ui) {
@@ -43,7 +44,14 @@ impl AppState {
             .striped(true)
             .show(ui, |ui| {
                 for (name, map) in &mut self.data.maps {
-                    if ui.checkbox(&mut map.visible, name).changed() {
+                    if ui
+                        .checkbox(
+                            &mut map.visible,
+                            display_path(name, self.options.display.show_full_paths),
+                        )
+                        .on_hover_text(name)
+                        .changed()
+                    {
                         self.tile_manager.set_visible(name, map.visible);
                     }
                     if ui.button("🗑").on_hover_text("Delete Map").clicked() {
@@ -96,10 +104,13 @@ impl AppState {
                 ui.horizontal(|ui| {
                     ui.toggle_value(&mut self.status.draw_order_edit_active, "⬆⬇")
                         .on_hover_text("Click to view and edit the draw order via drag and drop.");
-                    if !self.status.draw_order_edit_active {
+                    if !self.status.draw_order_edit_active && !self.data.maps.is_empty() {
                         ui.separator();
                         self.deselect_toggle(ui);
                     }
+                    ui.separator();
+                    ui.toggle_value(&mut self.options.display.show_full_paths, "/../..")
+                        .on_hover_text("Show full paths instead of just the file name.");
                 });
                 if self.status.draw_order_edit_active {
                     self.data.draw_order.ui(ui);
