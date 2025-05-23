@@ -160,7 +160,21 @@ impl AppState {
     }
 
     pub(crate) fn load_map(&mut self, meta: Meta) -> Result<String, Error> {
-        match load_image(&meta.image_path) {
+        if !meta.image_path.exists() {
+            return Err(Error::new(format!(
+                "Image file doesn't exist: {:?}",
+                meta.image_path
+            )));
+        }
+
+        let image = if self.options.advanced.dry_run {
+            info!("Dry-run mode, not loading image {:?}.", meta.image_path);
+            Ok(image::DynamicImage::new_rgba8(0, 0))
+        } else {
+            load_image(&meta.image_path)
+        };
+
+        match image {
             Ok(image) => {
                 let image_pyramid = Arc::new(ImagePyramid::new(image));
                 let name = meta
