@@ -4,6 +4,7 @@ use eframe::egui;
 
 use crate::app::{ActiveMovable, AppState};
 use crate::app_impl::constants::SPACE;
+use crate::app_impl::ui_helpers::display_path;
 use crate::movable::MovableAmounts;
 
 #[derive(Debug, Default)]
@@ -20,14 +21,18 @@ impl AppState {
         // Waiting for: https://github.com/emilk/egui/discussions/1829
         egui::ScrollArea::horizontal().show(ui, |ui| {
             egui::ComboBox::from_label("")
-                .selected_text(self.options.pose_edit.selected_map.clone())
+                .selected_text(display_path(
+                    &self.options.pose_edit.selected_map,
+                    self.options.display.show_full_paths,
+                ))
                 .show_ui(ui, |ui| {
                     for name in self.data.maps.keys() {
                         ui.selectable_value(
                             &mut self.options.pose_edit.selected_map,
                             name.clone(),
-                            name,
-                        );
+                            display_path(name, self.options.display.show_full_paths),
+                        )
+                        .on_hover_text(name);
                     }
                 });
         });
@@ -194,8 +199,8 @@ impl AppState {
                         continue;
                     }
                     if ui
-                        .button(name)
-                        .on_hover_text("Click to copy the map pose also to this other map.")
+                        .button(display_path(name, self.options.display.show_full_paths))
+                        .on_hover_text(format!("Click to copy the map pose also to {}.", name))
                         .clicked()
                     {
                         selected_maps.push(name.clone());

@@ -23,5 +23,12 @@ impl AppState {
                 .weak()
                 .italics(),
         );
+
+        ui.end_row();
+        ui.label("Show full paths").on_hover_text(
+            "Show full absolute file paths in the UI.\n\
+            If unchecked, only the file name is shown.",
+        );
+        ui.checkbox(&mut self.options.display.show_full_paths, "");
     }
 }
