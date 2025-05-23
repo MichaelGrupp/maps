@@ -83,6 +83,8 @@ pub struct CollapsedState {
 pub struct AppOptions {
     pub version: String,
     pub persistence: PersistenceOptions,
+    #[serde(default)]
+    pub advanced: AdvancedOptions,
     #[serde(skip)]
     pub titlebar: TitleBar,
     pub canvas_settings: CanvasOptions,
@@ -153,18 +155,22 @@ pub struct SessionData {
 
 /// Options that should not need to be changed by the (average) user.
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct AdvancedOptions {
+pub struct AdvancedOptions {
     /// Threshold for cropping large textures in the main grid.
     /// Too low values cause unnecessary cropping (CPU overhead),
     /// too high values lead to too high texture memory usage.
     #[serde(default = "default_crop_threshold")]
     pub grid_crop_threshold: u32,
+    /// Dry run mode. E.g. to not actually load images (e.g. in --init-only mode of CLI).
+    #[serde(skip)]
+    pub dry_run: bool,
 }
 
 impl Default for AdvancedOptions {
     fn default() -> Self {
         Self {
             grid_crop_threshold: default_crop_threshold(),
+            dry_run: false,
         }
     }
 }
@@ -173,7 +179,6 @@ impl Default for AdvancedOptions {
 #[derive(Default)]
 pub struct AppState {
     pub options: AppOptions,
-    pub(crate) advanced: AdvancedOptions,
     pub build_info: String,
     pub data: SessionData,
     pub status: StatusInfo,

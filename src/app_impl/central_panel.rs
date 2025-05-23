@@ -105,7 +105,7 @@ impl AppState {
 
         let grid = Grid::new(ui, "main_grid", options.scale)
             .with_origin_offset(options.offset)
-            .with_texture_crop_threshold(self.advanced.grid_crop_threshold);
+            .with_texture_crop_threshold(self.options.advanced.grid_crop_threshold);
         grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
         if options.lines_visible {
             grid.draw(ui, options, LineType::Main);

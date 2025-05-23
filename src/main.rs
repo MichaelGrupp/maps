@@ -89,9 +89,10 @@ struct Args {
     log_level: Level,
     #[clap(
         long,
-        help = "Exit after initialization without starting the GUI.\n\
-        Only load input files, initialize the app state, save/update a session file if specified.\n\
-        Can be used to test files or to build a session file, e.g. using a script."
+        help = "Exit after a dry-run initialization without starting the GUI.\n\
+        Only load input metadata files, initialize the app state without actually loading images,\n\
+        save/update a session file if specified. Can be used to test files or to build a session\n\
+        file, e.g. using a script."
     )]
     init_only: bool,
 }
@@ -214,6 +215,7 @@ fn main() -> eframe::Result {
     options.version = built_info::PKG_VERSION.to_string();
     options.persistence.custom_config_path = args.config;
     options.view_mode = args.view_mode.unwrap_or(options.view_mode);
+    options.advanced.dry_run = args.init_only;
 
     if let Some(tint_color) = args.tint_color {
         options.tint_settings.tint_for_all = tint_color;
