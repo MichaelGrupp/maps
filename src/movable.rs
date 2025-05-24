@@ -63,6 +63,6 @@ impl MovableAmounts {
     };
     pub const PRESET_COARSE: Self = Self {
         drag: 1.0,
-        rotate: 0.1,
+        rotate: 0.05,
     };
 }
