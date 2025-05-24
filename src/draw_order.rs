@@ -2,6 +2,8 @@ use eframe::egui;
 use egui_dnd::dnd;
 use serde::{Deserialize, Serialize};
 
+use crate::app_impl::ui_helpers::display_path;
+
 #[derive(Default, Serialize, Deserialize)]
 pub struct DrawOrder {
     keys: Vec<String>,
@@ -34,12 +36,12 @@ impl DrawOrder {
         }
     }
 
-    pub fn ui(&mut self, ui: &mut egui::Ui) {
+    pub fn ui(&mut self, ui: &mut egui::Ui, show_full_paths: bool) {
         dnd(ui, "draw_order").show_vec(&mut self.keys, |ui, item, handle, state| {
             ui.horizontal(|ui| {
                 handle.ui(ui, |ui| {
                     ui.label(egui::RichText::new(state.index.to_string()).strong());
-                    ui.label(item.clone());
+                    ui.label(display_path(&item, show_full_paths));
                 });
             });
         });

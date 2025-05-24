@@ -113,7 +113,9 @@ impl AppState {
                         .on_hover_text("Show full paths instead of just the file name.");
                 });
                 if self.status.draw_order_edit_active {
-                    self.data.draw_order.ui(ui);
+                    self.data
+                        .draw_order
+                        .ui(ui, self.options.display.show_full_paths);
                 } else {
                     self.maps_list(ui);
                 }
