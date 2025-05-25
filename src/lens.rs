@@ -1,3 +1,8 @@
+//! Hover lens for regular image display, i.e. outside of aligned [Grid](crate::grid::Grid).
+//!
+//! Note: Lenses for grids can be simply created by spawning another [Grid](crate::grid::Grid)
+//! with different scale.
+
 use std::default;
 
 use eframe::egui;
@@ -28,6 +33,7 @@ impl default::Default for LensOptions {
     }
 }
 
+/// Hover lens for regular image display (outside of aligned grids).
 pub struct Lens<'a> {
     // Options are mutably borrowed with outer lifetime
     // to allow managing them outside.
@@ -39,6 +45,8 @@ impl<'a> Lens<'a> {
         Lens { options }
     }
 
+    /// Displays the lens if the displayed texture of the map image is hovered
+    /// by the mouse pointer.
     pub fn show_on_hover(
         &mut self,
         ui: &mut egui::Ui,
