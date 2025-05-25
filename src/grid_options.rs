@@ -5,20 +5,27 @@ use serde::{Deserialize, Serialize};
 
 use crate::movable::{Draggable, MovableAmounts};
 
+/// Dimension in which grid lines are displayed.
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum GridLineDimension {
+    /// Grid lines are displayed with a constant spacing in screen space.
     Screen,
     #[default]
+    /// Grid lines are displayed with a constant spacing in metric space,
+    /// i.e. scaling with the grid scale.
     Metric,
 }
 
+/// Display type of a grid line.
 #[derive(Debug, Default, PartialEq)]
 pub enum LineType {
     #[default]
     Main,
+    /// Sub grid line between main lines.
     Sub,
 }
 
+/// When to show sub grid lines?
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub enum SubLineVisibility {
     #[default]
@@ -27,6 +34,7 @@ pub enum SubLineVisibility {
     Never,
 }
 
+/// Which origin markers shall be displayed?
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub enum MarkerVisibility {
     #[default]
@@ -146,6 +154,7 @@ impl default::Default for GridOptions {
 }
 
 impl GridOptions {
+    /// Changes the grid scale according to a relative delta in percent.
     pub fn zoom(&mut self, delta_percent: f32) {
         // Viewport-centered zoom.
         let old_scale = self.scale;
