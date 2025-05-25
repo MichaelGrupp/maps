@@ -79,6 +79,20 @@ pub struct RotatedCropRequest {
     pub points_per_pixel: f32,
 }
 
+#[derive(Debug)]
+/// Information needed for placement of an image as a scaled texture at a 2D pose.
+pub struct ImagePlacement {
+    pub rotation: egui::emath::Rot2,
+    /// Position of the upper left image corner in points relative to the viewport.
+    pub translation: egui::Vec2,
+    /// Position of the image's rotation center in points relative to the viewport.
+    pub rotation_center: egui::Vec2,
+    /// Amount of points occupied by a pixel of the image, for scaling.
+    pub points_per_pixel: f32,
+    /// Size of the unscaled, uncropped source image in pixels.
+    pub original_image_size: egui::Vec2,
+}
+
 impl RotatedCropRequest {
     /// Pre-calculate the minimal, unrotated crop that is needed to show the rotated surface in the viewport.
     /// I.e. neither clipping too much nor making the texture unnecessarily large / inefficient.
@@ -130,16 +144,12 @@ impl RotatedCropRequest {
     pub fn from_visible(
         ui: &egui::Ui,
         uncropped: TextureRequest,
-        rotation: egui::emath::Rot2,
-        translation: egui::Vec2,
-        rotation_center_in_points: egui::Vec2,
-        points_per_pixel: f32,
+        placement: &ImagePlacement,
         crop_threshold: u32,
-        original_image_size: egui::Vec2,
     ) -> RotatedCropRequest {
         let image_rect = uncropped.desired_rect;
         let visible_rect = if uncropped.desired_rect.size().max_elem() as u32 <= crop_threshold
-            || original_image_size.max_elem() as u32 <= crop_threshold
+            || placement.original_image_size.max_elem() as u32 <= crop_threshold
         {
             // Desired texture is small enough to not need cropping.
             image_rect
@@ -148,10 +158,10 @@ impl RotatedCropRequest {
             Self::min_crop(
                 ui,
                 &image_rect,
-                &rotation,
-                &translation,
-                &rotation_center_in_points,
-                points_per_pixel,
+                &placement.rotation,
+                &placement.translation,
+                &placement.rotation_center,
+                placement.points_per_pixel,
             )
         };
 
@@ -168,15 +178,15 @@ impl RotatedCropRequest {
                     (visible_rect.max.y - image_rect.min.y) / image_rect.height(),
                 ),
             ],
-            rotation,
-            translation,
+            rotation: placement.rotation,
+            translation: placement.translation,
             rotation_center_in_uv: egui::Vec2::new(
-                -(rotation_center_in_points.x + (visible_rect.min.x - image_rect.min.x))
+                -(placement.rotation_center.x + (visible_rect.min.x - image_rect.min.x))
                     / visible_rect.width(),
-                -(rotation_center_in_points.y + (visible_rect.min.y - image_rect.min.y))
+                -(placement.rotation_center.y + (visible_rect.min.y - image_rect.min.y))
                     / visible_rect.height(),
             ),
-            points_per_pixel,
+            points_per_pixel: placement.points_per_pixel,
         }
     }
 }
