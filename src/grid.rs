@@ -7,7 +7,7 @@ use crate::draw_order::DrawOrder;
 use crate::grid_options::{GridLineDimension, GridOptions, LineType};
 use crate::map_pose::MapPose;
 use crate::map_state::MapState;
-use crate::texture_request::{RotatedCropRequest, TextureRequest};
+use crate::texture_request::{ImagePlacement, RotatedCropRequest, TextureRequest};
 
 pub struct Grid {
     pub name: String,
@@ -138,16 +138,23 @@ impl Grid {
             .with_color_to_alpha(map.color_to_alpha)
             .with_thresholding(map.get_value_interpretation())
             .with_texture_options(&map.texture_filter.get(relation.points_per_cell));
+
+        let placement = ImagePlacement {
+            rotation: pose_rotation * origin_rotation,
+            translation: relation.ulc_to_origin_in_points_translated
+                - relation.ulc_to_origin_in_points,
+            rotation_center: relation.ulc_to_origin_in_points,
+            points_per_pixel: relation.points_per_cell,
+            original_image_size: map.image_pyramid.original_size,
+        };
+
         let request = RotatedCropRequest::from_visible(
             ui,
             uncropped,
-            pose_rotation * origin_rotation,
-            relation.ulc_to_origin_in_points_translated - relation.ulc_to_origin_in_points,
-            relation.ulc_to_origin_in_points,
-            relation.points_per_cell,
+            &placement,
             self.texture_crop_threshold,
-            map.image_pyramid.original_size,
         );
+
         map.get_or_create_texture_state(self.name.as_str())
             .crop_and_put(ui, &request);
 
