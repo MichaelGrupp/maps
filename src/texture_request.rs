@@ -5,14 +5,23 @@ use crate::value_interpretation::ValueInterpretation;
 
 pub const NO_TINT: egui::Color32 = egui::Color32::WHITE;
 
+/// Specifies a request to render an image as a texture inside a desired rectangle
+/// with various display options.
 #[derive(Debug)]
 pub struct TextureRequest {
+    /// ID of the requesting client, for texture memory management.
     pub client: String,
+    /// The rectangle into which the texture shall be scaled and placed to.
     pub desired_rect: egui::Rect,
+    /// Color tint of the texture.
     pub tint: egui::Color32,
+    /// Color of the image that shall be displayed as transparent.
     pub color_to_alpha: Option<egui::Color32>,
+    /// Optional value-interpretation-based thresholding of the image.
     pub thresholding: Option<ValueInterpretation>,
+    /// UI interactions that shall be registered by the image display.
     pub sense: egui::Sense,
+    /// Optional overrides for texture rendering options.
     pub texture_options: Option<egui::TextureOptions>,
 }
 
@@ -68,14 +77,23 @@ impl TextureRequest {
     }
 }
 
+/// Extended request for rendering scaled textures with arbitrary rotated pose
+/// and support for cropping (e.g. to viewport).
 #[derive(Debug)]
 pub struct RotatedCropRequest {
+    /// Base texture request for the bare unrotated & uncropped image rect.
     pub uncropped: TextureRequest,
+    /// Bounding box rectangle of the visible area of the final rotated & cropped texture.
     pub visible_rect: egui::Rect,
+    /// Image crop specified in UV image coordinates.
     pub uv: [egui::Pos2; 2],
+    /// Desired rotation of the texture.
     pub rotation: eframe::emath::Rot2,
+    /// Desired translation of the texture.
     pub translation: egui::Vec2,
+    /// Rotation center of the image in UV image coordinates.
     pub rotation_center_in_uv: egui::Vec2,
+    /// Scale of the texture, i.e. desired screen points per pixel.
     pub points_per_pixel: f32,
 }
 
@@ -141,6 +159,11 @@ impl RotatedCropRequest {
         visible_rect
     }
 
+    /// Creates a request for displaying an image with the desired `placement`
+    /// in the visible viewport of the `ui`.
+    /// `crop_threshold` controls the maximum size of a texture before it gets
+    /// cropped to the viewport. Use this to support displaying large images
+    /// at high zoom levels as cropped textures to avoid texture buffer size limits.
     pub fn from_visible(
         ui: &egui::Ui,
         uncropped: TextureRequest,
