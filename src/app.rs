@@ -201,8 +201,10 @@ pub struct AppState {
 
 impl AppState {
     pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
-        let mut state = AppState::default();
-        state.options = options;
+        let mut state = AppState {
+            options,
+            ..Default::default()
+        };
 
         let mut _default_dir = None;
         for meta in metas {

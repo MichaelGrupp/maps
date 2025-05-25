@@ -55,17 +55,17 @@ struct RvizMapColors {
 impl RvizMapColors {
     fn new() -> Self {
         let mut mapped: [Rgba<u8>; 256] = [Rgba([0, 0, 0, 255]); 256];
-        for i in 0..256 {
+        for (i, value) in mapped.iter_mut().enumerate() {
             if (0..101).contains(&i) {
                 let x = (255. - (i as f32 * 255.) / 100.) as u8;
-                mapped[i] = Rgba([x, x, x, 255]);
+                *value = Rgba([x, x, x, 255]);
             } else if (101..128).contains(&i) {
-                mapped[i] = Rgba([0, 255, 0, 255]);
+                *value = Rgba([0, 255, 0, 255]);
             } else if (128..255).contains(&i) {
                 let x = ((255. * (i as f32 - 128.)) / (254. - 128.)) as u8;
-                mapped[i] = Rgba([255, x, 0, 255]);
+                *value = Rgba([255, x, 0, 255]);
             } else {
-                mapped[i] = Rgba([112, 137, 134, 255]);
+                *value = Rgba([112, 137, 134, 255]);
             }
         }
         RvizMapColors { mapped }
@@ -85,23 +85,23 @@ struct CostmapColors {
 impl CostmapColors {
     fn new() -> Self {
         let mut mapped: [Rgba<u8>; 256] = [Rgba([0, 0, 0, 255]); 256];
-        for i in 0..256 {
+        for (i, value) in mapped.iter_mut().enumerate() {
             if i == 0 {
-                mapped[i] = Rgba([0, 0, 0, 0]);
+                *value = Rgba([0, 0, 0, 0]);
             } else if (1..99).contains(&i) {
                 let x = (i as f32 * 255. / 100.) as u8;
-                mapped[i] = Rgba([x, 0, 255 - x, 255]);
+                *value = Rgba([x, 0, 255 - x, 255]);
             } else if i == 99 {
-                mapped[i] = Rgba([0, 255, 255, 255]);
+                *value = Rgba([0, 255, 255, 255]);
             } else if i == 100 {
-                mapped[i] = Rgba([255, 0, 255, 255]);
+                *value = Rgba([255, 0, 255, 255]);
             } else if (101..128).contains(&i) {
-                mapped[i] = Rgba([0, 255, 0, 255]);
+                *value = Rgba([0, 255, 0, 255]);
             } else if (128..255).contains(&i) {
                 let x = ((255. * (i as f32 - 128.)) / (254. - 128.)) as u8;
-                mapped[i] = Rgba([255, x, 0, 255]);
+                *value = Rgba([255, x, 0, 255]);
             } else {
-                mapped[i] = Rgba([112, 137, 134, 255]);
+                *value = Rgba([112, 137, 134, 255]);
             }
         }
         CostmapColors { mapped }
@@ -129,25 +129,25 @@ struct CoolCostmapColors {
 impl CoolCostmapColors {
     pub fn new() -> Self {
         let mut mapped: [Rgba<u8>; 256] = [Rgba([0, 0, 0, 255]); 256];
-        for i in 0..256 {
+        for (i, value) in mapped.iter_mut().enumerate() {
             if i == 0 {
-                mapped[i] = Rgba([0, 0, 0, 0]);
+                *value = Rgba([0, 0, 0, 0]);
             } else if (1..99).contains(&i) {
                 let r = (38. + (i as f32 * 129.) / 100.) as u8;
                 let g = (55. + (i as f32 * 171.) / 100.) as u8;
                 let b = (59. + (i as f32 * 134.) / 100.) as u8;
-                mapped[i] = Rgba([r, g, b, 255]);
+                *value = Rgba([r, g, b, 255]);
             } else if i == 99 {
-                mapped[i] = Rgba([38, 55, 59, 255]);
+                *value = Rgba([38, 55, 59, 255]);
             } else if i == 100 {
-                mapped[i] = Rgba([255, 252, 93, 255]);
+                *value = Rgba([255, 252, 93, 255]);
             } else if (101..128).contains(&i) {
-                mapped[i] = Rgba([0, 255, 0, 255]);
+                *value = Rgba([0, 255, 0, 255]);
             } else if (128..255).contains(&i) {
                 let x = ((255. * (i as f32 - 128.)) / (254. - 128.)) as u8;
-                mapped[i] = Rgba([255, x, 0, 255]);
+                *value = Rgba([255, x, 0, 255]);
             } else {
-                mapped[i] = Rgba([112, 137, 134, 255]);
+                *value = Rgba([112, 137, 134, 255]);
             }
         }
         CoolCostmapColors { mapped }

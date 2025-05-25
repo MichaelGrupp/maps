@@ -40,7 +40,7 @@ impl AppState {
                         None
                     }
                 })
-                .last()
+                .next_back()
         });
 
         if let Some(event) = event_data {

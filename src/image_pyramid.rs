@@ -31,13 +31,13 @@ impl ImagePyramid {
 
         let original_size = egui::Vec2::new(original.width() as f32, original.height() as f32);
         ImagePyramid {
-            levels_by_size: |original: &image::DynamicImage| -> HashMap<u32, image::DynamicImage> {
+            levels_by_size: {
                 let mut levels: HashMap<u32, image::DynamicImage> = HashMap::new();
                 let mut parent = None;
                 for size in SIZES {
                     let image_to_downscale = match levels.get(&parent.unwrap_or(0)) {
                         Some(parent_level) => parent_level,
-                        None => original,
+                        None => &original,
                     };
                     if max(original.width(), original.height()) < size {
                         continue;
@@ -56,7 +56,7 @@ impl ImagePyramid {
                     parent = Some(size);
                 }
                 levels
-            }(&original),
+            },
             original,
             aspect_ratio: original_size.x / original_size.y,
             original_size,

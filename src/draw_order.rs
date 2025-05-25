@@ -41,7 +41,7 @@ impl DrawOrder {
             ui.horizontal(|ui| {
                 handle.ui(ui, |ui| {
                     ui.label(egui::RichText::new(state.index.to_string()).strong());
-                    ui.label(display_path(&item, show_full_paths));
+                    ui.label(display_path(item, show_full_paths));
                 });
             });
         });
