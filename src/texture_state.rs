@@ -78,7 +78,7 @@ impl TextureState {
         });
     }
 
-    /// Updates the state an puts the texture into the UI according the request.
+    /// Updates the state and puts the texture into the UI according to the request.
     pub fn put(&mut self, ui: &mut egui::Ui, request: &TextureRequest) {
         self.update(ui, request);
 
