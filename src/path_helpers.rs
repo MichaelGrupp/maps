@@ -1,5 +1,5 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-pub fn resolve_symlink(path: &PathBuf) -> PathBuf {
-    path.canonicalize().unwrap_or(path.clone())
+pub fn resolve_symlink(path: &Path) -> PathBuf {
+    path.canonicalize().unwrap_or(path.to_path_buf())
 }

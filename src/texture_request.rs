@@ -94,7 +94,7 @@ impl RotatedCropRequest {
         let viewport_rect = ui.clip_rect();
         let origin_in_points = (image_rect.min - *rotation_center_in_points).to_vec2();
 
-        let rotated = rotate(&image_rect, *rotation, origin_in_points);
+        let rotated = rotate(image_rect, *rotation, origin_in_points);
         let transformed = rotated.translate(*translation);
         debug_paint(ui, transformed, egui::Color32::RED, "transformed");
 
@@ -117,7 +117,7 @@ impl RotatedCropRequest {
         // The image cropping happens in pixel space, so we have to also quantize the rectangle
         // to the next best multiple of the scaled pixel size.
         // Otherwise the texture size/placement is not exact, especially at high zoom levels.
-        let visible_rect = quantized_intersection(&image_rect, &min_crop, points_per_pixel);
+        let visible_rect = quantized_intersection(image_rect, &min_crop, points_per_pixel);
         debug_paint(
             ui,
             visible_rect,

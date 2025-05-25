@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use eframe::egui;
 use fast_image_resize::images::Image as ResizeImage;
@@ -15,7 +15,7 @@ use fast_image_resize::CpuExtensions;
 use crate::error::Error;
 use crate::path_helpers::resolve_symlink;
 
-pub fn load_image(path: &PathBuf) -> Result<image::DynamicImage, Error> {
+pub fn load_image(path: &Path) -> Result<image::DynamicImage, Error> {
     let path = resolve_symlink(path);
     info!("Loading image: {:?}", path);
     match ImageReader::open(&path) {

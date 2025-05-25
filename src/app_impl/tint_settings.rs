@@ -167,7 +167,7 @@ fn pick(
     let prev_color_to_alpha = *color_to_alpha;
     let prev_edit_color_to_alpha = *edit_color_to_alpha;
     let prev_edit_value_interpretation = *edit_value_interpretation;
-    let prev_value_interpretation = value_interpretation.clone();
+    let prev_value_interpretation = *value_interpretation;
     let prev_texture_filter = *texture_filter;
 
     if reset {
@@ -208,13 +208,12 @@ fn pick(
     // This way it's picked up correctly when saved to a session and then reloaded.
     value_interpretation.explicit_mode = *edit_value_interpretation;
 
-    let changes = prev_tint != *tint
+    prev_tint != *tint
         || prev_color_to_alpha != *color_to_alpha
         || prev_edit_color_to_alpha != *edit_color_to_alpha
         || prev_edit_value_interpretation != *edit_value_interpretation
         || prev_value_interpretation != *value_interpretation
-        || prev_texture_filter != *texture_filter;
-    changes
+        || prev_texture_filter != *texture_filter
 }
 
 fn pick_color_to_alpha(ui: &mut egui::Ui, color_to_alpha: &mut Option<egui::Color32>) {
