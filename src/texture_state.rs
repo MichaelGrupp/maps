@@ -9,8 +9,11 @@ use crate::image_pyramid::ImagePyramid;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
 use crate::value_interpretation::ValueInterpretation;
 
+/// Manages the state of a texture across its lifetime.
+/// Has to be updated every frame using texture requests.
 #[derive(Default)]
 pub struct TextureState {
+    /// Image pyramid with source images for different zoom levels.
     // Image pyramid is shared to avoid duplicating it.
     // Use init() to set it.
     pub image_pyramid: Arc<ImagePyramid>,
@@ -32,16 +35,20 @@ impl TextureState {
         }
     }
 
+    /// Returns true if the request changes the texture and requires re-rendering.
     fn changed(&self, request: &TextureRequest) -> bool {
         self.desired_size != request.desired_rect.size() || self.changed_appearance(request)
     }
 
+    /// Returns true if the appearance of the texture changed (not checking size).
     fn changed_appearance(&self, request: &TextureRequest) -> bool {
         self.desired_color_to_alpha != request.color_to_alpha
             || self.desired_thresholding != request.thresholding
             || self.texture_options != request.texture_options.unwrap_or_default()
     }
 
+    /// Updates the texture state for a new incoming request, if needed.
+    /// Chooses the appropriate level from the image pyramid.
     pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
         if self.changed(request) {
             // Free the old texture if the size changed.
@@ -71,6 +78,7 @@ impl TextureState {
         });
     }
 
+    /// Updates the state an puts the texture into the UI according the request.
     pub fn put(&mut self, ui: &mut egui::Ui, request: &TextureRequest) {
         self.update(ui, request);
 
@@ -87,10 +95,13 @@ impl TextureState {
         }
     }
 
+    /// Returns true if the request changes the image cropping.
     fn changed_crop(&self, request: &RotatedCropRequest) -> bool {
         self.desired_uv != request.uv
     }
 
+    /// Updates the texture state for a new incoming crop/rotate request, if needed.
+    /// Chooses the appropriate level from the image pyramid and crops if required.
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
 
@@ -148,6 +159,7 @@ impl TextureState {
         ));
     }
 
+    /// Updates the state and puts the texture into the UI according the request.
     pub fn crop_and_put(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         self.update_crop(ui, request);
 

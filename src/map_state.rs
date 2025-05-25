@@ -27,11 +27,16 @@ pub struct MapState {
     // The image pyramid is an Arc to allow sharing it for multiple textures.
     #[serde(skip_serializing, skip_deserializing)]
     pub image_pyramid: Arc<ImagePyramid>,
+    /// Texture states of the map, i.e. all active textures created from this map's image
+    /// for different client IDs (keys of the HashMap).
+    /// See also `get_or_create_texture_state()`.
     #[serde(skip_serializing, skip_deserializing)]
     pub texture_states: HashMap<String, TextureState>,
 }
 
 impl MapState {
+    /// Returns a mutable reference to the texture state that belongs to `id`.
+    /// Creates a new texture state if none exists yet for this ID.
     pub fn get_or_create_texture_state(&mut self, id: &str) -> &mut TextureState {
         self.texture_states
             .entry(id.to_string())
