@@ -47,7 +47,7 @@ jobs:
       run: cargo test --profile kittest --verbose --no-default-features -- --show-output
 
   windows:
-    runs-on: [windows-latest]
+    runs-on: [windows-2022]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -55,11 +55,11 @@ jobs:
     - name: Format check
       run: cargo fmt --all -- --check
     - name: Build
-      run: cargo build --profile kittest --verbose --locked
+      run: cargo build --profile kittest --verbose
     - name: Run tests
       # Run tests without kittest_snapshots feature
       # (no wgpu support in CI runner).
-      run: cargo test --profile kittest --verbose --no-default-features --locked -- --show-output
+      run: cargo test --profile kittest --verbose --no-default-features -- --show-output
 
   wasm:
     runs-on: [macos-latest]  # host irrelevant here, but mac is fastest
