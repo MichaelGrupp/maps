@@ -44,7 +44,6 @@ struct Args {
     )]
     alpha: Option<f32>,
     #[clap(
-        short,
         long,
         value_parser = parse_hex_color,
         help = "Hex-color that will be set to transparent in all maps. Example: #FF0012"
