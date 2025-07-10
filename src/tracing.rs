@@ -86,6 +86,6 @@ impl Tracing {
             .collect();
         Plot::new(self.name.as_str())
             .view_aspect(2.0)
-            .show(ui, |plot_ui| plot_ui.line(Line::new(points)));
+            .show(ui, |plot_ui| plot_ui.line(Line::new("duration", points)));
     }
 }
