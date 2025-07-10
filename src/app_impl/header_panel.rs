@@ -56,7 +56,7 @@ impl AppState {
             if ui
                 .add_sized(
                     egui::vec2(ICON_SIZE, ICON_SIZE),
-                    egui::SelectableLabel::new(*switch, egui::RichText::new(icon).size(ICON_SIZE)),
+                    egui::Button::selectable(*switch, egui::RichText::new(icon).size(ICON_SIZE)),
                 )
                 .on_hover_text(tooltip)
                 .clicked()
