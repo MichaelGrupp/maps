@@ -146,12 +146,14 @@ impl AppState {
                     .grid
                     .zoom(-self.options.grid.scroll_delta_percent);
                 self.status.move_action = Some("-".to_string());
+                moving_via_keyboard = true;
             }
             if i.key_down(egui::Key::Plus) {
                 self.options
                     .grid
                     .zoom(self.options.grid.scroll_delta_percent);
                 self.status.move_action = Some("+".to_string());
+                moving_via_keyboard = true;
             }
 
             if i.key_released(egui::Key::Num1) {
