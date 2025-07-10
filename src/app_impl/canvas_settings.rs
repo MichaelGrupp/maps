@@ -12,16 +12,10 @@ const fn default_stack_scale_factor() -> f32 {
     MIN_STACK_SCALE
 }
 
-fn default_theme_pref() -> egui::ThemePreference {
-    // TODO: add default() to egui::ThemePreference
-    // See: https://github.com/emilk/egui/pull/5702
-    egui::ThemePreference::System
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CanvasOptions {
     pub background_color: egui::Color32,
-    #[serde(default = "default_theme_pref")]
+    #[serde(default)]
     pub theme_preference: egui::ThemePreference,
     #[serde(skip, default = "default_stack_scale_factor")]
     pub stack_scale_factor: f32,
@@ -31,7 +25,7 @@ impl Default for CanvasOptions {
     fn default() -> Self {
         Self {
             background_color: egui::Visuals::default().faint_bg_color,
-            theme_preference: default_theme_pref(),
+            theme_preference: egui::ThemePreference::default(),
             stack_scale_factor: MIN_STACK_SCALE,
         }
     }
