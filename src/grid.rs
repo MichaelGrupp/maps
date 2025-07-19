@@ -166,6 +166,7 @@ impl Grid {
 
         let request = RotatedCropRequest::from_visible(
             ui,
+            &self.painter.clip_rect(),
             uncropped,
             &placement,
             self.texture_crop_threshold,
