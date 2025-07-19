@@ -7,7 +7,6 @@ use crate::app_impl::constants::SPACE;
 use crate::grid::Grid;
 use crate::grid_options::{LineType, SubLineVisibility};
 use crate::lens::Lens;
-use crate::movable::Draggable;
 use crate::texture_request::TextureRequest;
 use crate::tiles_behavior::MapsTreeBehavior;
 
@@ -75,9 +74,13 @@ impl AppState {
 
     fn show_grid(&mut self, ui: &mut egui::Ui) {
         let options = &mut self.options.grid;
-        let mut clicked = false;
-        // Modify the grid with the mouse, but only if inside this panel rect.‚
-        if ui.rect_contains_pointer(ui.available_rect_before_wrap()) {
+
+        let grid = Grid::new(ui, "main_grid", options.scale)
+            .with_origin_offset(options.offset)
+            .with_texture_crop_threshold(self.options.advanced.grid_crop_threshold);
+
+        // Handle input interaction and adapt mouse pointer to the active tool.
+        if grid.response().hovered() {
             match self.options.active_tool {
                 ActiveTool::PlaceLens | ActiveTool::Measure | ActiveTool::HoverLens => {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
@@ -86,37 +89,21 @@ impl AppState {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::Default);
                 }
             }
-
-            // Grid area is not a widget. Avoid accidental grid dragging when
-            // any widget intersecting it is being dragged (e.g. a lens window).
-            let dragging_others = ui.ctx().dragged_id().is_some();
-            ui.input(|i| {
-                clicked = i.pointer.primary_released();
-                if i.pointer.primary_down() && !dragging_others {
-                    // Scaled because meters are expected for drag().
-                    options.drag(i.pointer.delta() / options.scale);
-                }
-                let scale_delta = i.smooth_scroll_delta.y * options.scroll_delta_percent;
-                if scale_delta != 0. {
-                    options.zoom(scale_delta);
-                }
-            });
         }
+        // Note: the updated grid options are used in the next frame.
+        grid.update_drag_and_zoom(ui, options);
 
-        let grid = Grid::new(ui, "main_grid", options.scale)
-            .with_origin_offset(options.offset)
-            .with_texture_crop_threshold(self.options.advanced.grid_crop_threshold);
         grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
         if options.lines_visible {
-            grid.draw(ui, options, LineType::Main);
+            grid.draw(options, LineType::Main);
         }
         if options.sub_lines_visible == SubLineVisibility::Always {
-            grid.draw(ui, options, LineType::Sub);
+            grid.draw(options, LineType::Sub);
         }
         if options.marker_visibility.zero_visible() {
-            grid.draw_axes(ui, options, None);
+            grid.draw_axes(options, None);
         }
-        self.status.hover_position = grid.hover_pos_metric(ui);
+        self.status.hover_position = grid.hover_pos_metric();
 
         if self.options.active_tool == ActiveTool::None {
             self.status.active_tool = None;
@@ -133,8 +120,8 @@ impl AppState {
 
         if self.options.active_tool == ActiveTool::Measure {
             self.status.active_tool = Some("📏 Measurement tool active".to_string());
-            if !clicked {
-                grid.draw_measure(ui, options, self.status.hover_position);
+            if !grid.response().clicked() {
+                grid.draw_measure(options, self.status.hover_position);
                 return;
             }
             if let Some(click_pos) = self.status.hover_position {
@@ -151,7 +138,7 @@ impl AppState {
             return;
         }
 
-        if clicked && self.options.active_tool == ActiveTool::PlaceLens {
+        if grid.response().clicked() && self.options.active_tool == ActiveTool::PlaceLens {
             if let Some(pos) = self.status.hover_position {
                 let id = Uuid::new_v4().to_string();
                 debug!("Placing lens {} focussing {:?}.", id, pos);
@@ -206,32 +193,26 @@ impl AppState {
         }
         window.show(ui.ctx(), |ui| {
             if let Some(center_pos) = center_pos {
-                // Ensure that the lens uses the same background color as the main grid canvas.
-                ui.painter().rect_filled(
-                    ui.clip_rect(),
-                    0.,
-                    self.options.canvas_settings.background_color,
-                );
                 // Show the lens grid.
                 // Crop threshold is set to 0 to always crop the textures in a lens.
                 let mini_grid = Grid::new(ui, id, grid_lens_scale)
                     .centered_at(center_pos)
                     .with_texture_crop_threshold(0);
+                // Ensure that the lens uses the same background color as the main grid canvas.
+                mini_grid.draw_background(self.options.canvas_settings.background_color);
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
-                    mini_grid.draw(ui, options, LineType::Main);
+                    mini_grid.draw(options, LineType::Main);
                 }
                 if options.sub_lines_visible == SubLineVisibility::Always
                     || options.sub_lines_visible == SubLineVisibility::OnlyLens
                 {
-                    mini_grid.draw(ui, options, LineType::Sub);
+                    mini_grid.draw(options, LineType::Sub);
                 }
                 if options.marker_visibility.zero_visible() {
-                    mini_grid.draw_axes(ui, options, None);
+                    mini_grid.draw_axes(options, None);
                 }
             }
-            // Fill window, grid is not a widget.
-            ui.allocate_exact_size(ui.available_size(), egui::Sense::hover());
         });
         if !open {
             self.data.grid_lenses.remove(id);
