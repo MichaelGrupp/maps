@@ -117,20 +117,20 @@ impl RotatedCropRequest {
     /// Enable trace log level to see what is going on (I spent too much time figuring this out).
     fn min_crop(
         ui: &egui::Ui,
+        viewport_clip_rect: &egui::Rect,
         image_rect: &egui::Rect,
         rotation: &eframe::emath::Rot2,
         translation: &egui::Vec2,
         rotation_center_in_points: &egui::Vec2,
         points_per_pixel: f32,
     ) -> egui::Rect {
-        let viewport_rect = ui.clip_rect();
         let origin_in_points = (image_rect.min - *rotation_center_in_points).to_vec2();
 
         let rotated = rotate(image_rect, *rotation, origin_in_points);
         let transformed = rotated.translate(*translation);
         debug_paint(ui, transformed, egui::Color32::RED, "transformed");
 
-        let transformed_visible = transformed.intersect(viewport_rect);
+        let transformed_visible = transformed.intersect(*viewport_clip_rect);
         debug_paint(
             ui,
             transformed_visible,
@@ -166,6 +166,7 @@ impl RotatedCropRequest {
     /// at high zoom levels as cropped textures to avoid texture buffer size limits.
     pub fn from_visible(
         ui: &egui::Ui,
+        viewport_clip_rect: &egui::Rect,
         uncropped: TextureRequest,
         placement: &ImagePlacement,
         crop_threshold: u32,
@@ -180,6 +181,7 @@ impl RotatedCropRequest {
             // Desired texture is large, crop to the viewport.
             Self::min_crop(
                 ui,
+                viewport_clip_rect,
                 &image_rect,
                 &placement.rotation,
                 &placement.translation,
