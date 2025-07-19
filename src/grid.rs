@@ -7,13 +7,14 @@ use crate::draw_order::DrawOrder;
 use crate::grid_options::{GridLineDimension, GridOptions, LineType};
 use crate::map_pose::MapPose;
 use crate::map_state::MapState;
+use crate::movable::Draggable;
 use crate::texture_request::{ImagePlacement, RotatedCropRequest, TextureRequest};
 
 /// Grid area for displaying metric objects in screen space (points).
 pub struct Grid {
     pub name: String,
     /// Screen space offset of the grid's UI area.
-    pub ui_offset: egui::Vec2,
+    ui_offset: egui::Vec2,
     /// Extent of the map in meters (width, height).
     pub metric_extent: egui::Vec2,
     /// Display scale of the grid: how many points per meter?
@@ -21,6 +22,8 @@ pub struct Grid {
     /// Location of the origin in point coordinates.
     pub origin_in_points: egui::Pos2,
     texture_crop_threshold: u32,
+    response: egui::Response,
+    painter: egui::Painter,
 }
 
 /// Relations of a RHS metric coordinate map to the LHS point coordinate grid.
@@ -72,20 +75,25 @@ struct LabelTextOptions {
 impl Grid {
     /// Creates a new grid to be drawn in the available space of the given `ui`
     /// with the desired scale defined by `points_per_meter`.
-    pub fn new(ui: &egui::Ui, name: &str, points_per_meter: f32) -> Grid {
+    /// Note that the grid is valid only for one frame, so it should not be
+    /// persisted across frames. Recreate every frame to adapt to the latest UI.
+    pub fn new(ui: &mut egui::Ui, name: &str, points_per_meter: f32) -> Grid {
+        let (response, painter) =
+            ui.allocate_painter(ui.available_size(), egui::Sense::click_and_drag());
         // Where are we with this UI in the global context?
         // Required to offset the origin because we paint at manual positions.
-        let ui_offset = ui.clip_rect().min.to_vec2();
+        let ui_offset = painter.clip_rect().min.to_vec2();
+        let paint_rect_size = painter.clip_rect().size();
 
-        let available_size = ui.available_size();
-        let metric_extent = available_size * points_per_meter;
         Grid {
             name: name.to_string(),
             ui_offset,
-            metric_extent,
+            metric_extent: paint_rect_size * points_per_meter,
             points_per_meter,
-            origin_in_points: (available_size / 2.).to_pos2() + ui_offset,
+            origin_in_points: (paint_rect_size / 2.).to_pos2() + ui_offset,
             texture_crop_threshold: 0,
+            response,
+            painter,
         }
     }
 
@@ -167,7 +175,7 @@ impl Grid {
             .crop_and_put(ui, &request);
 
         if options.marker_visibility.maps_visible() {
-            self.draw_axes(ui, options, Some(&map.pose));
+            self.draw_axes(options, Some(&map.pose));
         }
     }
 
@@ -188,17 +196,41 @@ impl Grid {
         }
     }
 
+    /// Returns the click/drag response of the grid.
+    pub fn response(&self) -> &egui::Response {
+        &self.response
+    }
+
     /// Returns the mouse pointer position in the grid's metric space, if hovered.
-    pub fn hover_pos_metric(&self, ui: &egui::Ui) -> Option<egui::Pos2> {
-        if !ui.rect_contains_pointer(ui.clip_rect()) {
+    pub fn hover_pos_metric(&self) -> Option<egui::Pos2> {
+        if !self.response.hovered() {
             return None;
         }
-        ui.ctx().pointer_hover_pos().map(|pos| self.to_metric(&pos))
+        self.response.hover_pos().map(|pos| self.to_metric(&pos))
+    }
+
+    /// Drags and zooms the grid according to the input interaction.
+    pub fn update_drag_and_zoom(&self, ui: &mut egui::Ui, options: &mut GridOptions) {
+        // Scaled because meters are expected for drag().
+        options.drag(self.response.drag_delta() / options.scale);
+        if self.response.hovered() {
+            // Only zoom if the mouse is in the grid region.
+            ui.input(|i| {
+                let scale_delta = i.smooth_scroll_delta.y * options.scroll_delta_percent;
+                if scale_delta != 0. {
+                    options.zoom(scale_delta);
+                }
+            });
+        }
+    }
+
+    pub fn draw_background(&self, color: egui::Color32) {
+        self.painter
+            .rect_filled(self.painter.clip_rect(), 0., color);
     }
 
     fn draw_vertical_lines(
         &self,
-        ui: &mut egui::Ui,
         options: &GridOptions,
         line_type: &LineType,
         spacing_points: f32,
@@ -206,19 +238,18 @@ impl Grid {
     ) {
         let mut x = self.origin_in_points.x;
         while x > 0. {
-            self.draw_vertical_line(ui, x, options, line_type, label_text_options);
+            self.draw_vertical_line(x, options, line_type, label_text_options);
             x -= spacing_points;
         }
         x = self.origin_in_points.x + spacing_points;
-        while x < ui.available_width() + self.ui_offset.x {
-            self.draw_vertical_line(ui, x, options, line_type, label_text_options);
+        while x < self.painter.clip_rect().width() + self.ui_offset.x {
+            self.draw_vertical_line(x, options, line_type, label_text_options);
             x += spacing_points;
         }
     }
 
     fn draw_vertical_line(
         &self,
-        ui: &mut egui::Ui,
         x: f32,
         options: &GridOptions,
         line_type: &LineType,
@@ -229,10 +260,10 @@ impl Grid {
             LineType::Main => &options.line_stroke,
             LineType::Sub => &options.sub_lines_stroke,
         };
-        ui.painter().line_segment(
+        self.painter.line_segment(
             [
                 egui::Pos2::new(x, 0.),
-                egui::Pos2::new(x, ui.available_height() + self.ui_offset.y),
+                egui::Pos2::new(x, self.painter.clip_rect().height() + self.ui_offset.y),
             ],
             *stroke,
         );
@@ -240,7 +271,7 @@ impl Grid {
             return;
         }
         if let Some(label_options) = label_text_options {
-            ui.painter().text(
+            self.painter.text(
                 bottom - label_options.offset + egui::vec2(0., self.ui_offset.y),
                 egui::Align2::LEFT_CENTER,
                 format!(
@@ -255,7 +286,6 @@ impl Grid {
 
     fn draw_horizontal_lines(
         &self,
-        ui: &mut egui::Ui,
         options: &GridOptions,
         line_type: &LineType,
         spacing_points: f32,
@@ -263,19 +293,18 @@ impl Grid {
     ) {
         let mut y = self.origin_in_points.y;
         while y > 0. {
-            self.draw_horizontal_line(ui, y, options, line_type, label_text_options);
+            self.draw_horizontal_line(y, options, line_type, label_text_options);
             y -= spacing_points;
         }
         y = self.origin_in_points.y + spacing_points;
-        while y < ui.available_height() + self.ui_offset.y {
-            self.draw_horizontal_line(ui, y, options, line_type, label_text_options);
+        while y < self.painter.clip_rect().height() + self.ui_offset.y {
+            self.draw_horizontal_line(y, options, line_type, label_text_options);
             y += spacing_points;
         }
     }
 
     fn draw_horizontal_line(
         &self,
-        ui: &mut egui::Ui,
         y: f32,
         options: &GridOptions,
         line_type: &LineType,
@@ -286,10 +315,10 @@ impl Grid {
             LineType::Main => &options.line_stroke,
             LineType::Sub => &options.sub_lines_stroke,
         };
-        ui.painter().line_segment(
+        self.painter.line_segment(
             [
                 left,
-                egui::Pos2::new(ui.available_width() + self.ui_offset.x, y),
+                egui::Pos2::new(self.painter.clip_rect().width() + self.ui_offset.x, y),
             ],
             *stroke,
         );
@@ -297,7 +326,7 @@ impl Grid {
             return;
         }
         if let Some(label_options) = label_text_options {
-            ui.painter().text(
+            self.painter.text(
                 left + label_options.offset,
                 egui::Align2::LEFT_CENTER,
                 format!(
@@ -311,7 +340,7 @@ impl Grid {
     }
 
     /// Draws vertical & horizontal grid lines according to the desired options and line type.
-    pub fn draw(&self, ui: &mut egui::Ui, options: &GridOptions, line_type: LineType) {
+    pub fn draw(&self, options: &GridOptions, line_type: LineType) {
         if !options.lines_visible {
             return;
         }
@@ -335,12 +364,12 @@ impl Grid {
             LineType::Sub => None,
         };
 
-        self.draw_vertical_lines(ui, options, &line_type, spacing_points, &label_text_options);
-        self.draw_horizontal_lines(ui, options, &line_type, spacing_points, &label_text_options);
+        self.draw_vertical_lines(options, &line_type, spacing_points, &label_text_options);
+        self.draw_horizontal_lines(options, &line_type, spacing_points, &label_text_options);
     }
 
     /// Draws XYZ coordinate axes at the pose.
-    pub fn draw_axes(&self, ui: &mut egui::Ui, options: &GridOptions, pose: Option<&MapPose>) {
+    pub fn draw_axes(&self, options: &GridOptions, pose: Option<&MapPose>) {
         // Convert stroke width to points.
         let x_stroke = egui::Stroke::new(
             options.marker_width_meters * self.points_per_meter,
@@ -366,9 +395,9 @@ impl Grid {
         } * options.marker_length_meters
             * self.points_per_meter;
 
-        ui.painter().line_segment([pos, pos + x_vec], x_stroke);
-        ui.painter().line_segment([pos, pos - y_vec], y_stroke);
-        ui.painter().circle_filled(
+        self.painter.line_segment([pos, pos + x_vec], x_stroke);
+        self.painter.line_segment([pos, pos - y_vec], y_stroke);
+        self.painter.circle_filled(
             pos,
             options.marker_width_meters * self.points_per_meter / 2.,
             options.marker_z_color,
@@ -377,15 +406,10 @@ impl Grid {
 
     /// Draws the currently active measurement from the `options`, if it exists.
     /// Set `temporary_end` to display an unfinished measurement.
-    pub fn draw_measure(
-        &self,
-        ui: &mut egui::Ui,
-        options: &GridOptions,
-        temporary_end: Option<egui::Pos2>,
-    ) {
+    pub fn draw_measure(&self, options: &GridOptions, temporary_end: Option<egui::Pos2>) {
         if let Some(start_metric) = options.measure_start {
             let start = self.to_point(&start_metric);
-            ui.painter().circle_filled(
+            self.painter.circle_filled(
                 start,
                 options.measure_stroke.width * 2.,
                 options.measure_stroke.color,
@@ -395,14 +419,14 @@ impl Grid {
                 .measure_end
                 .unwrap_or(temporary_end.unwrap_or(start_metric));
             let end = self.to_point(&end_metric);
-            ui.painter()
+            self.painter
                 .line_segment([start, end], options.measure_stroke);
-            ui.painter().circle_filled(
+            self.painter.circle_filled(
                 end,
                 options.measure_stroke.width * 2.,
                 options.measure_stroke.color,
             );
-            ui.painter().text(
+            self.painter.text(
                 end,
                 egui::Align2::LEFT_BOTTOM,
                 format!("{:.3} m", (end_metric - start_metric).length()),
