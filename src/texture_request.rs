@@ -151,6 +151,9 @@ impl RotatedCropRequest {
         // to the next best multiple of the scaled pixel size.
         // Otherwise the texture size/placement is not exact, especially at high zoom levels.
         let visible_rect = quantized_intersection(image_rect, &min_crop, points_per_pixel);
+        // Round visible_rect matching egui 0.32's "pixel-perfect" paint_at behavior.
+        // See also: https://github.com/emilk/egui/pull/7078
+        let visible_rect = visible_rect.round_to_pixels(ui.pixels_per_point());
         debug_paint(
             ui,
             visible_rect,
@@ -190,11 +193,6 @@ impl RotatedCropRequest {
                 placement.points_per_pixel,
             )
         };
-
-        // Round visible_rect matching egui 0.32's "pixel-perfect" paint_at behavior.
-        // See also: https://github.com/emilk/egui/pull/7078
-        let pixels_per_point = ui.pixels_per_point();
-        let visible_rect = visible_rect.round_to_pixels(pixels_per_point);
 
         RotatedCropRequest {
             uncropped,
