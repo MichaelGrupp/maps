@@ -1,4 +1,5 @@
 use eframe::egui;
+use eframe::emath::GuiRounding as _;
 
 use crate::rect_helpers::{debug_paint, quantized_intersection, rotate};
 use crate::value_interpretation::ValueInterpretation;
@@ -189,6 +190,11 @@ impl RotatedCropRequest {
                 placement.points_per_pixel,
             )
         };
+
+        // Round visible_rect matching egui 0.32's "pixel-perfect" paint_at behavior.
+        // See also: https://github.com/emilk/egui/pull/7078
+        let pixels_per_point = ui.pixels_per_point();
+        let visible_rect = visible_rect.round_to_pixels(pixels_per_point);
 
         RotatedCropRequest {
             uncropped,
