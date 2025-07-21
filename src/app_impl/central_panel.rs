@@ -192,14 +192,16 @@ impl AppState {
             window = window.open(&mut open);
         }
         window.show(ui.ctx(), |ui| {
-            if let Some(center_pos) = center_pos {
-                // Show the lens grid.
-                // Crop threshold is set to 0 to always crop the textures in a lens.
-                let mini_grid = Grid::new(ui, id, grid_lens_scale)
-                    .centered_at(center_pos)
-                    .with_texture_crop_threshold(0);
-                // Ensure that the lens uses the same background color as the main grid canvas.
-                mini_grid.draw_background(self.options.canvas_settings.background_color);
+            // Show the lens grid.
+            // Crop threshold is set to 0 to always crop the textures in a lens.
+            let mini_grid = Grid::new(ui, id, grid_lens_scale)
+                .centered_at(center_pos.unwrap_or_default())
+                .with_texture_crop_threshold(0);
+            // Always fill the lens window with a background rectangle.
+            // Ensure that the lens uses the same background color as the main grid canvas.
+            mini_grid.draw_background(self.options.canvas_settings.background_color);
+            // Only show actual data if the center is set (can be None when hover lens loses focus).
+            if center_pos.is_some() {
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
                     mini_grid.draw(options, LineType::Main);
