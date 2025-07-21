@@ -39,7 +39,7 @@ impl ImagePyramid {
                         Some(parent_level) => parent_level,
                         None => &original,
                     };
-                    if max(original.width(), original.height()) < size {
+                    if max(original.width(), original.height()) <= size {
                         continue;
                     }
                     debug!(
