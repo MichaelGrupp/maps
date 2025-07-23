@@ -205,7 +205,11 @@ impl AppState {
             }
             if let Some(active_tint_selection) = &self.options.tint_settings.active_tint_selection {
                 if active_tint_selection == name {
-                    self.options.tint_settings.active_tint_selection = None;
+                    // Set the selection to one of the remaining maps if possible.
+                    // This avoids falling back to "All" (None) when there are still
+                    // other maps with potentially custom tints.
+                    self.options.tint_settings.active_tint_selection =
+                        self.data.maps.keys().last().map(|s| s.to_string());
                 }
             }
             if self.options.pose_edit.selected_map == *name {
