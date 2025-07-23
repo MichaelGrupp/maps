@@ -216,14 +216,16 @@ impl Grid {
     pub fn update_drag_and_zoom(&self, ui: &mut egui::Ui, options: &mut GridOptions) {
         // Scaled because meters are expected for drag().
         options.drag(self.response.drag_delta() / options.scale);
-        if self.response.hovered() {
+        if let Some(hover_pos) = self.response.hover_pos() {
             // Only zoom if the mouse is in the grid region.
-            ui.input(|i| {
-                let scale_delta = i.smooth_scroll_delta.y * options.scroll_delta_percent;
-                if scale_delta != 0. {
-                    options.zoom(scale_delta);
-                }
-            });
+            let scale_delta = ui.input(|i| i.smooth_scroll_delta.y * options.scroll_delta_percent);
+            if scale_delta != 0. {
+                // Keep the zoom centered at the mouse position, to keep the same metric point
+                // at the same screen position before and after the zoom.
+                // This is similar to how Google or Apple Maps zoom work.
+                let target_pos = hover_pos - self.painter.clip_rect().center().to_vec2();
+                options.zoom(scale_delta, Some(target_pos));
+            }
         }
     }
 

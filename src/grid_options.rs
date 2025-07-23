@@ -155,13 +155,22 @@ impl default::Default for GridOptions {
 
 impl GridOptions {
     /// Changes the grid scale according to a relative delta in percent.
-    pub fn zoom(&mut self, delta_percent: f32) {
-        // Viewport-centered zoom.
+    /// If `target_pos` is given, the zoom will keep that point at the same screen position.
+    /// Otherwise, the zoom will just proportionally scale the offset (viewport-centered zoom).
+    /// `target_pos` has to be a screen space position relative to the viewport center.
+    pub fn zoom(&mut self, delta_percent: f32, target_pos: Option<egui::Pos2>) {
         let old_scale = self.scale;
         self.scale += delta_percent * 0.01 * self.scale;
         self.scale = self.scale.clamp(self.min_scale, self.max_scale);
         let scale_factor = self.scale / old_scale;
-        self.offset *= scale_factor;
+        if let Some(target_pos) = target_pos {
+            // Keep the target point at the same screen position.
+            let offset_delta = (target_pos - self.offset) * (1. - scale_factor);
+            self.offset += offset_delta.to_vec2();
+        } else {
+            // Viewport-centered zoom.
+            self.offset *= scale_factor;
+        }
     }
 }
 
