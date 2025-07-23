@@ -332,6 +332,8 @@ impl AppState {
                                 self.options.tint_settings.active_tint_selection =
                                     Some(name.clone());
                             }
+                            self.tile_manager
+                                .set_visible(map_name.as_str(), map.visible);
                             map_state.color_to_alpha = map.color_to_alpha;
                             self.status.unsaved_changes = false;
                         }
