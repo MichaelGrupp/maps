@@ -15,8 +15,6 @@ pub struct Grid {
     pub name: String,
     /// Screen space offset of the grid's UI area.
     ui_offset: egui::Vec2,
-    /// Extent of the map in meters (width, height).
-    pub metric_extent: egui::Vec2,
     /// Display scale of the grid: how many points per meter?
     pub points_per_meter: f32,
     /// Location of the origin in point coordinates.
@@ -88,7 +86,6 @@ impl Grid {
         Grid {
             name: name.to_string(),
             ui_offset,
-            metric_extent: paint_rect_size * points_per_meter,
             points_per_meter,
             origin_in_points: (paint_rect_size / 2.).to_pos2() + ui_offset,
             texture_crop_threshold: 0,
@@ -237,15 +234,18 @@ impl Grid {
         spacing_points: f32,
         label_text_options: &Option<LabelTextOptions>,
     ) {
-        let mut x = self.origin_in_points.x;
-        while x > 0. {
-            self.draw_vertical_line(x, options, line_type, label_text_options);
-            x -= spacing_points;
-        }
-        x = self.origin_in_points.x + spacing_points;
-        while x < self.painter.clip_rect().width() + self.ui_offset.x {
-            self.draw_vertical_line(x, options, line_type, label_text_options);
-            x += spacing_points;
+        // Calculate how many grid lines we need on each side of the origin.
+        let left_bound = self.ui_offset.x;
+        let right_bound = self.painter.clip_rect().width() + self.ui_offset.x;
+        let left_lines = ((self.origin_in_points.x - left_bound) / spacing_points).ceil() as i32;
+        let right_lines = ((right_bound - self.origin_in_points.x) / spacing_points).ceil() as i32;
+
+        // Draw lines using range integers to avoid floating point error accumulation.
+        for i in -left_lines..=right_lines {
+            let x = self.origin_in_points.x + (i as f32) * spacing_points;
+            if x >= left_bound && x <= right_bound {
+                self.draw_vertical_line(x, options, line_type, label_text_options);
+            }
         }
     }
 
@@ -256,7 +256,6 @@ impl Grid {
         line_type: &LineType,
         label_text_options: &Option<LabelTextOptions>,
     ) {
-        let bottom = egui::Pos2::new(x, self.metric_extent.y / self.points_per_meter);
         let stroke = match line_type {
             LineType::Main => &options.line_stroke,
             LineType::Sub => &options.sub_lines_stroke,
@@ -272,16 +271,23 @@ impl Grid {
             return;
         }
         if let Some(label_options) = label_text_options {
-            self.painter.text(
-                bottom - label_options.offset + egui::vec2(0., self.ui_offset.y),
-                egui::Align2::LEFT_CENTER,
-                format!(
-                    "{:.1}",
-                    -(self.origin_in_points.x - x) / self.points_per_meter
-                ),
-                label_options.font_id.clone(),
-                options.tick_labels_color,
+            let label_pos = egui::Pos2::new(
+                x,
+                self.painter.clip_rect().height() + self.ui_offset.y - label_options.offset.y,
             );
+            // Only draw label if the corresponding line is within the visible bounds.
+            if x > self.painter.clip_rect().min.x && x < self.painter.clip_rect().max.x {
+                self.painter.text(
+                    label_pos,
+                    egui::Align2::LEFT_CENTER,
+                    format!(
+                        "{:.1}",
+                        -(self.origin_in_points.x - x) / self.points_per_meter
+                    ),
+                    label_options.font_id.clone(),
+                    options.tick_labels_color,
+                );
+            }
         }
     }
 
@@ -292,15 +298,19 @@ impl Grid {
         spacing_points: f32,
         label_text_options: &Option<LabelTextOptions>,
     ) {
-        let mut y = self.origin_in_points.y;
-        while y > 0. {
-            self.draw_horizontal_line(y, options, line_type, label_text_options);
-            y -= spacing_points;
-        }
-        y = self.origin_in_points.y + spacing_points;
-        while y < self.painter.clip_rect().height() + self.ui_offset.y {
-            self.draw_horizontal_line(y, options, line_type, label_text_options);
-            y += spacing_points;
+        // Calculate how many grid lines we need on each side of the origin.
+        let top_bound = self.ui_offset.y;
+        let bottom_bound = self.painter.clip_rect().height() + self.ui_offset.y;
+        let top_lines = ((self.origin_in_points.y - top_bound) / spacing_points).ceil() as i32;
+        let bottom_lines =
+            ((bottom_bound - self.origin_in_points.y) / spacing_points).ceil() as i32;
+
+        // Draw lines using range integers to avoid floating point error accumulation.
+        for i in -top_lines..=bottom_lines {
+            let y = self.origin_in_points.y + (i as f32) * spacing_points;
+            if y >= top_bound && y <= bottom_bound {
+                self.draw_horizontal_line(y, options, line_type, label_text_options);
+            }
         }
     }
 
@@ -327,16 +337,19 @@ impl Grid {
             return;
         }
         if let Some(label_options) = label_text_options {
-            self.painter.text(
-                left + label_options.offset,
-                egui::Align2::LEFT_CENTER,
-                format!(
-                    "{:.1}",
-                    (self.origin_in_points.y - y) / self.points_per_meter
-                ),
-                label_options.font_id.clone(),
-                options.tick_labels_color,
-            );
+            // Only draw label if the corresponding line is within the visible bounds.
+            if y > self.painter.clip_rect().min.y && y < self.painter.clip_rect().max.y {
+                self.painter.text(
+                    left + label_options.offset,
+                    egui::Align2::LEFT_CENTER,
+                    format!(
+                        "{:.1}",
+                        (self.origin_in_points.y - y) / self.points_per_meter
+                    ),
+                    label_options.font_id.clone(),
+                    options.tick_labels_color,
+                );
+            }
         }
     }
 
