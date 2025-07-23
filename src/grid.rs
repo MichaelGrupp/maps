@@ -70,6 +70,11 @@ struct LabelTextOptions {
     offset: egui::Vec2,
 }
 
+enum LineDirection {
+    Vertical,
+    Horizontal,
+}
+
 impl Grid {
     /// Creates a new grid to be drawn in the available space of the given `ui`
     /// with the desired scale defined by `points_per_meter`.
@@ -227,134 +232,8 @@ impl Grid {
             .rect_filled(self.painter.clip_rect(), 0., color);
     }
 
-    fn draw_vertical_lines(
-        &self,
-        options: &GridOptions,
-        line_type: &LineType,
-        spacing_points: f32,
-        label_text_options: &Option<LabelTextOptions>,
-    ) {
-        // Calculate how many grid lines we need on each side of the origin.
-        let left_bound = self.ui_offset.x;
-        let right_bound = self.painter.clip_rect().width() + self.ui_offset.x;
-        let left_lines = ((self.origin_in_points.x - left_bound) / spacing_points).ceil() as i32;
-        let right_lines = ((right_bound - self.origin_in_points.x) / spacing_points).ceil() as i32;
-
-        // Draw lines using range integers to avoid floating point error accumulation.
-        for i in -left_lines..=right_lines {
-            let x = self.origin_in_points.x + (i as f32) * spacing_points;
-            if x >= left_bound && x <= right_bound {
-                self.draw_vertical_line(x, options, line_type, label_text_options);
-            }
-        }
-    }
-
-    fn draw_vertical_line(
-        &self,
-        x: f32,
-        options: &GridOptions,
-        line_type: &LineType,
-        label_text_options: &Option<LabelTextOptions>,
-    ) {
-        let stroke = match line_type {
-            LineType::Main => &options.line_stroke,
-            LineType::Sub => &options.sub_lines_stroke,
-        };
-        self.painter.line_segment(
-            [
-                egui::Pos2::new(x, 0.),
-                egui::Pos2::new(x, self.painter.clip_rect().height() + self.ui_offset.y),
-            ],
-            *stroke,
-        );
-        if !options.tick_labels_visible {
-            return;
-        }
-        if let Some(label_options) = label_text_options {
-            let label_pos = egui::Pos2::new(
-                x,
-                self.painter.clip_rect().height() + self.ui_offset.y - label_options.offset.y,
-            );
-            // Only draw label if the corresponding line is within the visible bounds.
-            if x > self.painter.clip_rect().min.x && x < self.painter.clip_rect().max.x {
-                self.painter.text(
-                    label_pos,
-                    egui::Align2::LEFT_CENTER,
-                    format!(
-                        "{:.1}",
-                        -(self.origin_in_points.x - x) / self.points_per_meter
-                    ),
-                    label_options.font_id.clone(),
-                    options.tick_labels_color,
-                );
-            }
-        }
-    }
-
-    fn draw_horizontal_lines(
-        &self,
-        options: &GridOptions,
-        line_type: &LineType,
-        spacing_points: f32,
-        label_text_options: &Option<LabelTextOptions>,
-    ) {
-        // Calculate how many grid lines we need on each side of the origin.
-        let top_bound = self.ui_offset.y;
-        let bottom_bound = self.painter.clip_rect().height() + self.ui_offset.y;
-        let top_lines = ((self.origin_in_points.y - top_bound) / spacing_points).ceil() as i32;
-        let bottom_lines =
-            ((bottom_bound - self.origin_in_points.y) / spacing_points).ceil() as i32;
-
-        // Draw lines using range integers to avoid floating point error accumulation.
-        for i in -top_lines..=bottom_lines {
-            let y = self.origin_in_points.y + (i as f32) * spacing_points;
-            if y >= top_bound && y <= bottom_bound {
-                self.draw_horizontal_line(y, options, line_type, label_text_options);
-            }
-        }
-    }
-
-    fn draw_horizontal_line(
-        &self,
-        y: f32,
-        options: &GridOptions,
-        line_type: &LineType,
-        label_text_options: &Option<LabelTextOptions>,
-    ) {
-        let left = egui::Pos2::new(self.ui_offset.x, y);
-        let stroke = match line_type {
-            LineType::Main => &options.line_stroke,
-            LineType::Sub => &options.sub_lines_stroke,
-        };
-        self.painter.line_segment(
-            [
-                left,
-                egui::Pos2::new(self.painter.clip_rect().width() + self.ui_offset.x, y),
-            ],
-            *stroke,
-        );
-        if !options.tick_labels_visible {
-            return;
-        }
-        if let Some(label_options) = label_text_options {
-            // Only draw label if the corresponding line is within the visible bounds.
-            if y > self.painter.clip_rect().min.y && y < self.painter.clip_rect().max.y {
-                self.painter.text(
-                    left + label_options.offset,
-                    egui::Align2::LEFT_CENTER,
-                    format!(
-                        "{:.1}",
-                        (self.origin_in_points.y - y) / self.points_per_meter
-                    ),
-                    label_options.font_id.clone(),
-                    options.tick_labels_color,
-                );
-            }
-        }
-    }
-
     /// Draws vertical & horizontal grid lines according to the desired options and line type.
-    pub fn draw(&self, options: &GridOptions, line_type: LineType) {
+    pub fn draw_lines(&self, options: &GridOptions, line_type: LineType) {
         if !options.lines_visible {
             return;
         }
@@ -378,8 +257,95 @@ impl Grid {
             LineType::Sub => None,
         };
 
-        self.draw_vertical_lines(options, &line_type, spacing_points, &label_text_options);
-        self.draw_horizontal_lines(options, &line_type, spacing_points, &label_text_options);
+        // Draw both vertical and horizontal lines.
+        for direction in [LineDirection::Vertical, LineDirection::Horizontal] {
+            let (origin_coord, min_bound, max_bound) = match direction {
+                LineDirection::Vertical => (
+                    self.origin_in_points.x,
+                    self.ui_offset.x,
+                    self.painter.clip_rect().width() + self.ui_offset.x,
+                ),
+                LineDirection::Horizontal => (
+                    self.origin_in_points.y,
+                    self.ui_offset.y,
+                    self.painter.clip_rect().height() + self.ui_offset.y,
+                ),
+            };
+
+            // Calculate how many grid lines we need on each side of the origin.
+            let neg_lines = ((origin_coord - min_bound) / spacing_points).ceil() as i32;
+            let pos_lines = ((max_bound - origin_coord) / spacing_points).ceil() as i32;
+
+            // Draw lines using range integers to avoid floating point error accumulation.
+            for i in -neg_lines..=pos_lines {
+                let coord = origin_coord + (i as f32) * spacing_points;
+                if coord >= min_bound && coord <= max_bound {
+                    self.draw_line(coord, options, &line_type, &label_text_options, &direction);
+                }
+            }
+        }
+    }
+
+    fn draw_line(
+        &self,
+        coord: f32,
+        options: &GridOptions,
+        line_type: &LineType,
+        label_text_options: &Option<LabelTextOptions>,
+        direction: &LineDirection,
+    ) {
+        let stroke = match line_type {
+            LineType::Main => &options.line_stroke,
+            LineType::Sub => &options.sub_lines_stroke,
+        };
+
+        // Draw the line segment.
+        let (start_pos, end_pos) = match direction {
+            LineDirection::Vertical => (
+                egui::Pos2::new(coord, 0.),
+                egui::Pos2::new(coord, self.painter.clip_rect().height() + self.ui_offset.y),
+            ),
+            LineDirection::Horizontal => (
+                egui::Pos2::new(self.ui_offset.x, coord),
+                egui::Pos2::new(self.painter.clip_rect().width() + self.ui_offset.x, coord),
+            ),
+        };
+        self.painter.line_segment([start_pos, end_pos], *stroke);
+
+        // Draw label, if enabled.
+        if !options.tick_labels_visible {
+            return;
+        }
+        let Some(label_text_options) = label_text_options else {
+            return;
+        };
+        let (label_pos, label_value, line_visible) = match direction {
+            LineDirection::Vertical => (
+                egui::Pos2::new(
+                    coord,
+                    self.painter.clip_rect().height() + self.ui_offset.y
+                        - label_text_options.offset.y,
+                ),
+                -(self.origin_in_points.x - coord) / self.points_per_meter,
+                coord > self.painter.clip_rect().min.x && coord < self.painter.clip_rect().max.x,
+            ),
+            LineDirection::Horizontal => (
+                egui::Pos2::new(self.ui_offset.x, coord) + label_text_options.offset,
+                (self.origin_in_points.y - coord) / self.points_per_meter,
+                coord > self.painter.clip_rect().min.y && coord < self.painter.clip_rect().max.y,
+            ),
+        };
+
+        // Only draw label if the corresponding line is within the visible bounds.
+        if line_visible {
+            self.painter.text(
+                label_pos,
+                egui::Align2::LEFT_CENTER,
+                format!("{:.1}", label_value),
+                label_text_options.font_id.clone(),
+                options.tick_labels_color,
+            );
+        }
     }
 
     /// Draws XYZ coordinate axes at the pose.

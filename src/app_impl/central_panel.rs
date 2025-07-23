@@ -95,10 +95,10 @@ impl AppState {
 
         grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
         if options.lines_visible {
-            grid.draw(options, LineType::Main);
+            grid.draw_lines(options, LineType::Main);
         }
         if options.sub_lines_visible == SubLineVisibility::Always {
-            grid.draw(options, LineType::Sub);
+            grid.draw_lines(options, LineType::Sub);
         }
         if options.marker_visibility.zero_visible() {
             grid.draw_axes(options, None);
@@ -204,12 +204,12 @@ impl AppState {
             if center_pos.is_some() {
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
-                    mini_grid.draw(options, LineType::Main);
+                    mini_grid.draw_lines(options, LineType::Main);
                 }
                 if options.sub_lines_visible == SubLineVisibility::Always
                     || options.sub_lines_visible == SubLineVisibility::OnlyLens
                 {
-                    mini_grid.draw(options, LineType::Sub);
+                    mini_grid.draw_lines(options, LineType::Sub);
                 }
                 if options.marker_visibility.zero_visible() {
                     mini_grid.draw_axes(options, None);
