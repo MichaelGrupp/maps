@@ -64,7 +64,7 @@ impl AppState {
         ));
     }
 
-    pub fn tool_settings(&mut self, ui: &mut egui::Ui) {
+    pub(crate) fn tool_settings(&mut self, ui: &mut egui::Ui) {
         if !section_heading(ui, "Tools", &mut self.options.collapsed.tool_settings) {
             return;
         }
