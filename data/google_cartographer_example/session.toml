@@ -1,7 +1,11 @@
+version = "1.7.0"
+
 [maps."map_0.yaml"]
 visible = true
-tint = [90, 0, 0, 28]
+tint = [123, 45, 0, 128]
 color_to_alpha = [128, 128, 128, 255]
+texture_filter = "Auto"
+use_value_interpretation = false
 
 [maps."map_0.yaml".meta]
 image_path = "map_0.png"
@@ -16,8 +20,26 @@ y = -34.346099853515625
 s = 0.0
 c = 1.0
 
+[maps."map_0.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."map_0.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
 [maps."map_0.yaml".pose]
-root_frame = "root"
+root_frame = "floor"
 map_frame = "map_0"
 
 [maps."map_0.yaml".pose.translation]
@@ -32,8 +54,10 @@ yaw = -1.4381903409957886
 
 [maps."map_1.yaml"]
 visible = true
-tint = [36, 83, 36, 28]
+tint = [32, 67, 32, 74]
 color_to_alpha = [128, 128, 128, 255]
+texture_filter = "Auto"
+use_value_interpretation = false
 
 [maps."map_1.yaml".meta]
 image_path = "map_1.png"
@@ -47,6 +71,24 @@ y = -127.9000015258789
 [maps."map_1.yaml".meta.origin_theta]
 s = 0.0
 c = 1.0
+
+[maps."map_1.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."map_1.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
 
 [maps."map_1.yaml".pose]
 root_frame = "root"
@@ -64,8 +106,10 @@ yaw = 2.4665026664733887
 
 [maps."map_2.yaml"]
 visible = true
-tint = [93, 46, 72, 28]
+tint = [97, 52, 76, 97]
 color_to_alpha = [128, 128, 128, 255]
+texture_filter = "Auto"
+use_value_interpretation = false
 
 [maps."map_2.yaml".meta]
 image_path = "map_2.png"
@@ -80,9 +124,27 @@ y = -11.934399604797363
 s = 0.0
 c = 1.0
 
+[maps."map_2.yaml".meta.value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."map_2.yaml".meta.original_value_interpretation]
+free = 0.19599999487400055
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
 [maps."map_2.yaml".pose]
-root_frame = "root"
-map_frame = "map_2"
+root_frame = ""
+map_frame = ""
 
 [maps."map_2.yaml".pose.translation]
 x = -6.949980735778809
@@ -94,68 +156,7 @@ roll = 0.0
 pitch = 0.0
 yaw = -1.5293792486190796
 
-[maps."map_3.yaml"]
-visible = false
-tint = [59, 59, 59, 11]
-color_to_alpha = [128, 128, 128, 255]
-
-[maps."map_3.yaml".meta]
-image_path = "map_3.png"
-yaml_path = "map_3.yaml"
-resolution = 0.02500000037252903
-
-[maps."map_3.yaml".meta.origin_xy]
-x = -48.175201416015625
-y = -37.25979995727539
-
-[maps."map_3.yaml".meta.origin_theta]
-s = 0.0
-c = 1.0
-
-[maps."map_3.yaml".pose]
-root_frame = "root"
-map_frame = "map_3"
-
-[maps."map_3.yaml".pose.translation]
-x = 128.11033630371094
-y = 4.049995422363281
-z = 0.0
-
-[maps."map_3.yaml".pose.rotation]
-roll = 0.0
-pitch = 0.0
-yaw = 1.1452771425247192
-
-[maps."map_4.yaml"]
-visible = false
-tint = [59, 59, 59, 11]
-color_to_alpha = [128, 128, 128, 255]
-
-[maps."map_4.yaml".meta]
-image_path = "map_4.png"
-yaml_path = "map_4.yaml"
-resolution = 0.02500000037252903
-
-[maps."map_4.yaml".meta.origin_xy]
-x = -79.39910125732422
-y = -12.390700340270996
-
-[maps."map_4.yaml".meta.origin_theta]
-s = 0.0
-c = 1.0
-
-[maps."map_4.yaml".pose]
-root_frame = "root"
-map_frame = "map_4"
-
-[maps."map_4.yaml".pose.translation]
-x = -8.159992218017578
-y = 17.729990005493164
-z = 0.0
-
-[maps."map_4.yaml".pose.rotation]
-roll = 0.0
-pitch = 0.0
-yaw = -1.3285009860992432
+[draw_order]
+keys = ["map_0.yaml", "map_1.yaml", "map_2.yaml"]
 
 [grid_lenses]

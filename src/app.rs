@@ -143,6 +143,7 @@ pub struct StatusInfo {
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct SessionData {
+    pub version: Option<String>,
     pub maps: BTreeMap<String, MapState>,
     #[serde(default)]
     pub draw_order: DrawOrder,
@@ -205,6 +206,7 @@ impl AppState {
             options,
             ..Default::default()
         };
+        state.data.version = Some(state.options.version.clone());
 
         let mut _default_dir = None;
         for meta in metas {

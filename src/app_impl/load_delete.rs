@@ -18,6 +18,7 @@ use crate::render_options::TextureFilter;
 use crate::tiles::Pane;
 
 use crate::app::{AppState, Error};
+use crate::app_impl::compat::migrate_old_egui_color;
 use crate::map_pose::MapPose;
 use crate::value_interpretation;
 
@@ -314,6 +315,14 @@ impl AppState {
                     .draw_order
                     .extend(&deserialized_session.draw_order);
 
+                // If the session has no version field, it was saved with maps < 1.7.0.
+                // This means that the tint color was serialized with egui < 0.32 and
+                // might need migration.
+                let migrate_colors = deserialized_session.version.is_none();
+                if migrate_colors {
+                    debug!("Session was saved with maps < 1.7.0, migrating serialized colors.");
+                }
+
                 // Not everything gets serialized. Load actual data.
                 for (name, map) in deserialized_session.maps {
                     debug!("Restoring map state: {}", name);
@@ -323,6 +332,9 @@ impl AppState {
                             map_state.pose = map.pose;
                             map_state.visible = map.visible;
                             map_state.tint = map.tint;
+                            if migrate_colors {
+                                map_state.tint = migrate_old_egui_color(map_state.tint);
+                            }
                             if map_state.tint.is_some()
                                 || map_state.meta.value_interpretation.mode
                                     != value_interpretation::Mode::Raw
@@ -335,6 +347,10 @@ impl AppState {
                             self.tile_manager
                                 .set_visible(map_name.as_str(), map.visible);
                             map_state.color_to_alpha = map.color_to_alpha;
+                            if migrate_colors {
+                                map_state.color_to_alpha =
+                                    migrate_old_egui_color(map_state.color_to_alpha);
+                            }
                             self.status.unsaved_changes = false;
                         }
                         Err(e) => {
