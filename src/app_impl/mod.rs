@@ -1,6 +1,7 @@
 pub(crate) mod app_settings;
 pub(crate) mod canvas_settings;
 pub(crate) mod central_panel;
+mod compat;
 mod constants;
 pub(crate) mod debug_window;
 pub(crate) mod error_modal;
