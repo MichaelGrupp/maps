@@ -2,7 +2,7 @@ version = "1.7.0"
 
 [maps."map_0.yaml"]
 visible = true
-tint = [74, 0, 0, 77]
+tint = [123, 45, 0, 128]
 color_to_alpha = [128, 128, 128, 255]
 texture_filter = "Auto"
 use_value_interpretation = false
