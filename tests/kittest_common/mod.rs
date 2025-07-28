@@ -21,12 +21,7 @@ pub fn snapshot_full_app(app_state: AppState, test_name: &str, size: egui::Vec2)
     let mut harness = HarnessBuilder::default()
         .with_size(size)
         .with_pixels_per_point(PIXELS_PER_POINT)
-        .build_eframe(|cc: &mut eframe::CreationContext| {
-            // This gives us image support:
-            // TODO: still needed? (see also main.rs)
-            egui_extras::install_image_loaders(&cc.egui_ctx);
-            app_state
-        });
+        .build_eframe(|_cc: &mut eframe::CreationContext| app_state);
 
     #[cfg(feature = "kittest_snapshots")]
     harness.snapshot(test_name);

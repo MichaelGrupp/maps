@@ -280,16 +280,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
 
-    eframe::run_native(
-        "maps",
-        options,
-        Box::new(|cc| {
-            // This gives us image support:
-            // TODO: still needed?
-            egui_extras::install_image_loaders(&cc.egui_ctx);
-            Ok(app_state)
-        }),
-    )
+    eframe::run_native("maps", options, Box::new(|_cc| Ok(app_state)))
 }
 
 #[cfg(target_arch = "wasm32")]
