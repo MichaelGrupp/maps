@@ -2,7 +2,6 @@ use eframe::egui;
 use serde::{Deserialize, Serialize};
 
 use crate::app::{AppState, ViewMode};
-use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::section_heading;
 
 const MIN_STACK_SCALE: f32 = 1.0;
@@ -40,7 +39,6 @@ impl AppState {
         if self.options.collapsed.canvas_settings {
             return;
         }
-        ui.add_space(SPACE);
         ui.end_row();
         ui.label("Dark / Light mode");
         // Theme is applied in main update(), to ensure it's also applied when this ui is hidden.
