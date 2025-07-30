@@ -52,6 +52,7 @@ impl AppState {
                             }
                             ui.separator();
                         }
+                        egui::warn_if_debug_build(ui);
                     });
                 });
             },
