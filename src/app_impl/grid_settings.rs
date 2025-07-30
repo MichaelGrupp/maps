@@ -1,7 +1,6 @@
 use eframe::egui;
 
 use crate::app::AppState;
-use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::section_heading;
 use crate::grid_options::{GridLineDimension, GridOptions, SubLineVisibility};
 
@@ -14,7 +13,6 @@ impl AppState {
         if self.options.collapsed.grid_settings {
             return;
         }
-        ui.add_space(SPACE);
         ui.end_row();
 
         ui.label("Show grid lines");
@@ -68,7 +66,6 @@ impl AppState {
         if !section_heading(ui, "Tools", &mut self.options.collapsed.tool_settings) {
             return;
         }
-        ui.add_space(SPACE);
         ui.end_row();
         ui.label("Measurement color")
             .on_hover_text("Line color of the measurement tool.");

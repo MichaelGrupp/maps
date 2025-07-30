@@ -1,7 +1,6 @@
 use eframe::egui;
 
 use crate::app::AppState;
-use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::section_heading;
 use crate::lens::LensOptions;
 
@@ -14,7 +13,6 @@ impl AppState {
         if self.options.collapsed.lens_settings {
             return;
         }
-        ui.add_space(SPACE);
         ui.end_row();
         ui.label("Lens size (meters)");
         ui.add(egui::Slider::new(

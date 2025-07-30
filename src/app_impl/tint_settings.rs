@@ -4,7 +4,6 @@ use eframe::egui;
 use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
-use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::{display_path, section_heading};
 use crate::render_options::TextureFilter;
 use crate::value_colormap::ColorMap;
@@ -47,7 +46,6 @@ impl AppState {
         if !section_heading(ui, "Blend", &mut self.options.collapsed.tint_settings) {
             return;
         }
-        ui.add_space(SPACE);
         ui.end_row();
 
         let all_key = "< All >".to_string();
