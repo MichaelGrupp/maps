@@ -75,7 +75,7 @@ At its core, `maps` is an image viewer that is aware of the metric properties of
 ### Intuitive
   * Maps of different resolutions can be displayed in a shared coordinate system with correct scale and position.
   * Details of large maps can be quickly inspected using a lens tool without zooming & dragging.
-  * Several keybindings make it fast to use, e.g. `W A S D` for moving and `Q E` for rotating.
+  * Several keybindings make it fast to use, e.g. `W A S D` for moving and `Q E` for rotating, zoom via scroll or touch gesture, etc.
   * Files can be loaded both via GUI and CLI.
   * Sessions can be saved and loaded at a later point to continue working, settings are autosaved by default.
   * No context menus or other hidden UI.
