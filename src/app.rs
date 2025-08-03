@@ -44,9 +44,7 @@ pub enum ViewMode {
     Aligned,
 }
 
-#[derive(
-    Clone, Debug, Display, Default, PartialEq, Serialize, Deserialize, EnumString, VariantNames,
-)]
+#[derive(Clone, Debug, Display, Default, PartialEq, EnumString, VariantNames)]
 pub enum ActiveMovable {
     None,
     #[strum(to_string = "Map Pose")]
@@ -106,6 +104,7 @@ pub struct AppOptions {
     pub tint_settings: TintOptions,
     #[serde(skip)]
     pub pose_edit: PoseEditOptions,
+    #[serde(skip)]
     pub active_movable: ActiveMovable,
     #[serde(skip)]
     pub active_tool: ActiveTool,
