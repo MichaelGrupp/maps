@@ -35,6 +35,9 @@ fn main() {
         .grid_lenses
         .insert("test".to_string(), egui::pos2(-10., 15.));
 
+    // Test that the footer can show a selector for the active movable map.
+    app_state.options.active_movable = maps::app::ActiveMovable::MapPose;
+
     snapshot_full_app(
         app_state,
         "fixed_lens_background",
