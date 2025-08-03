@@ -177,6 +177,10 @@ impl AppState {
             ui.ctx().request_repaint();
         }
 
+        if moving_via_keyboard && self.options.active_movable == ActiveMovable::MapPose {
+            self.status.unsaved_changes = true;
+        }
+
         if let Some(preset) = selected_move_preset {
             match self.options.active_movable {
                 ActiveMovable::MapPose => self.options.pose_edit.movable_amounts = preset,
