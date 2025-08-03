@@ -16,25 +16,41 @@ pub struct PoseEditOptions {
 }
 
 impl AppState {
+    pub(crate) fn pose_edit_combo_box(&mut self, ui: &mut egui::Ui) {
+        if self.data.maps.is_empty() {
+            self.options.active_movable = ActiveMovable::Grid;
+            return;
+        }
+        // Default to first map if the movable is changed and there's nothing selected yet.
+        if self.options.active_movable == ActiveMovable::MapPose
+            && self.options.pose_edit.selected_map.is_empty()
+        {
+            self.options.pose_edit.selected_map =
+                self.data.maps.keys().next().cloned().unwrap_or_default();
+        }
+        // Show combo box to select the map for pose editing.
+        egui::ComboBox::from_label("")
+            .selected_text(display_path(
+                &self.options.pose_edit.selected_map,
+                self.options.display.show_full_paths,
+            ))
+            .show_ui(ui, |ui| {
+                for name in self.data.maps.keys() {
+                    ui.selectable_value(
+                        &mut self.options.pose_edit.selected_map,
+                        name.clone(),
+                        display_path(name, self.options.display.show_full_paths),
+                    )
+                    .on_hover_text(name);
+                }
+            });
+    }
+
     pub(crate) fn pose_edit(&mut self, ui: &mut egui::Ui) {
         // ComboBox is in a horizontal scroll to not take too much space for long paths.
         // Waiting for: https://github.com/emilk/egui/discussions/1829
         egui::ScrollArea::horizontal().show(ui, |ui| {
-            egui::ComboBox::from_label("")
-                .selected_text(display_path(
-                    &self.options.pose_edit.selected_map,
-                    self.options.display.show_full_paths,
-                ))
-                .show_ui(ui, |ui| {
-                    for name in self.data.maps.keys() {
-                        ui.selectable_value(
-                            &mut self.options.pose_edit.selected_map,
-                            name.clone(),
-                            display_path(name, self.options.display.show_full_paths),
-                        )
-                        .on_hover_text(name);
-                    }
-                });
+            self.pose_edit_combo_box(ui);
         });
 
         let map_name = self.options.pose_edit.selected_map.clone();

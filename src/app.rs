@@ -44,9 +44,12 @@ pub enum ViewMode {
     Aligned,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, Display, Default, PartialEq, Serialize, Deserialize, EnumString, VariantNames,
+)]
 pub enum ActiveMovable {
     None,
+    #[strum(to_string = "Map Pose")]
     MapPose,
     #[default]
     Grid,

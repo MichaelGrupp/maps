@@ -1,9 +1,34 @@
 use eframe::egui;
 use log::log_enabled;
 
-use crate::app::{AppState, ViewMode};
+use crate::app::{ActiveMovable, AppState, ViewMode};
 
 impl AppState {
+    fn select_movable(&mut self, ui: &mut egui::Ui) {
+        if self.options.active_movable == ActiveMovable::MapPose {
+            // Show a combo box to select the map for pose editing.
+            self.pose_edit_combo_box(ui);
+        }
+        // Show combo box to select the active movable.
+        egui::ComboBox::from_label("Movable:")
+            .width(0.)  // Fit as small as possible.
+            .selected_text(self.options.active_movable.to_string())
+            .show_ui(ui, |ui| {
+                ui.selectable_value(
+                    &mut self.options.active_movable,
+                    ActiveMovable::MapPose,
+                    "Map Pose",
+                );
+                ui.selectable_value(
+                    &mut self.options.active_movable,
+                    ActiveMovable::Grid,
+                    "Grid",
+                );
+            })
+            .response
+            .on_hover_text("Select what can be moved by the WASD/QE keys.");
+    }
+
     pub(crate) fn footer_panel(&mut self, ui: &mut egui::Ui) {
         egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Bottom, "footer").show(
             ui.ctx(),
@@ -52,6 +77,15 @@ impl AppState {
                             }
                             ui.separator();
                         }
+                        ui.scope(|ui| {
+                            // Fill combo box also with dark color to fit the style of the footer panel.
+                            ui.visuals_mut().widgets.inactive.weak_bg_fill =
+                                ui.visuals().window_fill();
+                            if self.options.view_mode == ViewMode::Aligned {
+                                self.select_movable(ui);
+                                ui.separator();
+                            }
+                        });
                         egui::warn_if_debug_build(ui);
                     });
                 });
