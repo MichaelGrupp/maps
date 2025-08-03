@@ -16,7 +16,7 @@ use maps::meta::Meta;
 use maps::persistence::{load_app_options, save_session};
 use strum::VariantNames;
 
-const MIN_SIZE: egui::Vec2 = egui::vec2(300., 200.);
+const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
 
 #[cfg(not(target_arch = "wasm32"))]
 #[derive(Parser, Debug)]
