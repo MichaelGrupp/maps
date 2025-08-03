@@ -122,7 +122,7 @@ impl AppState {
             }
         } else if let Some(map) = self.data.maps.get_mut(selected) {
             let tint = map.tint.get_or_insert(NO_TINT);
-            let mut edit_color_to_alpha = map.color_to_alpha.is_some();
+            let mut edit_color_to_alpha = map.color_to_alpha.is_some() && !reset;
             let color_to_alpha = &mut map.color_to_alpha;
 
             if reset {
