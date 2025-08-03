@@ -218,7 +218,15 @@ impl Grid {
         options.drag(self.response.drag_delta() / options.scale);
         if let Some(hover_pos) = self.response.hover_pos() {
             // Only zoom if the mouse is in the grid region.
-            let scale_delta = ui.input(|i| i.smooth_scroll_delta.y * options.scroll_delta_percent);
+            let scale_delta = ui.input(|i| {
+                if i.zoom_delta() != 1. {
+                    // Pinch-gesture zoom.
+                    (i.zoom_delta() - 1.) * 100.
+                } else {
+                    // Scrolling.
+                    i.smooth_scroll_delta.y * options.scroll_delta_percent
+                }
+            });
             if scale_delta != 0. {
                 // Keep the zoom centered at the mouse position, to keep the same metric point
                 // at the same screen position before and after the zoom.

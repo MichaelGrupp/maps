@@ -48,6 +48,9 @@ impl AppState {
                         'Tiles'/'Stacked' view, if active.",
                         );
                         ui.end_row();
+                        ui.label("pinch gesture");
+                        ui.label("Zoom grid in 'Aligned' view using a touchpad or touchscreen.");
+                        ui.end_row();
                         ui.label("left click / l");
                         ui.label("Toggle hovering lens.");
                         ui.end_row();
