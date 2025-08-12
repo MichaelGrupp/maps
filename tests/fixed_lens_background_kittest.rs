@@ -1,7 +1,6 @@
 mod kittest_common;
 
 use eframe::egui;
-use env_logger;
 
 use kittest_common::*;
 use maps::app::{AppOptions, AppState, CanvasOptions, GridOptions, TintOptions};

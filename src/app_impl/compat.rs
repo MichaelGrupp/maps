@@ -10,15 +10,12 @@ use eframe::egui::Color32;
 /// Related: https://github.com/emilk/egui/pull/5824
 /// https://github.com/emilk/egui/pull/7311
 pub(crate) fn migrate_old_egui_color(old_color: Option<Color32>) -> Option<Color32> {
-    let Some(old_color) = old_color else {
-        return None;
-    };
-    let [r, g, b, a] = old_color.to_array();
+    let [r, g, b, a] = old_color?.to_array();
 
     // Handle special cases where migration isn't needed.
     // Fully transparent or opaque colors are fine.
     if a == 0 || a == 255 {
-        return Some(old_color);
+        return old_color;
     }
 
     // Convert premultiplied gamma values to linear space.
