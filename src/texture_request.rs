@@ -113,6 +113,11 @@ pub struct ImagePlacement {
 }
 
 impl RotatedCropRequest {
+    /// Returns true if this request represents a full texture (not a crop).
+    pub fn is_full_texture(&self) -> bool {
+        self.uv[0] == egui::Pos2::ZERO && self.uv[1] == egui::pos2(1.0, 1.0)
+    }
+
     /// Pre-calculate the minimal, unrotated crop that is needed to show the rotated surface in the viewport.
     /// I.e. neither clipping too much nor making the texture unnecessarily large / inefficient.
     /// Enable trace log level to see what is going on (I spent too much time figuring this out).

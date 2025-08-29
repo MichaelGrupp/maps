@@ -22,6 +22,7 @@ mod path_helpers;
 pub mod persistence;
 mod rect_helpers;
 mod render_options;
+mod texture_cache;
 mod texture_request;
 mod texture_state;
 mod tiles;
