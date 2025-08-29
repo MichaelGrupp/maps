@@ -9,7 +9,6 @@ use crate::image_pyramid::ImagePyramid;
 use crate::map_pose::MapPose;
 use crate::meta::Meta;
 use crate::movable::Draggable;
-use crate::value_interpretation::Mode;
 
 // Embedded demo function with dummy maps (included during compile time) for the wasm target.
 // This is a simple way to provide a demo without the need for a server.
@@ -43,64 +42,71 @@ impl AppState {
             )
             .clicked()
         {
-            self.load_dummy_maps();
+            self.load_demo_maps();
         }
     }
 
-    fn load_dummy_maps(&mut self) {
-        let name_1 = "dummy_map_lores.yaml".to_string();
-        let img_1 = Arc::new(ImagePyramid::new(
-            load_image_from_bytes(include_bytes!("../../data/dummy_maps/dummy_map_lores.png"))
-                .expect("broken demo"),
-        ));
-        let meta_1 = Meta::load_from_bytes(
-            include_bytes!("../../data/dummy_maps/dummy_map_lores.yaml"),
-            &name_1,
-        )
-        .expect("broken demo");
-        self.add_map(&name_1, meta_1, img_1);
+    fn load_demo_maps(&mut self) {
+        let tints = [
+            egui::Color32::from_rgba_premultiplied(123, 45, 0, 128),
+            egui::Color32::from_rgba_premultiplied(32, 67, 32, 74),
+            egui::Color32::from_rgba_premultiplied(97, 52, 76, 97),
+        ];
 
-        let name_2 = "dummy_map_hires.yaml".to_string();
-        let img_2 = Arc::new(ImagePyramid::new(
-            load_image_from_bytes(include_bytes!("../../data/dummy_maps/dummy_map_hires.png"))
-                .expect("broken demo"),
-        ));
-        let meta_2 = Meta::load_from_bytes(
-            include_bytes!("../../data/dummy_maps/dummy_map_hires.yaml"),
-            &name_2,
-        )
-        .expect("broken demo");
-        self.add_map(&name_2, meta_2, img_2);
+        // Macro for loading the cartographer maps at compile time.
+        // Note that we use JPEG version here for smaller wasm size.
+        macro_rules! load_map {
+            ($index:literal) => {{
+                let name = format!("map_{}.yaml", $index);
+                let img = Arc::new(ImagePyramid::new(
+                    load_image_from_bytes(include_bytes!(concat!(
+                        "../../data/google_cartographer_example/jpeg/map_",
+                        stringify!($index),
+                        ".jpg"
+                    )))
+                    .expect("broken demo"),
+                ));
+                let meta = Meta::load_from_bytes(
+                    include_bytes!(concat!(
+                        "../../data/google_cartographer_example/map_",
+                        stringify!($index),
+                        ".yaml"
+                    )),
+                    &name,
+                )
+                .expect("broken demo");
+                self.add_map(&name, meta, img);
 
-        // Change some random stuff to make it more interesting.
-        let map_1 = self.data.maps.get_mut(&name_1).expect("missing demo map");
-        map_1.use_value_interpretation = true;
-        map_1.meta.value_interpretation.mode = Mode::Trinary;
-        map_1.tint = Some(egui::Color32::from_white_alpha(128));
-        map_1.pose = MapPose::from_bytes(include_bytes!(
-            "../../data/google_cartographer_example/pose_1.yaml"
-        ))
-        .expect("broken demo");
+                let map = self.data.maps.get_mut(&name).expect("missing demo map");
+                map.tint = Some(tints[$index]);
+                map.color_to_alpha = Some(egui::Color32::from_gray(128));
+                map.pose = MapPose::from_bytes(include_bytes!(concat!(
+                    "../../data/google_cartographer_example/pose_",
+                    stringify!($index),
+                    ".yaml"
+                )))
+                .expect("broken demo");
+            }};
+        }
 
-        let map_2 = self.data.maps.get_mut(&name_2).expect("missing demo map");
-        map_2.tint = Some(egui::Color32::from_white_alpha(128));
-        map_2.pose.map_frame = "map_2".to_string();
-        map_2.pose.root_frame = "root".to_string();
+        // Load maps 0, 1, and 2
+        load_map!(0);
+        load_map!(1);
+        load_map!(2);
 
-        self.options.tint_settings.active_tint_selection = Some(name_1.clone());
-        self.options.grid.scale = 4.5;
-        self.options.grid.drag(egui::vec2(0., 30.));
+        self.options.tint_settings.active_tint_selection = Some("map_2.yaml".to_owned());
+        self.options.grid.scale = 5.5;
+        self.options.grid.drag(egui::vec2(-75., 30.));
         self.options.grid.line_spacing_meters = 25.;
         self.options.grid.marker_visibility = MarkerVisibility::All;
         self.options.grid.marker_length_meters = 5.;
-        self.options.grid.marker_width_meters = 1.;
+        self.options.grid.marker_width_meters = 0.75;
         self.options.canvas_settings.theme_preference = egui::ThemePreference::Dark;
 
         // Collapse some settings to be less overwhelming and to show that it's possible.
         // (show grid settings expanded)
         self.options.collapsed.app_settings = true;
         self.options.collapsed.canvas_settings = true;
-        self.options.collapsed.tint_settings = true;
         self.options.collapsed.tool_settings = true;
     }
 }

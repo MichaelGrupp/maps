@@ -1,0 +1,1 @@
+JPEG versions of the maps for the embedded web demo to have a smaller wasm binary size.
