@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// Textures above this size should be cropped.
 pub const fn default_crop_threshold() -> u32 {
-    4000
+    6000
 }
 
 /// Options for image rendering.
