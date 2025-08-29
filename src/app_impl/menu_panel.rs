@@ -3,6 +3,39 @@ use eframe::egui;
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::display_path;
+use crate::map_state::MapState;
+use crate::texture_request::TextureRequest;
+
+fn map_tooltip(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
+    ui.horizontal_top(|ui| {
+        map.get_or_create_texture_state("tooltip_thumbnail").put(
+            ui,
+            &TextureRequest::new(
+                "tooltip".to_owned(),
+                egui::Rect::from_min_size(egui::Pos2::ZERO, egui::Vec2::splat(100.)),
+            ),
+        );
+        egui::Grid::new("map_info")
+            .striped(true)
+            .num_columns(2)
+            .show(ui, |ui| {
+                ui.label("YAML file path");
+                ui.label(name);
+                ui.end_row();
+                ui.label("Image file path");
+                ui.label(map.meta.image_path.to_str().expect("invalid path?"));
+                ui.end_row();
+                ui.label("Image file size");
+                ui.label(format!(
+                    "{} x {} pixels",
+                    map.image_pyramid.original_size.x, map.image_pyramid.original_size.y
+                ));
+                ui.end_row();
+                ui.label("Resolution");
+                ui.label(format!("{} m/pixel", map.meta.resolution));
+            });
+    });
+}
 
 impl AppState {
     pub(crate) fn menu_panel(&mut self, ui: &mut egui::Ui) {
@@ -49,7 +82,9 @@ impl AppState {
                             &mut map.visible,
                             display_path(name, self.options.display.show_full_paths),
                         )
-                        .on_hover_text(name)
+                        .on_hover_ui(|ui| {
+                            map_tooltip(ui, name, map);
+                        })
                         .changed()
                     {
                         self.tile_manager.set_visible(name, map.visible);
