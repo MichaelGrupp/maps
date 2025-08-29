@@ -1,4 +1,3 @@
-use std::option::Option;
 use std::sync::Arc;
 
 use eframe::egui;
@@ -6,6 +5,7 @@ use log::trace;
 
 use crate::image::{color_to_alpha, fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
+use crate::texture_cache::TextureCache;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
 use crate::value_interpretation::ValueInterpretation;
 
@@ -18,6 +18,9 @@ pub struct TextureState {
     // Use init() to set it.
     pub image_pyramid: Arc<ImagePyramid>,
     pub image_response: Option<egui::Response>,
+    /// Cache of textures for different sizes and appearance settings.
+    texture_cache: TextureCache,
+    /// Currently active texture (reference to one in the cache).
     pub texture_handle: Option<egui::TextureHandle>,
     pub desired_size: egui::Vec2,
     pub desired_uv: [egui::Pos2; 2],
@@ -31,6 +34,7 @@ impl TextureState {
     pub fn new(image_pyramid: Arc<ImagePyramid>) -> TextureState {
         TextureState {
             image_pyramid,
+            texture_cache: TextureCache::new(),
             ..Default::default()
         }
     }
@@ -100,14 +104,61 @@ impl TextureState {
         self.desired_uv != request.uv
     }
 
+    /// Tries to find and use a cached texture for full (non-cropped) textures.
+    /// Returns true if a cached texture was found and applied, false otherwise.
+    fn try_use_cached_texture(
+        &mut self,
+        request: &RotatedCropRequest,
+        desired_size: egui::Vec2,
+    ) -> bool {
+        // Only cache full textures (not crops).
+        if !request.is_full_texture() {
+            return false;
+        }
+
+        let uncropped = self.image_pyramid.get_level(desired_size);
+        let level = uncropped.width().max(uncropped.height());
+
+        // Check if we have a cached texture that matches appearance.
+        if let Some(texture_handle) =
+            self.texture_cache
+                .query(&request.uncropped.client, level, &request.uncropped)
+        {
+            // Reuse cached texture and update state.
+            self.texture_handle = Some(texture_handle);
+            self.used_level = level;
+            self.desired_size = desired_size;
+            self.desired_uv = request.uv;
+            self.desired_color_to_alpha = request.uncropped.color_to_alpha;
+            self.desired_thresholding = request.uncropped.thresholding;
+            self.texture_options = request.uncropped.texture_options.unwrap_or_default();
+            return true;
+        }
+
+        false
+    }
+
     /// Updates the texture state for a new incoming crop/rotate request, if needed.
     /// Chooses the appropriate level from the image pyramid and crops if required.
+    /// Full (non-cropped) textures are cached to avoid reloading when zooming.
+    ///
+    /// Process:
+    /// 1. Try to reuse cached texture for full textures.
+    /// 2. Check if any changes require creating a new texture.
+    /// 3. Create and optionally cache the new texture.
     pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
 
+        // Try to use cached texture for full textures.
+        if self.try_use_cached_texture(request, desired_size) {
+            return;
+        }
+
+        // Check if we need to create a new texture.
         let changed_uncropped = self.changed(&request.uncropped);
         let changed_crop = self.changed_crop(request);
         let changed_appearance = self.changed_appearance(&request.uncropped);
+
         if !(changed_uncropped || changed_crop || changed_appearance) {
             return;
         }
@@ -125,13 +176,6 @@ impl TextureState {
 
         let uncropped = self.image_pyramid.get_level(self.desired_size);
         let level = uncropped.width().max(uncropped.height());
-        if self.texture_handle.is_some()
-            && !changed_crop
-            && !changed_appearance
-            && level == self.used_level
-        {
-            return;
-        }
         self.used_level = level;
 
         trace!("Cropping and reloading texture for {:?}", request);
@@ -152,11 +196,23 @@ impl TextureState {
             thresholding.apply(&mut cropped_image, self.image_pyramid.original_has_alpha);
         }
 
-        self.texture_handle = Some(ui.ctx().load_texture(
-            request.uncropped.client.clone(),
+        let texture_handle = ui.ctx().load_texture(
+            format!("{}_{}", request.uncropped.client, level),
             to_egui_image(cropped_image),
             self.texture_options,
-        ));
+        );
+
+        // Cache full textures for zoom performance.
+        if request.is_full_texture() {
+            self.texture_cache.store(
+                &request.uncropped.client,
+                level,
+                texture_handle.clone(),
+                &request.uncropped,
+            );
+        }
+
+        self.texture_handle = Some(texture_handle);
     }
 
     /// Updates the state and puts the texture into the UI according to the request.
