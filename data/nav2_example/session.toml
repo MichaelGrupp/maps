@@ -1,0 +1,314 @@
+version = "1.8.0"
+
+[maps."depot.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+color_to_alpha = [254, 254, 254, 255]
+texture_filter = "Auto"
+use_value_interpretation = false
+
+[maps."depot.yaml".meta]
+image_path = "depot.png"
+yaml_path = "depot.yaml"
+resolution = 0.05000000074505806
+
+[maps."depot.yaml".meta.origin_xy]
+x = 0.0
+y = 0.0
+
+[maps."depot.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."depot.yaml".meta.value_interpretation]
+free = 0.25
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."depot.yaml".meta.original_value_interpretation]
+free = 0.25
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."depot.yaml".pose]
+root_frame = "root"
+map_frame = "depot"
+
+[maps."depot.yaml".pose.translation]
+x = 41.839996337890625
+y = 43.3699836730957
+z = 0.0
+
+[maps."depot.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -0.7499939203262329
+
+[maps."depot_keepout.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+texture_filter = "Auto"
+use_value_interpretation = true
+
+[maps."depot_keepout.yaml".meta]
+image_path = "depot_keepout.png"
+yaml_path = "depot_keepout.yaml"
+resolution = 0.05000000074505806
+
+[maps."depot_keepout.yaml".meta.origin_xy]
+x = 0.0
+y = 0.0
+
+[maps."depot_keepout.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."depot_keepout.yaml".meta.value_interpretation]
+free = 0.25
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizCostmap"
+
+[maps."depot_keepout.yaml".meta.original_value_interpretation]
+free = 0.25
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."depot_keepout.yaml".pose]
+root_frame = "root"
+map_frame = "depot"
+
+[maps."depot_keepout.yaml".pose.translation]
+x = 41.839996337890625
+y = 43.3699836730957
+z = 0.0
+
+[maps."depot_keepout.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -0.7499939203262329
+
+[maps."depot_speed.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+texture_filter = "Auto"
+use_value_interpretation = true
+
+[maps."depot_speed.yaml".meta]
+image_path = "depot_speed.png"
+yaml_path = "depot_speed.yaml"
+resolution = 0.05000000074505806
+
+[maps."depot_speed.yaml".meta.origin_xy]
+x = 0.0
+y = 0.0
+
+[maps."depot_speed.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."depot_speed.yaml".meta.value_interpretation]
+free = 0.0
+occupied = 1.0
+negate = false
+mode = "scale"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "CoolCostmap"
+
+[maps."depot_speed.yaml".meta.original_value_interpretation]
+free = 0.0
+occupied = 1.0
+negate = false
+mode = "scale"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."depot_speed.yaml".pose]
+root_frame = "root"
+map_frame = "depot"
+
+[maps."depot_speed.yaml".pose.translation]
+x = 41.839996337890625
+y = 43.3699836730957
+z = 0.0
+
+[maps."depot_speed.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = -0.7499939203262329
+
+[maps."warehouse.yaml"]
+visible = true
+tint = [160, 160, 160, 160]
+color_to_alpha = [254, 254, 254, 255]
+texture_filter = "Auto"
+use_value_interpretation = false
+
+[maps."warehouse.yaml".meta]
+image_path = "warehouse.png"
+yaml_path = "warehouse.yaml"
+resolution = 0.029999999329447746
+
+[maps."warehouse.yaml".meta.origin_xy]
+x = -15.100000381469727
+y = -25.0
+
+[maps."warehouse.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."warehouse.yaml".meta.value_interpretation]
+free = 0.10000000149011612
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = false
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."warehouse.yaml".meta.original_value_interpretation]
+free = 0.10000000149011612
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."warehouse.yaml".pose]
+root_frame = "root"
+map_frame = "warehouse"
+
+[maps."warehouse.yaml".pose.translation]
+x = 18.630107879638672
+y = 29.400075912475586
+z = 0.0
+
+[maps."warehouse.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."warehouse_keepout.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+texture_filter = "Auto"
+use_value_interpretation = true
+
+[maps."warehouse_keepout.yaml".meta]
+image_path = "warehouse_keepout.png"
+yaml_path = "warehouse_keepout.yaml"
+resolution = 0.029999999329447746
+
+[maps."warehouse_keepout.yaml".meta.origin_xy]
+x = -15.100000381469727
+y = -25.0
+
+[maps."warehouse_keepout.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."warehouse_keepout.yaml".meta.value_interpretation]
+free = 0.10000000149011612
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizCostmap"
+
+[maps."warehouse_keepout.yaml".meta.original_value_interpretation]
+free = 0.10000000149011612
+occupied = 0.6499999761581421
+negate = false
+mode = "trinary"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."warehouse_keepout.yaml".pose]
+root_frame = "root"
+map_frame = "warehouse"
+
+[maps."warehouse_keepout.yaml".pose.translation]
+x = 18.630107879638672
+y = 29.400075912475586
+z = 0.0
+
+[maps."warehouse_keepout.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[maps."warehouse_speed.yaml"]
+visible = true
+tint = [255, 255, 255, 255]
+texture_filter = "Auto"
+use_value_interpretation = true
+
+[maps."warehouse_speed.yaml".meta]
+image_path = "warehouse_speed.png"
+yaml_path = "warehouse_speed.yaml"
+resolution = 0.029999999329447746
+
+[maps."warehouse_speed.yaml".meta.origin_xy]
+x = -15.100000381469727
+y = -25.0
+
+[maps."warehouse_speed.yaml".meta.origin_theta]
+s = 0.0
+c = 1.0
+
+[maps."warehouse_speed.yaml".meta.value_interpretation]
+free = 0.0
+occupied = 1.0
+negate = false
+mode = "scale"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "CoolCostmap"
+
+[maps."warehouse_speed.yaml".meta.original_value_interpretation]
+free = 0.0
+occupied = 1.0
+negate = false
+mode = "scale"
+explicit_mode = true
+quirks = "Ros1MapServer"
+colormap = "RvizMap"
+
+[maps."warehouse_speed.yaml".pose]
+root_frame = "root"
+map_frame = "warehouse"
+
+[maps."warehouse_speed.yaml".pose.translation]
+x = 18.630107879638672
+y = 29.400075912475586
+z = 0.0
+
+[maps."warehouse_speed.yaml".pose.rotation]
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+[draw_order]
+keys = ["warehouse_speed.yaml", "warehouse_keepout.yaml", "warehouse.yaml", "depot_speed.yaml", "depot_keepout.yaml", "depot.yaml"]
+
+[grid_lenses]
