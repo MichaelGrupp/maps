@@ -18,20 +18,20 @@ const PIXELS_PER_POINT: f32 = 1.;
 /// Does a snapshot diff test unless the "kittest_snapshots" feature is disabled.
 /// To create/update baseline snapshots, run: UPDATE_SNAPSHOTS=1 cargo test
 pub fn snapshot_full_app(app_state: AppState, test_name: &str, size: egui::Vec2) {
-    let mut harness = HarnessBuilder::default()
-        .with_size(size)
-        .with_pixels_per_point(PIXELS_PER_POINT)
-        .build_eframe(|_cc: &mut eframe::CreationContext| app_state);
+    if cfg!(feature = "kittest_snapshots") {
+        let mut harness = HarnessBuilder::default()
+            .with_size(size)
+            .with_pixels_per_point(PIXELS_PER_POINT)
+            .build_eframe(|_cc: &mut eframe::CreationContext| app_state);
 
-    #[cfg(feature = "kittest_snapshots")]
-    harness.snapshot(test_name);
-
-    #[cfg(not(feature = "kittest_snapshots"))]
-    println!(
-        "Snapshot diff test for {} skipped. \
-        Enable the 'kittest_snapshots' feature to run it.",
-        test_name
-    );
+        harness.snapshot(test_name);
+    } else {
+        println!(
+            "Snapshot diff test for {} skipped. \
+            Enable the 'kittest_snapshots' feature to run it.",
+            test_name
+        );
+    }
 }
 
 /// Load the metadata with faked absolute YAML path.

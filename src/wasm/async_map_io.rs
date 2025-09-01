@@ -44,21 +44,20 @@ async fn load_meta(file_handle: &FileHandle) -> Result<Meta, Error> {
 }
 
 fn file_handles_with_extension<'a>(
-    file_handles: &'a Vec<FileHandle>,
+    file_handles: &'a [FileHandle],
     extensions: &[&str],
 ) -> Vec<&'a FileHandle> {
     file_handles
         .iter()
         .filter(|file_handle| {
-            match PathBuf::from(file_handle.file_name())
-                .extension()
-                .unwrap_or_default()
-                .to_str()
-                .expect("non-utf8 extension?")
-            {
-                ext if extensions.contains(&ext) => true,
-                _ => false,
-            }
+            matches!(
+                PathBuf::from(file_handle.file_name())
+                    .extension()
+                    .unwrap_or_default()
+                    .to_str()
+                    .expect("non-utf8 extension?"),
+                ext if extensions.contains(&ext)
+            )
         })
         .collect()
 }
@@ -73,9 +72,9 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
     let future = dialog.pick_files();
 
     wasm_bindgen_futures::spawn_local(async move {
-        let Ok(mut locked_data) = data.try_lock() else {
+        if data.try_lock().is_err() {
             return;
-        };
+        }
 
         let Some(file_handles) = future.await else {
             return;
@@ -83,9 +82,11 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
         let yaml_handles = file_handles_with_extension(&file_handles, &YAML_EXTENSIONS);
         let image_handles = file_handles_with_extension(&file_handles, &IMAGE_EXTENSIONS);
         if yaml_handles.len() != image_handles.len() {
-            locked_data
-                .error
-                .clone_from(&"Select a YAML and image file pair for each map.".to_string());
+            if let Ok(mut locked_data) = data.try_lock() {
+                locked_data
+                    .error
+                    .clone_from(&"Select a YAML and image file pair for each map.".to_string());
+            }
             return;
         }
 
@@ -93,7 +94,9 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
             let meta = match load_meta(yaml_file).await {
                 Ok(meta) => meta,
                 Err(e) => {
-                    locked_data.error.clone_from(&e.message);
+                    if let Ok(mut locked_data) = data.try_lock() {
+                        locked_data.error.clone_from(&e.message);
+                    }
                     return;
                 }
             };
@@ -105,29 +108,34 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
             {
                 Some(image_file) => match load_image(image_file).await {
                     Ok(image) => {
-                        locked_data.metas.push(meta);
-                        locked_data.images.push(image);
+                        if let Ok(mut locked_data) = data.try_lock() {
+                            locked_data.metas.push(meta);
+                            locked_data.images.push(image);
+                        }
                     }
                     Err(e) => {
-                        locked_data.error.clone_from(&e.message);
+                        if let Ok(mut locked_data) = data.try_lock() {
+                            locked_data.error.clone_from(&e.message);
+                        }
                         return;
                     }
                 },
                 None => {
-                    locked_data.error.clone_from(&format!(
-                        "No matching image file found for {:?}. YAML metadata points to {:?}, but \
-                         this file was not selected. Make sure to select the correct image file \
-                         for each YAML file.",
-                        yaml_file.file_name(),
-                        expected_image
-                    ));
+                    if let Ok(mut locked_data) = data.try_lock() {
+                        locked_data.error.clone_from(&format!(
+                                "No matching image file found for {:?}. YAML metadata points to {:?}, but \
+                                 this file was not selected. Make sure to select the correct image file \
+                                 for each YAML file.",
+                                yaml_file.file_name(),
+                                expected_image
+                            ));
+                    }
                     return;
                 }
             }
         }
     });
 }
-
 impl AppState {
     /// wasm-compatible replacement for load_meta_button.
     /// Behaves differently because it needs to be async and requires to

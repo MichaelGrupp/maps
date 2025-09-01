@@ -2,43 +2,9 @@ use std::io::Cursor;
 use std::sync::{Arc, Mutex};
 
 use image::{DynamicImage, ImageFormat};
-use log::info;
-use rfd::{AsyncFileDialog, FileHandle};
+use rfd::AsyncFileDialog;
 
 use crate::wasm::async_data::AsyncData;
-
-#[cfg(target_arch = "wasm32")]
-async fn save_image(
-    data: &mut AsyncData,
-    file_handle: FileHandle,
-    image_name: &str,
-    image: DynamicImage,
-    format: ImageFormat,
-) {
-    let mut buf = Vec::new();
-    match image.write_to(&mut Cursor::new(&mut buf), format) {
-        Ok(_) => {}
-        Err(e) => {
-            data.error
-                .clone_from(&format!("Failed to encode image {}: {:?}", image_name, e));
-            return;
-        }
-    }
-
-    match file_handle.write(&buf).await {
-        Ok(_) => {
-            info!(
-                "Saved image file {} as bytes: {:?}",
-                image_name,
-                file_handle.file_name()
-            );
-        }
-        Err(e) => {
-            data.error
-                .clone_from(&format!("Error saving image file {}: {:?}", image_name, e));
-        }
-    }
-}
 
 #[cfg(target_arch = "wasm32")]
 pub fn pick_save_png(data: Arc<Mutex<AsyncData>>, image_name: String, image: DynamicImage) {
@@ -50,20 +16,28 @@ pub fn pick_save_png(data: Arc<Mutex<AsyncData>>, image_name: String, image: Dyn
     let future = dialog.save_file();
 
     wasm_bindgen_futures::spawn_local(async move {
-        let Ok(mut locked_data) = data.try_lock() else {
+        if data.try_lock().is_err() {
             return;
-        };
+        }
 
         let Some(file_handle) = future.await else {
             return;
         };
-        save_image(
-            &mut locked_data,
-            file_handle,
-            image_name.as_str(),
-            image,
-            ImageFormat::Png,
-        )
-        .await;
+
+        let result = {
+            let mut buf = Vec::new();
+            match image.write_to(&mut Cursor::new(&mut buf), ImageFormat::Png) {
+                Ok(_) => match file_handle.write(&buf).await {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(format!("Error saving image file {}: {:?}", image_name, e)),
+                },
+                Err(e) => Err(format!("Failed to encode image {}: {:?}", image_name, e)),
+            }
+        };
+        if let Err(err_msg) = result {
+            if let Ok(mut locked_data) = data.try_lock() {
+                locked_data.error.clone_from(&err_msg);
+            }
+        }
     });
 }

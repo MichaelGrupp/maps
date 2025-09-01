@@ -46,7 +46,7 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage, Error>
         Err(img_error) => {
             return Err(Error::new(format!(
                 "Error creating image reader from bytes: {}",
-                img_error.to_string()
+                img_error
             ))
             .and_log_it());
         }
@@ -56,11 +56,9 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage, Error>
             debug!("Loaded image from bytes: {:?}", img.dimensions());
             Ok(img)
         }
-        Err(img_error) => Err(Error::new(format!(
-            "Error decoding image from bytes: {}",
-            img_error.to_string()
-        ))
-        .and_log_it()),
+        Err(img_error) => {
+            Err(Error::new(format!("Error decoding image from bytes: {}", img_error)).and_log_it())
+        }
     }
 }
 
