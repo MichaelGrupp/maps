@@ -4,9 +4,6 @@ use std::time;
 use eframe::egui;
 use egui_plot::{Line, Plot, PlotPoints};
 
-#[cfg(target_arch = "wasm32")]
-use web_sys;
-
 /// Monotonic clock timestamp for native builds.
 #[cfg(not(target_arch = "wasm32"))]
 type TimeInstant = time::Instant;

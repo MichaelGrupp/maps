@@ -150,6 +150,7 @@ impl AppState {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn pick(
     ui: &mut egui::Ui,
     reset: bool,

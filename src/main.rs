@@ -1,21 +1,32 @@
-use std::env;
-use std::path::{Path, PathBuf};
-use std::process::exit;
-use std::vec::Vec;
+#[cfg(not(target_arch = "wasm32"))]
+use std::{
+    env,
+    path::{Path, PathBuf},
+    process::exit,
+};
 
-// CLI
-use clap::Parser;
-use log::{error, info, Level};
+#[cfg(not(target_arch = "wasm32"))]
+use {
+    clap::Parser,
+    eframe::egui,
+    log::{error, info, Level},
+    strum::VariantNames,
+};
 
-// GUI
-use eframe::egui;
+#[cfg(not(target_arch = "wasm32"))]
+use maps::{
+    app::ViewMode,
+    map_pose::MapPose,
+    meta::Meta,
+    persistence::{load_app_options, save_session},
+};
 
-use maps::app::{AppOptions, AppState, ViewMode};
-use maps::map_pose::MapPose;
-use maps::meta::Meta;
-use maps::persistence::{load_app_options, save_session};
-use strum::VariantNames;
+use {
+    maps::app::{AppOptions, AppState},
+    std::vec::Vec,
+};
 
+#[cfg(not(target_arch = "wasm32"))]
 const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
 
 #[cfg(not(target_arch = "wasm32"))]

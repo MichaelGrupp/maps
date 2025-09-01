@@ -1,61 +1,11 @@
 use std::sync::{Arc, Mutex};
 
 use eframe::egui;
-use log::info;
-use rfd::{AsyncFileDialog, FileHandle};
+use rfd::AsyncFileDialog;
 
 use crate::app::AppState;
 use crate::map_pose::MapPose;
 use crate::wasm::async_data::AsyncData;
-
-#[cfg(target_arch = "wasm32")]
-async fn load_map_pose(data: &mut AsyncData, file_handle: FileHandle, map_name: String) {
-    match MapPose::from_bytes(&file_handle.read().await) {
-        Ok(map_pose) => {
-            info!(
-                "Loaded map pose file as bytes: {:?}",
-                file_handle.file_name()
-            );
-            data.map_poses.insert(map_name, map_pose);
-        }
-        Err(e) => {
-            data.error
-                .clone_from(&format!("Error loading map pose file: {}", e.message));
-            return;
-        }
-    }
-}
-
-#[cfg(target_arch = "wasm32")]
-async fn save_map_pose(
-    data: &mut AsyncData,
-    file_handle: FileHandle,
-    map_name: &str,
-    map_pose: &MapPose,
-) {
-    if let Ok(bytes) = map_pose.to_bytes() {
-        match file_handle.write(bytes.as_slice()).await {
-            Ok(_) => {
-                info!(
-                    "Saved map pose file for map {} as bytes: {:?}",
-                    map_name,
-                    file_handle.file_name()
-                );
-            }
-            Err(e) => {
-                data.error.clone_from(&format!(
-                    "Error saving map pose file for map {}: {:?}",
-                    map_name, e
-                ));
-            }
-        }
-    } else {
-        data.error.clone_from(&format!(
-            "Error serializing map pose file for map {}",
-            map_name
-        ));
-    }
-}
 
 /// Pick a map pose file via rfd dialog (websys -> <input> html).
 #[cfg(target_arch = "wasm32")]
@@ -67,12 +17,29 @@ fn pick_load_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String) {
     let future = dialog.pick_file();
 
     wasm_bindgen_futures::spawn_local(async move {
-        let Ok(mut locked_data) = data.try_lock() else {
+        if data.try_lock().is_err() {
             return;
-        };
+        }
 
         if let Some(file_handle) = future.await {
-            load_map_pose(&mut locked_data, file_handle, map_name).await;
+            let result = {
+                match MapPose::from_bytes(&file_handle.read().await) {
+                    Ok(map_pose) => Ok(map_pose),
+                    Err(e) => Err(format!("Error loading map pose file: {}", e.message)),
+                }
+            };
+            match result {
+                Ok(map_pose) => {
+                    if let Ok(mut locked_data) = data.try_lock() {
+                        locked_data.map_poses.insert(map_name, map_pose);
+                    }
+                }
+                Err(err_msg) => {
+                    if let Ok(mut locked_data) = data.try_lock() {
+                        locked_data.error.clone_from(&err_msg);
+                    }
+                }
+            }
         }
     });
 }
@@ -87,14 +54,34 @@ fn pick_save_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String, map_pose: M
     let future = dialog.save_file();
 
     wasm_bindgen_futures::spawn_local(async move {
-        let Ok(mut locked_data) = data.try_lock() else {
+        if data.try_lock().is_err() {
             return;
-        };
+        }
 
         let Some(file_handle) = future.await else {
             return;
         };
-        save_map_pose(&mut locked_data, file_handle, map_name.as_str(), &map_pose).await;
+        let result = {
+            if let Ok(bytes) = map_pose.to_bytes() {
+                match file_handle.write(bytes.as_slice()).await {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(format!(
+                        "Error saving map pose file for map {}: {:?}",
+                        map_name, e
+                    )),
+                }
+            } else {
+                Err(format!(
+                    "Error serializing map pose file for map {}",
+                    map_name
+                ))
+            }
+        };
+        if let Err(err_msg) = result {
+            if let Ok(mut locked_data) = data.try_lock() {
+                locked_data.error.clone_from(&err_msg);
+            }
+        }
     });
 }
 
