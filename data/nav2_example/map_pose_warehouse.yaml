@@ -1,0 +1,10 @@
+translation:
+  x: 18.630108
+  y: 29.400076
+  z: 0.0
+rotation:
+  roll: 0.0
+  pitch: 0.0
+  yaw: 0.0
+root_frame: root
+map_frame: warehouse

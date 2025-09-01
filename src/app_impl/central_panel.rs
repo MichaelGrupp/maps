@@ -257,7 +257,8 @@ impl AppState {
             |ui| {
                 ui.horizontal_centered(|ui| {
                     ui.vertical_centered(|ui| {
-                        ui.add_space((ui.available_height() / 2. - 100.).max(SPACE));
+                        let frac = if cfg!(target_arch = "wasm32") { 4. } else { 2. };
+                        ui.add_space((ui.available_height() / frac - 100.).max(SPACE));
                         ui.heading("No maps loaded.");
                         ui.add_space(SPACE);
                         ui.add_space(SPACE);
@@ -287,8 +288,8 @@ impl AppState {
                                 )
                                 .open_in_new_tab(true),
                             );
-                            ui.add_space(SPACE * 1.);
-                            self.load_demo_maps_button(ui);
+                            ui.add_space(SPACE);
+                            self.demo_buttons(ui);
                         }
                     });
                 });

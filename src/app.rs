@@ -161,6 +161,9 @@ pub struct SessionData {
     #[cfg(target_arch = "wasm32")]
     #[serde(skip)]
     pub(crate) demo_button_image_handle: Option<egui::TextureHandle>,
+    #[cfg(target_arch = "wasm32")]
+    #[serde(skip)]
+    pub(crate) nav2_demo_button_image_handle: Option<egui::TextureHandle>,
 }
 
 /// Options that should not need to be changed by the (average) user.

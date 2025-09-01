@@ -1,0 +1,10 @@
+translation:
+  x: 41.839996
+  y: 43.369984
+  z: 0.0
+rotation:
+  roll: 0.0
+  pitch: 0.0
+  yaw: -0.7499939
+root_frame: root
+map_frame: depot
