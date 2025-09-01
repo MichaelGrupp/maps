@@ -19,6 +19,8 @@ jobs:
         lfs: true
     - name: Format check
       run: cargo fmt --all -- --check
+    - name: Clippy check
+      run: cargo clippy --all-targets --all-features -- -D warnings
     - name: Build
       run: cargo build --profile kittest --verbose
     - name: Run tests
@@ -39,6 +41,8 @@ jobs:
         lfs: true
     - name: Format check
       run: cargo fmt --all -- --check
+    - name: Clippy check
+      run: cargo clippy --all-targets --no-default-features -- -D warnings
     - name: Build
       run: cargo build --profile kittest --verbose
     - name: Run tests
@@ -56,6 +60,8 @@ jobs:
         lfs: true
     - name: Format check
       run: cargo fmt --all -- --check
+    - name: Clippy check
+      run: cargo clippy --all-targets --no-default-features -- -D warnings
     - name: Build
       run: cargo build --profile kittest --verbose
     - name: Run tests
@@ -72,5 +78,7 @@ jobs:
         lfs: false
     - name: Setup Rust
       run: rustup target add wasm32-unknown-unknown
+    - name: Clippy check
+      run: cargo clippy --target wasm32-unknown-unknown -- -D warnings
     - name: Build
       run: cargo build --verbose --target wasm32-unknown-unknown
