@@ -259,8 +259,7 @@ impl AppState {
                         let frac = if cfg!(target_arch = "wasm32") { 4. } else { 2. };
                         ui.add_space((ui.available_height() / frac - 100.).max(SPACE));
                         ui.heading("No maps loaded.");
-                        ui.add_space(SPACE);
-                        ui.add_space(SPACE);
+                        ui.add_space(2. * SPACE);
                         self.load_meta_button(ui);
                         ui.add_space(SPACE);
 
@@ -287,7 +286,7 @@ impl AppState {
                                 )
                                 .open_in_new_tab(true),
                             );
-                            ui.add_space(SPACE);
+                            ui.add_space(5. * SPACE);
                             self.demo_buttons(ui);
                         }
                     });

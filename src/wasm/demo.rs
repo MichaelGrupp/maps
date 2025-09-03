@@ -118,7 +118,7 @@ impl AppState {
     pub(crate) fn demo_buttons(&mut self, ui: &mut egui::Ui) {
         egui::ScrollArea::vertical().show(ui, |ui| {
             self.load_demo_nav2_button(ui);
-            ui.add_space(SPACE);
+            ui.add_space(2. * SPACE);
             self.load_demo_maps_button(ui);
         });
     }
