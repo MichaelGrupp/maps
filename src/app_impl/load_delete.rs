@@ -234,7 +234,12 @@ impl AppState {
         // Not everything gets serialized. Load actual data.
         for (name, map) in deserialized_session.maps {
             debug!("Restoring map state: {}", name);
-            let map_name = self.load_map(map.meta)?;
+            let map_name = self.load_map(map.meta).inspect_err(|_| {
+                // Make sure we have no dangling names in draw_order if we fail to load one map.
+                self.data
+                    .draw_order
+                    .retain(|key| self.data.maps.contains_key(key));
+            })?;
             let map_state = self.data.maps.get_mut(&map_name).expect("missing map");
             map_state.pose = map.pose;
             map_state.visible = map.visible;

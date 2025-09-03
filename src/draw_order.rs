@@ -36,6 +36,13 @@ impl DrawOrder {
         }
     }
 
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&str) -> bool,
+    {
+        self.keys.retain(|key| f(key));
+    }
+
     pub fn ui(&mut self, ui: &mut egui::Ui, show_full_paths: bool) {
         dnd(ui, "draw_order").show_vec(&mut self.keys, |ui, item, handle, state| {
             ui.horizontal(|ui| {
