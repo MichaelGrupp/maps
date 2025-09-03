@@ -1,5 +1,5 @@
 use eframe::egui;
-use log::{log_enabled, Level};
+use log::{Level, log_enabled};
 
 /// Rotates a rectangle around an origin point and returns the bounding rectangle.
 pub fn rotate(rect: &egui::Rect, rot: egui::emath::Rot2, origin: egui::Vec2) -> egui::Rect {

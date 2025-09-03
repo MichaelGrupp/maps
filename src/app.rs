@@ -21,7 +21,7 @@ use crate::app_impl::CUSTOM_TITLEBAR_SUPPORTED;
 use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::meta::Meta;
-use crate::persistence::{save_app_options, PersistenceOptions};
+use crate::persistence::{PersistenceOptions, save_app_options};
 use crate::render_options::default_crop_threshold;
 use crate::tiles::Tiles;
 use crate::tracing::Tracing;
