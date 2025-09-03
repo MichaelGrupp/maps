@@ -9,7 +9,7 @@ use std::{
 use {
     clap::Parser,
     eframe::egui,
-    log::{error, info, Level},
+    log::{error, info, LevelFilter},
     strum::VariantNames,
 };
 
@@ -96,7 +96,7 @@ struct Args {
         help = "Log level. Possible values: trace, debug, info, warn, error.\n\
         Has no effect if a RUST_LOG environment variable is already defined."
     )]
-    log_level: Level,
+    log_level: LevelFilter,
     #[clap(
         long,
         help = "Exit after a dry-run initialization without starting the GUI.\n\
@@ -166,12 +166,13 @@ fn main() -> eframe::Result {
     // Use env_logger to log to stderr when executing: RUST_LOG=debug maps
     // To show only logs of this app: RUST_LOG=maps=debug maps
     if env::var("RUST_LOG").is_err() {
-        env::set_var(
-            "RUST_LOG",
-            format!("maps={}", args.log_level.as_str().to_lowercase()),
-        );
+        env_logger::Builder::from_default_env()
+            .filter_level(log::LevelFilter::Off)
+            .filter_module("maps", args.log_level)
+            .init();
+    } else {
+        env_logger::init();
     }
-    env_logger::init();
     info!("{}", build_info);
 
     let mut metas: Vec<Meta> = Vec::new();
