@@ -2385,6 +2385,7 @@ dependencies = [
  "serde_yaml_ng",
  "strum",
  "strum_macros",
+ "thiserror 2.0.11",
  "toml",
  "uuid",
  "wasm-bindgen-futures",

@@ -12,7 +12,7 @@ use strum_macros::{Display, EnumString, VariantNames};
 pub use crate::app_impl::canvas_settings::CanvasOptions;
 pub use crate::app_impl::pose_edit::PoseEditOptions;
 pub use crate::app_impl::tint_settings::TintOptions;
-pub use crate::error::Error;
+pub use crate::error::{Error, Result};
 pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
 pub use crate::value_colormap::ColorMap;
@@ -206,7 +206,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState, Error> {
+    pub fn init(metas: Vec<Meta>, options: AppOptions) -> Result<AppState> {
         let mut state = AppState {
             options,
             ..Default::default()

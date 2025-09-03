@@ -214,7 +214,7 @@ fn main() -> eframe::Result {
             match MapPose::from_yaml_file(pose_path) {
                 Ok(pose) => Some(pose),
                 Err(e) => {
-                    error!("Error loading pose {:?}: {}", pose_path, e.message);
+                    error!("Error loading pose {:?}: {}", pose_path, e);
                     exit(1);
                 }
             }
@@ -247,7 +247,7 @@ fn main() -> eframe::Result {
     let mut app_state = match AppState::init(metas, options) {
         Ok(state) => Box::new(state.with_build_info(build_info)),
         Err(e) => {
-            error!("Fatal error during initialization. {}", e.message);
+            error!("Fatal error during initialization. {}", e);
             exit(1);
         }
     };
@@ -271,7 +271,7 @@ fn main() -> eframe::Result {
         if args.init_only {
             // In init_only mode, directly save the (possibly updated) session and exit.
             save_session(session, &app_state.data).unwrap_or_else(|e| {
-                error!("Failed to write session file. {}", e.message);
+                error!("Failed to write session file. {}", e);
                 exit(1);
             });
             exit(0);

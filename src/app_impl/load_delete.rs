@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 #[cfg(not(target_arch = "wasm32"))]
 use std::env::current_dir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use eframe::egui;
@@ -96,17 +96,10 @@ impl AppState {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    fn load_meta(&mut self, yaml_path: &PathBuf) -> Result<bool, Error> {
-        match Meta::load_from_file(yaml_path) {
-            Ok(meta) => match self.load_map(meta) {
-                Ok(_) => Ok(true),
-                Err(e) => Err(e),
-            },
-            Err(e) => Err(Error::new(format!(
-                "Error loading metadata file {:?}: {}",
-                yaml_path, e.message
-            ))),
-        }
+    fn load_meta(&mut self, yaml_path: &Path) -> Result<bool, Error> {
+        let meta = Meta::load_from_file(yaml_path)?;
+        self.load_map(meta)?;
+        Ok(true)
     }
 
     #[cfg(not(target_arch = "wasm32"))]
@@ -125,8 +118,8 @@ impl AppState {
                         self.load_meta_file_dialog.config_mut().initial_directory = path;
                     }
                     Err(e) => {
-                        self.status.error = e.message;
-                        error!("{}", self.status.error);
+                        self.status.error = e.to_string();
+                        error!("{}", e);
                     }
                 }
             }
@@ -162,7 +155,7 @@ impl AppState {
 
     pub(crate) fn load_map(&mut self, meta: Meta) -> Result<String, Error> {
         if !meta.image_path.exists() {
-            return Err(Error::new(format!(
+            return Err(Error::app(format!(
                 "Image file doesn't exist: {:?}",
                 meta.image_path
             )));
@@ -173,24 +166,16 @@ impl AppState {
             Ok(image::DynamicImage::new_rgba8(0, 0))
         } else {
             load_image(&meta.image_path)
-        };
+        }?;
 
-        match image {
-            Ok(image) => {
-                let image_pyramid = Arc::new(ImagePyramid::new(image));
-                let name = meta
-                    .yaml_path
-                    .to_str()
-                    .expect("invalid unicode path, can't use as map name")
-                    .to_owned();
-                self.add_map(&name, meta, image_pyramid);
-                Ok(name)
-            }
-            Err(e) => Err(Error::new(format!(
-                "Error loading image {:?}: {}",
-                &meta.image_path, e.message
-            ))),
-        }
+        let image_pyramid = Arc::new(ImagePyramid::new(image));
+        let name = meta
+            .yaml_path
+            .to_str()
+            .expect("invalid unicode path, can't use as map name")
+            .to_owned();
+        self.add_map(&name, meta, image_pyramid);
+        Ok(name)
     }
 
     pub(crate) fn delete(&mut self, to_delete: &Vec<String>) {
@@ -256,9 +241,8 @@ impl AppState {
                     self.status.unsaved_changes = true;
                 }
                 Err(e) => {
-                    self.status.error =
-                        format!("Error loading pose file {:?}: {}", path, e.message);
-                    error!("{}", self.status.error);
+                    self.status.error = e.to_string();
+                    error!("{}", e);
                 }
             }
         }
@@ -295,8 +279,8 @@ impl AppState {
                         .initial_directory = path;
                 }
                 Err(e) => {
-                    self.status.error = format!("Error saving pose file: {}", e.message);
-                    error!("{}", self.status.error);
+                    self.status.error = e.to_string();
+                    error!("{}", e);
                 }
             }
         }
@@ -354,8 +338,8 @@ impl AppState {
                             self.status.unsaved_changes = false;
                         }
                         Err(e) => {
-                            self.status.error = e.message;
-                            error!("{}", self.status.error);
+                            self.status.error = e.to_string();
+                            error!("{}", e);
                         }
                     }
                 }
@@ -365,8 +349,8 @@ impl AppState {
                 }
             }
             Err(e) => {
-                self.status.error = format!("Error loading session file: {}", e.message);
-                error!("{}", self.status.error);
+                self.status.error = e.to_string();
+                error!("{}", e);
             }
         }
     }
@@ -420,8 +404,8 @@ impl AppState {
                     }
                 }
                 Err(e) => {
-                    self.status.error = format!("Error saving session file: {}", e.message);
-                    error!("{}", self.status.error);
+                    self.status.error = e.to_string();
+                    error!("{}", e);
                 }
             }
         }

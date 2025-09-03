@@ -96,8 +96,8 @@ impl AppState {
                         info!("Saved screenshot to {:?}", file_path);
                     }
                     Err(e) => {
-                        self.status.error = format!("Error saving screenshot: {:?}", e.to_string());
-                        error!("{}", self.status.error);
+                        self.status.error = format!("Saving screenshot: {}", e);
+                        error!("{}", e);
                     }
                 }
             }

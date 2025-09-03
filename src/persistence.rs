@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use toml;
 
 use crate::app::{AppOptions, SessionData};
-use crate::error::Error;
+use crate::error::{Error, Result};
 
 const APP_NAME: &str = "maps";
 const APP_OPTIONS_NAME: &str = "app_options";
@@ -65,31 +65,29 @@ pub fn save_app_options(options: &AppOptions) {
     }
 }
 
-pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<(), Error> {
-    match toml::to_string(&session) {
+pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<()> {
+    match toml::to_string_pretty(session) {
         Ok(toml) => {
             info!("Saving session to {:?}", path);
-            match std::fs::write(path, toml) {
-                Ok(_) => (),
-                Err(e) => {
-                    return Err(Error::new(format!("Error saving session: {}", e)));
-                }
-            }
+            std::fs::write(path, toml)
+                .map_err(|e| Error::io(format!("Cannot save session to {:?}", path), e))?;
         }
         Err(e) => {
-            return Err(Error::new(format!("Error serializing session: {}", e)));
+            return Err(Error::toml_serialize(
+                format!("Cannot serialize session to {:?}", path),
+                e,
+            ));
         }
     }
     Ok(())
 }
 
-pub fn load_session(path: &PathBuf) -> Result<SessionData, Error> {
+pub fn load_session(path: &PathBuf) -> Result<SessionData> {
     info!("Loading session from {:?}", path);
-    match std::fs::read_to_string(path) {
-        Ok(toml) => match toml::from_str(&toml) {
-            Ok(maps) => Ok(maps),
-            Err(e) => Err(Error::new(format!("Error deserializing session: {}", e))),
-        },
-        Err(e) => Err(Error::new(format!("Error loading session: {}", e))),
-    }
+    let toml = std::fs::read_to_string(path)
+        .map_err(|e| Error::io(format!("Cannot load session from {:?}", path), e))?;
+
+    toml::from_str(&toml).map_err(|e| {
+        Error::toml_deserialize(format!("Cannot deserialize session from {:?}", path), e)
+    })
 }

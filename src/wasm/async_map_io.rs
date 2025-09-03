@@ -19,20 +19,12 @@ const ALL_EXTENSIONS: [&str; 6] = ["png", "jpg", "jpeg", "pgm", "yml", "yaml"];
 #[cfg(target_arch = "wasm32")]
 async fn load_image(file_handle: &FileHandle) -> Result<Arc<ImagePyramid>, Error> {
     let img_bytes = file_handle.read().await;
-    match load_image_from_bytes(&img_bytes) {
-        Ok(image) => {
-            info!(
-                "Loaded image file from bytes: {:?}",
-                file_handle.file_name()
-            );
-            Ok(Arc::new(ImagePyramid::new(image)))
-        }
-        Err(e) => Err(Error::new(format!(
-            "Error loading image file {:?}: {}",
-            e.message,
-            file_handle.file_name()
-        ))),
-    }
+    let image = load_image_from_bytes(&img_bytes)?;
+    info!(
+        "Loaded image file from bytes: {:?}",
+        file_handle.file_name()
+    );
+    Ok(Arc::new(ImagePyramid::new(image)))
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -95,7 +87,7 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
                 Ok(meta) => meta,
                 Err(e) => {
                     if let Ok(mut locked_data) = data.try_lock() {
-                        locked_data.error.clone_from(&e.message);
+                        locked_data.error = e.to_string();
                     }
                     return;
                 }
@@ -115,7 +107,7 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
                     }
                     Err(e) => {
                         if let Ok(mut locked_data) = data.try_lock() {
-                            locked_data.error.clone_from(&e.message);
+                            locked_data.error = e.to_string();
                         }
                         return;
                     }
