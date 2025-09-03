@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use eframe::egui;
+use log::trace;
 
 use crate::texture_request::TextureRequest;
 use crate::value_interpretation::ValueInterpretation;
@@ -11,7 +12,7 @@ struct CachedTexture {
     texture_handle: egui::TextureHandle,
     color_to_alpha: Option<egui::Color32>,
     thresholding: Option<ValueInterpretation>,
-    texture_options: egui::TextureOptions,
+    texture_options: Option<egui::TextureOptions>,
 }
 
 impl CachedTexture {
@@ -19,7 +20,7 @@ impl CachedTexture {
     fn matches_appearance(&self, request: &TextureRequest) -> bool {
         self.color_to_alpha == request.color_to_alpha
             && self.thresholding == request.thresholding
-            && self.texture_options == request.texture_options.unwrap_or_default()
+            && self.texture_options == request.texture_options
     }
 }
 
@@ -55,6 +56,7 @@ impl TextureCache {
             if cached_texture.matches_appearance(request) {
                 return Some(cached_texture.texture_handle.clone());
             } else {
+                trace!("Cache miss for client {client} at level {pyramid_level}.");
                 // Remove outdated cache entry.
                 self.cache.remove(&cache_key);
             }
@@ -75,7 +77,7 @@ impl TextureCache {
             texture_handle,
             color_to_alpha: request.color_to_alpha,
             thresholding: request.thresholding,
-            texture_options: request.texture_options.unwrap_or_default(),
+            texture_options: request.texture_options,
         };
         self.cache.insert(cache_key, cached_texture);
     }
