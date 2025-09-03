@@ -1,5 +1,5 @@
-use eframe::egui::ecolor::{gamma_u8_from_linear_f32, linear_f32_from_gamma_u8};
 use eframe::egui::Color32;
+use eframe::egui::ecolor::{gamma_u8_from_linear_f32, linear_f32_from_gamma_u8};
 
 /// Migrates a color that was serialized with egui < 0.32.
 /// This is a best-effort attempt to reconstruct the original unmultiplied color
