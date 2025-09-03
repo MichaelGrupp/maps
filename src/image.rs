@@ -10,54 +10,36 @@ use log::{debug, info};
 #[allow(unused_imports)]
 use fast_image_resize::CpuExtensions;
 
-use crate::error::Error;
+use crate::error::{Error, Result};
 use crate::path_helpers::resolve_symlink;
 
-pub fn load_image(path: &Path) -> Result<image::DynamicImage, Error> {
+pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
     let path = resolve_symlink(path);
     info!("Loading image: {:?}", path);
-    match ImageReader::open(&path) {
-        Ok(mut reader) => {
-            reader.no_limits();
-            match reader.decode() {
-                Ok(img) => {
-                    debug!("Loaded image: {:?} {:?}", path, img.dimensions());
-                    Ok(img)
-                }
-                Err(img_error) => Err(Error::new(format!(
-                    "Error decoding image {:?}: {}",
-                    path, img_error
-                ))
-                .and_log_it()),
-            }
-        }
-        Err(img_error) => {
-            Err(Error::new(format!("Error loading image {:?}: {}", path, img_error)).and_log_it())
-        }
-    }
+    let mut reader =
+        ImageReader::open(&path).map_err(|e| Error::io(format!("Cannot open {:?}", path), e))?;
+
+    reader.no_limits();
+    let img = reader
+        .decode()
+        .map_err(|e| Error::image(format!("Cannot decode {:?}", path), e))?;
+
+    debug!("Loaded image: {:?} {:?}", path, img.dimensions());
+    Ok(img)
 }
 
 #[cfg(target_arch = "wasm32")]
-pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage, Error> {
-    let img_io = match ImageReader::new(std::io::Cursor::new(bytes)).with_guessed_format() {
-        Ok(reader) => reader,
-        Err(img_error) => {
-            return Err(Error::new(format!(
-                "Error creating image reader from bytes: {}",
-                img_error
-            ))
-            .and_log_it());
-        }
-    };
-    match img_io.decode() {
-        Ok(img) => {
-            debug!("Loaded image from bytes: {:?}", img.dimensions());
-            Ok(img)
-        }
-        Err(img_error) => {
-            Err(Error::new(format!("Error decoding image from bytes: {}", img_error)).and_log_it())
-        }
-    }
+pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
+    let img_io = ImageReader::new(std::io::Cursor::new(bytes))
+        .with_guessed_format()
+        .map_err(|e| Error::io("Cannot create image reader from bytes", e))?;
+
+    let img = img_io
+        .decode()
+        .map_err(|e| Error::image("Cannot decode image from bytes", e))?;
+
+    debug!("Loaded image from bytes: {:?}", img.dimensions());
+    Ok(img)
 }
 
 pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {

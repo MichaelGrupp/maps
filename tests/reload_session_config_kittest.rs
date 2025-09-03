@@ -20,7 +20,9 @@ fn main() {
     let mut app_state =
         AppState::init(Vec::new(), app_options).expect("Failed to initialize AppState");
 
-    app_state.load_session(&PathBuf::from(SESSION_PATH));
+    app_state
+        .load_session(&PathBuf::from(SESSION_PATH))
+        .expect("Failed to load session");
 
     snapshot_full_app(
         app_state,

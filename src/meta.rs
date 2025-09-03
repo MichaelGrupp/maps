@@ -5,7 +5,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-use crate::error::Error;
+use crate::error::{Error, Result};
 use crate::path_helpers::resolve_symlink;
 use crate::value_interpretation::{Mode, ValueInterpretation};
 
@@ -28,31 +28,28 @@ struct MetaYamlAnnotated {
 }
 
 impl MetaYamlAnnotated {
-    fn from(yaml_path: &Path) -> Result<MetaYamlAnnotated, Error> {
+    fn from(yaml_path: &Path) -> Result<MetaYamlAnnotated> {
         let yaml_path = resolve_symlink(yaml_path);
-        match std::fs::read_to_string(&yaml_path) {
-            Ok(buffer) => match serde_yaml_ng::from_str::<MetaYaml>(&buffer) {
-                Ok(meta_yaml) => Ok(MetaYamlAnnotated {
-                    meta_yaml,
-                    yaml_path,
-                }),
-                Err(e) => Err(Error::new(format!("Failed to parse yaml: {}", e))),
-            },
-            Err(e) => Err(Error::new(format!("Failed to read yaml file: {}", e))),
-        }
+        let buffer = std::fs::read_to_string(&yaml_path)
+            .map_err(|e| Error::io(format!("Cannot read {:?}", yaml_path), e))?;
+
+        let meta_yaml = serde_yaml_ng::from_str::<MetaYaml>(&buffer)
+            .map_err(|e| Error::yaml(format!("Cannot parse {:?}", yaml_path), e))?;
+
+        Ok(MetaYamlAnnotated {
+            meta_yaml,
+            yaml_path,
+        })
     }
 
-    fn from_bytes(bytes: &[u8], yaml_name: &str) -> Result<MetaYamlAnnotated, Error> {
-        match serde_yaml_ng::from_slice::<MetaYaml>(bytes) {
-            Ok(meta_yaml) => Ok(MetaYamlAnnotated {
-                yaml_path: PathBuf::from(yaml_name),
-                meta_yaml,
-            }),
-            Err(e) => Err(Error::new(format!(
-                "Failed to parse yaml from bytes: {}",
-                e
-            ))),
-        }
+    fn from_bytes(bytes: &[u8], yaml_name: &str) -> Result<MetaYamlAnnotated> {
+        let meta_yaml = serde_yaml_ng::from_slice::<MetaYaml>(bytes)
+            .map_err(|e| Error::yaml(format!("Cannot parse {}", yaml_name), e))?;
+
+        Ok(MetaYamlAnnotated {
+            yaml_path: PathBuf::from(yaml_name),
+            meta_yaml,
+        })
     }
 }
 
@@ -95,26 +92,25 @@ impl From<MetaYamlAnnotated> for Meta {
 }
 
 impl Meta {
-    pub fn load_from_file(yaml_path: &Path) -> Result<Meta, Error> {
-        match MetaYamlAnnotated::from(yaml_path) {
-            Ok(meta_yaml_annotated) => {
-                let meta = Meta::from(meta_yaml_annotated);
-                debug!("Parsed metadata: {:?}", meta);
-                Ok(meta)
-            }
-            Err(e) => Err(e),
+    pub fn load_from_file(yaml_path: &Path) -> Result<Meta> {
+        let meta_yaml_annotated = MetaYamlAnnotated::from(yaml_path)?;
+        let meta = Meta::from(meta_yaml_annotated);
+        debug!("Parsed metadata: {:?}", meta);
+        if !meta.image_path.exists() {
+            return Err(Error::app(format!(
+                "Metadata from {} points to an image that does not exist: {}",
+                yaml_path.display(),
+                meta.image_path.display()
+            )));
         }
+        Ok(meta)
     }
 
-    pub fn load_from_bytes(bytes: &[u8], yaml_name: &str) -> Result<Meta, Error> {
-        match MetaYamlAnnotated::from_bytes(bytes, yaml_name) {
-            Ok(meta_yaml_annotated) => {
-                let meta = Meta::from(meta_yaml_annotated);
-                debug!("Parsed metadata from bytes: {:?}", meta);
-                Ok(meta)
-            }
-            Err(e) => Err(e),
-        }
+    pub fn load_from_bytes(bytes: &[u8], yaml_name: &str) -> Result<Meta> {
+        let meta_yaml_annotated = MetaYamlAnnotated::from_bytes(bytes, yaml_name)?;
+        let meta = Meta::from(meta_yaml_annotated);
+        debug!("Parsed metadata from bytes: {:?}", meta);
+        Ok(meta)
     }
 
     pub fn reset_value_interpretation(&mut self) {

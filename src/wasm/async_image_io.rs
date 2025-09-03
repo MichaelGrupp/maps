@@ -29,9 +29,9 @@ pub fn pick_save_png(data: Arc<Mutex<AsyncData>>, image_name: String, image: Dyn
             match image.write_to(&mut Cursor::new(&mut buf), ImageFormat::Png) {
                 Ok(_) => match file_handle.write(&buf).await {
                     Ok(_) => Ok(()),
-                    Err(e) => Err(format!("Error saving image file {}: {:?}", image_name, e)),
+                    Err(e) => Err(format!("Saving image file {}: {}", image_name, e)),
                 },
-                Err(e) => Err(format!("Failed to encode image {}: {:?}", image_name, e)),
+                Err(e) => Err(format!("Encoding image {}: {}", image_name, e)),
             }
         };
         if let Err(err_msg) = result

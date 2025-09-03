@@ -25,7 +25,7 @@ fn pick_load_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String) {
             let result = {
                 match MapPose::from_bytes(&file_handle.read().await) {
                     Ok(map_pose) => Ok(map_pose),
-                    Err(e) => Err(format!("Error loading map pose file: {}", e.message)),
+                    Err(e) => Err(format!("Loading map pose file: {}", e)),
                 }
             };
             match result {

@@ -30,7 +30,9 @@ fn run(name: &str, colormap: ColorMap) {
     )
     .expect("Failed to initialize AppState");
 
-    app_state.load_session(&PathBuf::from(SESSION));
+    app_state
+        .load_session(&PathBuf::from(SESSION))
+        .expect("Failed to load session");
 
     for map in app_state.data.maps.values_mut() {
         map.meta.value_interpretation.colormap = colormap;

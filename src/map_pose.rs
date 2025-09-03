@@ -6,7 +6,7 @@ use eframe::emath;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::error::Error;
+use crate::error::{Error, Result};
 use crate::movable::{Draggable, Rotatable};
 use crate::path_helpers::resolve_symlink;
 
@@ -121,56 +121,45 @@ impl MapPose {
 
     /// Loads a map pose from a YAML file.
     /// Note that angles are normalized to the range [-π, π] by this.
-    pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose, Error> {
-        match std::fs::File::open(resolve_symlink(yaml_path)) {
-            Ok(file) => match serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file) {
-                Ok(map_pose) => {
-                    let map_pose = map_pose.normalized();
-                    debug!(
-                        "Loaded and normalized map pose from {:?}: {:?}",
-                        yaml_path, map_pose
-                    );
-                    Ok(map_pose)
-                }
-                Err(error) => Err(Error::new(error)),
-            },
-            Err(error) => Err(Error::new(error)),
-        }
+    pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose> {
+        let file = std::fs::File::open(resolve_symlink(yaml_path))
+            .map_err(|e| Error::io(format!("Cannot open map pose file {:?}", yaml_path), e))?;
+
+        let map_pose = serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file)
+            .map_err(|e| Error::yaml(format!("Cannot parse map pose from {:?}", yaml_path), e))?
+            .normalized();
+
+        debug!(
+            "Loaded and normalized map pose from {:?}: {:?}",
+            yaml_path, map_pose
+        );
+        Ok(map_pose)
     }
 
     #[cfg(target_arch = "wasm32")]
-    pub fn from_bytes(bytes: &[u8]) -> Result<MapPose, Error> {
-        match serde_yaml_ng::from_slice::<MapPose>(bytes) {
-            Ok(map_pose) => {
-                let map_pose = map_pose.normalized();
-                debug!("Loaded and normalized map pose from bytes: {:?}", map_pose);
-                Ok(map_pose)
-            }
-            Err(error) => Err(Error::new(error)),
-        }
+    pub fn from_bytes(bytes: &[u8]) -> Result<MapPose> {
+        let map_pose = serde_yaml_ng::from_slice::<MapPose>(bytes)
+            .map_err(|e| Error::yaml("Cannot parse map pose from bytes", e))?
+            .normalized();
+        debug!("Loaded and normalized map pose from bytes: {:?}", map_pose);
+        Ok(map_pose)
     }
 
     /// Serializes the map pose to a YAML string.
-    pub fn to_yaml(&self) -> Result<String, Error> {
-        match serde_yaml_ng::to_string(self) {
-            Ok(yaml) => Ok(yaml),
-            Err(error) => Err(Error::new(error)),
-        }
+    pub fn to_yaml(&self) -> Result<String> {
+        serde_yaml_ng::to_string(self)
+            .map_err(|e| Error::yaml("Cannot serialize map pose to YAML", e))
     }
 
-    /// Saves the map pose to a YAML file.
-    pub fn to_yaml_file(&self, yaml_path: &PathBuf) -> Result<(), Error> {
-        match std::fs::write(yaml_path, self.to_yaml()?) {
-            Ok(_) => Ok(()),
-            Err(error) => Err(Error::new(error)),
-        }
+    pub fn to_yaml_file(&self, yaml_path: &PathBuf) -> Result<()> {
+        let yaml_content = self.to_yaml()?;
+        std::fs::write(yaml_path, yaml_content)
+            .map_err(|e| Error::io(format!("Cannot write map pose to {:?}", yaml_path), e))
     }
 
     #[cfg(target_arch = "wasm32")]
-    pub fn to_bytes(&self) -> Result<Vec<u8>, Error> {
-        match self.to_yaml() {
-            Ok(yaml) => Ok(yaml.into_bytes()),
-            Err(e) => Err(e),
-        }
+    pub fn to_bytes(&self) -> Result<Vec<u8>> {
+        let yaml = self.to_yaml()?;
+        Ok(yaml.into_bytes())
     }
 }

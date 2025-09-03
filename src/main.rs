@@ -9,7 +9,7 @@ use std::{
 use {
     clap::Parser,
     eframe::egui,
-    log::{LevelFilter, error, info},
+    log::{LevelFilter, error, info, warn},
     strum::VariantNames,
 };
 
@@ -179,48 +179,24 @@ fn main() -> eframe::Result {
 
     for yaml_file in args.yaml_files {
         let yaml_path = Path::new(&yaml_file);
-        if !yaml_path.exists() {
-            error!("YAML file does not exist: {}", yaml_file);
-            exit(1);
-        }
-        let Some(yaml_path_str) = yaml_path.to_str() else {
-            error!("Invalid unicode paths are not supported: {:?}", yaml_path);
-            exit(1);
-        };
-        info!("Loading map YAML {}", yaml_path_str);
-        if let Ok(meta) = Meta::load_from_file(yaml_path) {
-            if !meta.image_path.exists() {
-                error!(
-                    "Metadata from {} points to an image that does not exist: {}",
-                    yaml_path_str,
-                    meta.image_path.to_str().unwrap_or("<invalid unicode path>")
-                );
-                exit(1);
+        info!("Loading map YAML {}", yaml_path.display());
+        let meta = Meta::load_from_file(yaml_path).unwrap_or_else(|e| {
+            error!("{}", e);
+            if matches!(e, maps::error::Error::Yaml { .. }) {
+                warn!("In case you want to load a session file, use the -s / --session flag.");
             }
-            metas.push(meta);
-        } else {
-            error!(
-                "Error parsing map YAML file {}. \
-                 In case you want to load a session file, use the -s / --session flag.",
-                yaml_path_str
-            );
             exit(1);
-        }
+        });
+        metas.push(meta);
     }
 
-    let map_pose = match &args.pose {
-        Some(pose_path) => {
-            info!("Loading map pose from {:?}", pose_path);
-            match MapPose::from_yaml_file(pose_path) {
-                Ok(pose) => Some(pose),
-                Err(e) => {
-                    error!("Error loading pose {:?}: {}", pose_path, e.message);
-                    exit(1);
-                }
-            }
-        }
-        None => None,
-    };
+    let map_pose = args.pose.as_ref().map(|pose_path| {
+        info!("Loading map pose from {:?}", pose_path);
+        MapPose::from_yaml_file(pose_path).unwrap_or_else(|e| {
+            error!("{}", e);
+            exit(1);
+        })
+    });
 
     let mut options: AppOptions = load_app_options(&args.config).with_custom_titlebar();
     options.version = built_info::PKG_VERSION.to_string();
@@ -247,7 +223,7 @@ fn main() -> eframe::Result {
     let mut app_state = match AppState::init(metas, options) {
         Ok(state) => Box::new(state.with_build_info(build_info)),
         Err(e) => {
-            error!("Fatal error during initialization. {}", e.message);
+            error!("Fatal error during initialization. {}", e);
             exit(1);
         }
     };
@@ -260,18 +236,18 @@ fn main() -> eframe::Result {
     }
 
     if let Some(session) = &args.session {
-        if session.exists() {
-            app_state.load_session(session);
-        } else if !args.init_only {
-            // Ignore missing session file in init_only mode to allow creating it in a script.
-            error!("Session file does not exist: {:?}", session);
-            exit(1);
-        }
+        app_state.load_session(session).unwrap_or_else(|e| {
+            if !args.init_only {
+                // Ignore missing session file in init_only mode to allow creating it in a script.
+                error!("{}", e);
+                exit(1);
+            }
+        });
 
         if args.init_only {
             // In init_only mode, directly save the (possibly updated) session and exit.
             save_session(session, &app_state.data).unwrap_or_else(|e| {
-                error!("Failed to write session file. {}", e.message);
+                error!("{}", e);
                 exit(1);
             });
             exit(0);

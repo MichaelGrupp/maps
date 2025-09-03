@@ -46,6 +46,7 @@ serde = "1.0"
 serde_yaml_ng = "0.10.0"
 strum = { version = "0.26.3", features = ["derive"] }
 strum_macros = "0.26.3"
+thiserror = "2.0.16"
 toml = "0.8.19"
 uuid = { version = "1.11.0", features = ["v4"] }
 
