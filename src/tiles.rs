@@ -41,25 +41,20 @@ impl Tiles {
         }
         let pane_id = pane.id.clone();
         let child = self.tree.tiles.insert_pane(pane);
-        if let Some(root_id) = self.tree.root() {
-            // The root tile is not necessarily a tab tile anymore if the user rearranged the layout,
-            // but should be still a container.
-            if let Some(egui_tiles::Tile::Container(root_container)) =
+        if let Some(root_id) = self.tree.root()
+            && let Some(egui_tiles::Tile::Container(root_container)) =
                 self.tree.tiles.get_mut(root_id)
-            {
-                debug!(
-                    "Adding tile {:?} for {} to root container ({:?}).",
-                    child,
-                    pane_id,
-                    root_container.kind()
-                );
-                root_container.add_child(child);
-                self.tile_ids_by_pane_id.insert(pane_id, child);
-            } else {
-                panic!("Root tile is not a container.");
-            }
+        {
+            debug!(
+                "Adding tile {:?} for {} to root container ({:?}).",
+                child,
+                pane_id,
+                root_container.kind()
+            );
+            root_container.add_child(child);
+            self.tile_ids_by_pane_id.insert(pane_id, child);
         } else {
-            panic!("Root tile not found.");
+            panic!("Root tile not found or is not a container.");
         }
     }
 

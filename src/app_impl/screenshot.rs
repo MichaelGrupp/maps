@@ -88,17 +88,16 @@ impl AppState {
         {
             self.save_screenshot_dialog.update(ctx);
 
-            if let Some(file_path) = self.save_screenshot_dialog.take_picked() {
-                if let Some(image) = self.data.screenshot.take() {
-                    match image.save(file_path.clone()) {
-                        Ok(_) => {
-                            info!("Saved screenshot to {:?}", file_path);
-                        }
-                        Err(e) => {
-                            self.status.error =
-                                format!("Error saving screenshot: {:?}", e.to_string());
-                            error!("{}", self.status.error);
-                        }
+            if let Some(file_path) = self.save_screenshot_dialog.take_picked()
+                && let Some(image) = self.data.screenshot.take()
+            {
+                match image.save(file_path.clone()) {
+                    Ok(_) => {
+                        info!("Saved screenshot to {:?}", file_path);
+                    }
+                    Err(e) => {
+                        self.status.error = format!("Error saving screenshot: {:?}", e.to_string());
+                        error!("{}", self.status.error);
                     }
                 }
             }

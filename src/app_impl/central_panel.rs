@@ -60,10 +60,9 @@ impl AppState {
                 if let Some(response) = &map
                     .get_or_create_texture_state(STACKED_TEXTURE_ID)
                     .image_response
+                    && response.hovered()
                 {
-                    if response.hovered() {
-                        self.status.active_tool = Some(name.clone());
-                    }
+                    self.status.active_tool = Some(name.clone());
                 }
             });
         }
@@ -138,14 +137,15 @@ impl AppState {
             return;
         }
 
-        if grid.response().clicked() && self.options.active_tool == ActiveTool::PlaceLens {
-            if let Some(pos) = self.status.hover_position {
-                let id = Uuid::new_v4().to_string();
-                debug!("Placing lens {} focussing {:?}.", id, pos);
-                self.data.grid_lenses.insert(id, pos);
-                self.status.unsaved_changes = true;
-                self.options.active_tool = ActiveTool::None;
-            }
+        if grid.response().clicked()
+            && self.options.active_tool == ActiveTool::PlaceLens
+            && let Some(pos) = self.status.hover_position
+        {
+            let id = Uuid::new_v4().to_string();
+            debug!("Placing lens {} focussing {:?}.", id, pos);
+            self.data.grid_lenses.insert(id, pos);
+            self.status.unsaved_changes = true;
+            self.options.active_tool = ActiveTool::None;
         }
         let lens_ids = self.data.grid_lenses.keys().cloned().collect::<Vec<_>>();
         if self.options.active_tool == ActiveTool::PlaceLens || !lens_ids.is_empty() {
@@ -238,16 +238,15 @@ impl AppState {
             return;
         }
 
-        if let Some(map) = self.data.maps.get_mut(map_id) {
-            if Lens::with(&mut self.options.lens).show_on_hover(
+        if let Some(map) = self.data.maps.get_mut(map_id)
+            && Lens::with(&mut self.options.lens).show_on_hover(
                 ui,
                 map,
                 texture_id,
                 &self.options.canvas_settings,
-            ) && self.options.view_mode != ViewMode::Aligned
-            {
-                self.status.active_tool = Some(map_id.to_string());
-            }
+            )
+        {
+            self.status.active_tool = Some(map_id.to_string());
         }
     }
 
