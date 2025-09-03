@@ -286,73 +286,60 @@ impl AppState {
         }
     }
 
-    pub fn load_session(&mut self, path: &PathBuf) {
-        match persistence::load_session(path) {
-            Ok(deserialized_session) => {
-                // Start from the same path the next time.
-                self.load_session_file_dialog.config_mut().initial_directory = path.clone();
-                self.save_session_file_dialog.config_mut().initial_directory = path.clone();
+    pub fn load_session(&mut self, path: &PathBuf) -> Result<(), Error> {
+        let deserialized_session = persistence::load_session(path)?;
 
-                // Keep the draw order of the session, if it was saved.
-                // If it was not saved (older versions), add_map() will take care of it.
-                self.data
-                    .draw_order
-                    .extend(&deserialized_session.draw_order);
+        // Start from the same path the next time.
+        self.load_session_file_dialog.config_mut().initial_directory = path.clone();
+        self.save_session_file_dialog.config_mut().initial_directory = path.clone();
 
-                // If the session has no version field, it was saved with maps < 1.7.0.
-                // This means that the tint color was serialized with egui < 0.32 and
-                // might need migration.
-                let migrate_colors = deserialized_session.version.is_none();
-                if migrate_colors {
-                    debug!("Session was saved with maps < 1.7.0, migrating serialized colors.");
-                }
+        // Keep the draw order of the session, if it was saved.
+        // If it was not saved (older versions), add_map() will take care of it.
+        self.data
+            .draw_order
+            .extend(&deserialized_session.draw_order);
 
-                // Not everything gets serialized. Load actual data.
-                for (name, map) in deserialized_session.maps {
-                    debug!("Restoring map state: {}", name);
-                    match self.load_map(map.meta) {
-                        Ok(map_name) => {
-                            let map_state = self.data.maps.get_mut(&map_name).expect("missing map");
-                            map_state.pose = map.pose;
-                            map_state.visible = map.visible;
-                            map_state.tint = map.tint;
-                            if migrate_colors {
-                                map_state.tint = migrate_old_egui_color(map_state.tint);
-                            }
-                            if map_state.tint.is_some()
-                                || map_state.meta.value_interpretation.mode
-                                    != value_interpretation::Mode::Raw
-                            {
-                                // We need to set this because we would lose this map's tint
-                                // in the next frame if "All" is selected in the settings panel.
-                                self.options.tint_settings.active_tint_selection =
-                                    Some(name.clone());
-                            }
-                            self.tile_manager
-                                .set_visible(map_name.as_str(), map.visible);
-                            map_state.color_to_alpha = map.color_to_alpha;
-                            if migrate_colors {
-                                map_state.color_to_alpha =
-                                    migrate_old_egui_color(map_state.color_to_alpha);
-                            }
-                            self.status.unsaved_changes = false;
-                        }
-                        Err(e) => {
-                            self.status.error = e.to_string();
-                            error!("{}", e);
-                        }
-                    }
-                }
-                for (id, lens_pos) in deserialized_session.grid_lenses {
-                    debug!("Restoring lens {}", id);
-                    self.data.grid_lenses.insert(id, lens_pos);
-                }
-            }
-            Err(e) => {
-                self.status.error = e.to_string();
-                error!("{}", e);
-            }
+        // If the session has no version field, it was saved with maps < 1.7.0.
+        // This means that the tint color was serialized with egui < 0.32 and
+        // might need migration.
+        let migrate_colors = deserialized_session.version.is_none();
+        if migrate_colors {
+            debug!("Session was saved with maps < 1.7.0, migrating serialized colors.");
         }
+
+        // Not everything gets serialized. Load actual data.
+        for (name, map) in deserialized_session.maps {
+            debug!("Restoring map state: {}", name);
+            let map_name = self.load_map(map.meta)?;
+            let map_state = self.data.maps.get_mut(&map_name).expect("missing map");
+            map_state.pose = map.pose;
+            map_state.visible = map.visible;
+            map_state.tint = map.tint;
+            if migrate_colors {
+                map_state.tint = migrate_old_egui_color(map_state.tint);
+            }
+            if map_state.tint.is_some()
+                || map_state.meta.value_interpretation.mode != value_interpretation::Mode::Raw
+            {
+                // We need to set this because we would lose this map's tint
+                // in the next frame if "All" is selected in the settings panel.
+                self.options.tint_settings.active_tint_selection = Some(name.clone());
+            }
+            self.tile_manager
+                .set_visible(map_name.as_str(), map.visible);
+            map_state.color_to_alpha = map.color_to_alpha;
+            if migrate_colors {
+                map_state.color_to_alpha = migrate_old_egui_color(map_state.color_to_alpha);
+            }
+            self.status.unsaved_changes = false;
+        }
+
+        for (id, lens_pos) in deserialized_session.grid_lenses {
+            debug!("Restoring lens {}", id);
+            self.data.grid_lenses.insert(id, lens_pos);
+        }
+
+        Ok(())
     }
 
     pub(crate) fn load_session_button(&mut self, ui: &mut egui::Ui) {
@@ -367,7 +354,10 @@ impl AppState {
         self.load_session_file_dialog.update(ui.ctx());
 
         if let Some(path) = self.load_session_file_dialog.take_picked() {
-            self.load_session(&path);
+            self.load_session(&path).unwrap_or_else(|e| {
+                self.status.error = e.to_string();
+                error!("{}", e);
+            });
         }
     }
 

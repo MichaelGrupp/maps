@@ -31,7 +31,9 @@ fn main() {
     )
     .expect("Failed to initialize AppState");
 
-    app_state.load_session(&PathBuf::from(SESSION_FILENAME));
+    app_state
+        .load_session(&PathBuf::from(SESSION_FILENAME))
+        .expect("Failed to load session");
 
     // egui_kittest expects us to be in the root directory for saving the snapshot.
     std::env::set_current_dir(start_dir).expect("Failed to go back to start directory");

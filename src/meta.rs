@@ -96,6 +96,13 @@ impl Meta {
         let meta_yaml_annotated = MetaYamlAnnotated::from(yaml_path)?;
         let meta = Meta::from(meta_yaml_annotated);
         debug!("Parsed metadata: {:?}", meta);
+        if !meta.image_path.exists() {
+            return Err(Error::app(format!(
+                "Metadata from {} points to an image that does not exist: {}",
+                yaml_path.display(),
+                meta.image_path.display()
+            )));
+        }
         Ok(meta)
     }
 
