@@ -5,8 +5,6 @@ use fast_image_resize::images::Image as ResizeImage;
 use fast_image_resize::{IntoImageView, ResizeOptions, Resizer};
 use image::{GenericImageView, ImageBuffer, ImageReader};
 use imageproc::map::map_colors_mut;
-#[cfg(target_arch = "aarch64")]
-use log::warn;
 use log::{debug, info};
 
 #[allow(unused_imports)]
@@ -84,18 +82,6 @@ fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::Dyn
         img.pixel_type().expect("can't determine pixel type"),
     );
     let mut resizer = Resizer::new();
-
-    #[allow(unused_unsafe)]
-    unsafe {
-        // TODO: NEON is shown with artifacts. At least on Apple Silicon M4.
-        // This only seems to affect La8 images.
-        // See also: https://github.com/Cykooz/fast_image_resize/issues/49
-        #[cfg(target_arch = "aarch64")]
-        if resizer.cpu_extensions() == CpuExtensions::Neon && img.color() == image::ColorType::La8 {
-            warn!("Disabling NEON extensions for La8 image resize.");
-            resizer.set_cpu_extensions(CpuExtensions::None);
-        }
-    }
 
     let options = ResizeOptions::default();
     resizer
