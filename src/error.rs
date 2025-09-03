@@ -72,9 +72,4 @@ impl Error {
         toml_deserialize => TomlDeserialize, toml::de::Error;
         toml_serialize => TomlSerialize, toml::ser::Error;
     }
-
-    pub fn and_log_it(self) -> Self {
-        error!("{}", self);
-        self
-    }
 }
