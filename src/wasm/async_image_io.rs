@@ -34,10 +34,10 @@ pub fn pick_save_png(data: Arc<Mutex<AsyncData>>, image_name: String, image: Dyn
                 Err(e) => Err(format!("Failed to encode image {}: {:?}", image_name, e)),
             }
         };
-        if let Err(err_msg) = result {
-            if let Ok(mut locked_data) = data.try_lock() {
-                locked_data.error.clone_from(&err_msg);
-            }
+        if let Err(err_msg) = result
+            && let Ok(mut locked_data) = data.try_lock()
+        {
+            locked_data.error.clone_from(&err_msg);
         }
     });
 }

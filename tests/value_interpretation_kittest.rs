@@ -31,7 +31,7 @@ fn run(name: &str, session_file: &str) {
     )
     .expect("Failed to initialize AppState");
 
-    app_state.load_session(PathBuf::from(session_file));
+    app_state.load_session(&PathBuf::from(session_file));
 
     // This test shall output the raw interpretation without colormap.
     for map in app_state.data.maps.values_mut() {

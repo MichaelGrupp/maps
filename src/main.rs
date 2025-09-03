@@ -9,7 +9,7 @@ use std::{
 use {
     clap::Parser,
     eframe::egui,
-    log::{error, info, LevelFilter},
+    log::{LevelFilter, error, info},
     strum::VariantNames,
 };
 
@@ -259,7 +259,7 @@ fn main() -> eframe::Result {
         }
     }
 
-    if let Some(session) = args.session.clone() {
+    if let Some(session) = &args.session {
         if session.exists() {
             app_state.load_session(session);
         } else if !args.init_only {
@@ -267,16 +267,15 @@ fn main() -> eframe::Result {
             error!("Session file does not exist: {:?}", session);
             exit(1);
         }
-    }
 
-    if args.init_only {
-        if let Some(session) = args.session {
-            save_session(&session, &app_state.data).unwrap_or_else(|e| {
+        if args.init_only {
+            // In init_only mode, directly save the (possibly updated) session and exit.
+            save_session(session, &app_state.data).unwrap_or_else(|e| {
                 error!("Failed to write session file. {}", e.message);
                 exit(1);
             });
+            exit(0);
         }
-        exit(0);
     }
 
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);

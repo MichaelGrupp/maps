@@ -77,10 +77,10 @@ fn pick_save_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String, map_pose: M
                 ))
             }
         };
-        if let Err(err_msg) = result {
-            if let Ok(mut locked_data) = data.try_lock() {
-                locked_data.error.clone_from(&err_msg);
-            }
+        if let Err(err_msg) = result
+            && let Ok(mut locked_data) = data.try_lock()
+        {
+            locked_data.error.clone_from(&err_msg);
         }
     });
 }

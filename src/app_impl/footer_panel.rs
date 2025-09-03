@@ -5,29 +5,27 @@ use crate::app::{ActiveMovable, AppState, ViewMode};
 
 impl AppState {
     fn footer_left(&mut self, ui: &mut egui::Ui, narrow: bool) {
-        if !narrow {
-            if let Some(active_tool) = self.status.active_tool.as_ref() {
-                if self.options.view_mode == ViewMode::Aligned {
-                    ui.label(active_tool)
-                        .on_hover_text("Magnification can be changed in the options side menu.");
-                } else {
-                    ui.label(format!(
-                        "🔍 ({:.1}m) {}",
-                        self.options.lens.size_meters, active_tool
-                    ));
-                }
-                ui.separator();
+        if !narrow && let Some(active_tool) = self.status.active_tool.as_ref() {
+            if self.options.view_mode == ViewMode::Aligned {
+                ui.label(active_tool)
+                    .on_hover_text("Magnification can be changed in the options side menu.");
+            } else {
+                ui.label(format!(
+                    "🔍 ({:.1}m) {}",
+                    self.options.lens.size_meters, active_tool
+                ));
             }
+            ui.separator();
         }
         if let Some(pos) = self.status.hover_position {
             ui.label(format!("⌖ x: {:.3}m  y: {:.3}m", pos.x, pos.y,));
             ui.separator();
         }
-        if let Some(move_action) = &self.status.move_action {
-            if self.options.view_mode == ViewMode::Aligned {
-                ui.label(move_action);
-                ui.separator();
-            }
+        if let Some(move_action) = &self.status.move_action
+            && self.options.view_mode == ViewMode::Aligned
+        {
+            ui.label(move_action);
+            ui.separator();
         }
     }
 

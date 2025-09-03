@@ -199,19 +199,19 @@ impl AppState {
             self.data.maps.remove(name);
             self.data.draw_order.remove(name);
             self.tile_manager.remove_pane(name);
-            if let Some(active_tool) = &self.status.active_tool {
-                if active_tool == name {
-                    self.status.active_tool = None;
-                }
+            if let Some(active_tool) = &self.status.active_tool
+                && active_tool == name
+            {
+                self.status.active_tool = None;
             }
-            if let Some(active_tint_selection) = &self.options.tint_settings.active_tint_selection {
-                if active_tint_selection == name {
-                    // Set the selection to one of the remaining maps if possible.
-                    // This avoids falling back to "All" (None) when there are still
-                    // other maps with potentially custom tints.
-                    self.options.tint_settings.active_tint_selection =
-                        self.data.maps.keys().last().map(|s| s.to_string());
-                }
+            if let Some(active_tint_selection) = &self.options.tint_settings.active_tint_selection
+                && active_tint_selection == name
+            {
+                // Set the selection to one of the remaining maps if possible.
+                // This avoids falling back to "All" (None) when there are still
+                // other maps with potentially custom tints.
+                self.options.tint_settings.active_tint_selection =
+                    self.data.maps.keys().last().map(|s| s.to_string());
             }
             if self.options.pose_edit.selected_map == *name {
                 self.options.pose_edit.selected_map = "".to_string();
@@ -302,8 +302,8 @@ impl AppState {
         }
     }
 
-    pub fn load_session(&mut self, path: PathBuf) {
-        match persistence::load_session(&path) {
+    pub fn load_session(&mut self, path: &PathBuf) {
+        match persistence::load_session(path) {
             Ok(deserialized_session) => {
                 // Start from the same path the next time.
                 self.load_session_file_dialog.config_mut().initial_directory = path.clone();
@@ -383,7 +383,7 @@ impl AppState {
         self.load_session_file_dialog.update(ui.ctx());
 
         if let Some(path) = self.load_session_file_dialog.take_picked() {
-            self.load_session(path);
+            self.load_session(&path);
         }
     }
 
