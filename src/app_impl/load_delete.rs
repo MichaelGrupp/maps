@@ -1,12 +1,8 @@
 use std::collections::HashMap;
-#[cfg(not(target_arch = "wasm32"))]
-use std::env::current_dir;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use eframe::egui;
-#[cfg(not(target_arch = "wasm32"))]
-use egui_file_dialog::FileDialog;
 use log::{debug, error, info};
 
 use crate::image::load_image;
@@ -23,78 +19,6 @@ use crate::map_pose::MapPose;
 use crate::value_interpretation;
 
 impl AppState {
-    #[cfg(not(target_arch = "wasm32"))]
-    pub(crate) fn make_yaml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
-        FileDialog::new()
-            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
-            .add_file_filter(
-                "yaml",
-                Arc::new(|path| {
-                    ["yml", "yaml"].contains(
-                        &path
-                            .extension()
-                            .unwrap_or_default()
-                            .to_str()
-                            .unwrap_or_default(),
-                    )
-                }),
-            )
-            .default_file_filter("yaml")
-            .initial_directory(
-                initial_dir
-                    .clone()
-                    .unwrap_or(current_dir().expect("wtf no cwd??")),
-            )
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    pub(crate) fn make_toml_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
-        FileDialog::new()
-            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
-            .add_file_filter(
-                "toml",
-                Arc::new(|path| {
-                    ["toml"].contains(
-                        &path
-                            .extension()
-                            .unwrap_or_default()
-                            .to_str()
-                            .unwrap_or_default(),
-                    )
-                }),
-            )
-            .default_file_filter("toml")
-            .initial_directory(
-                initial_dir
-                    .clone()
-                    .unwrap_or(current_dir().expect("wtf no cwd??")),
-            )
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    pub(crate) fn make_png_file_dialog(initial_dir: &Option<PathBuf>) -> FileDialog {
-        FileDialog::new()
-            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
-            .add_file_filter(
-                "png",
-                Arc::new(|path| {
-                    ["png"].contains(
-                        &path
-                            .extension()
-                            .unwrap_or_default()
-                            .to_str()
-                            .unwrap_or_default(),
-                    )
-                }),
-            )
-            .default_file_filter("png")
-            .initial_directory(
-                initial_dir
-                    .clone()
-                    .unwrap_or(current_dir().expect("wtf no cwd??")),
-            )
-    }
-
     #[cfg(not(target_arch = "wasm32"))]
     fn load_meta(&mut self, yaml_path: &std::path::Path) -> Result<bool, Error> {
         let meta = Meta::load_from_file(yaml_path)?;

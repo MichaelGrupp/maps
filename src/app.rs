@@ -32,6 +32,8 @@ use crate::wasm::async_data::AsyncData;
 use std::sync::{Arc, Mutex};
 
 #[cfg(not(target_arch = "wasm32"))]
+use crate::app_impl::file_dialog_builder;
+#[cfg(not(target_arch = "wasm32"))]
 use image::DynamicImage;
 
 #[derive(
@@ -230,17 +232,17 @@ impl AppState {
 
         #[cfg(not(target_arch = "wasm32"))]
         {
-            state.load_meta_file_dialog = Self::make_yaml_file_dialog(&_default_dir);
-            state.load_map_pose_file_dialog = Self::make_yaml_file_dialog(&_default_dir);
-            state.save_map_pose_file_dialog = Self::make_yaml_file_dialog(&_default_dir)
+            state.load_meta_file_dialog = file_dialog_builder::yaml(&_default_dir);
+            state.load_map_pose_file_dialog = file_dialog_builder::yaml(&_default_dir);
+            state.save_map_pose_file_dialog = file_dialog_builder::yaml(&_default_dir)
                 .allow_file_overwrite(true)
                 .default_file_name("map_pose.yaml");
-            state.load_session_file_dialog = Self::make_toml_file_dialog(&_default_dir);
-            state.save_session_file_dialog = Self::make_toml_file_dialog(&_default_dir)
+            state.load_session_file_dialog = file_dialog_builder::toml(&_default_dir);
+            state.save_session_file_dialog = file_dialog_builder::toml(&_default_dir)
                 .allow_file_overwrite(true)
                 .default_file_name("maps_session.toml");
             state.save_screenshot_dialog =
-                Self::make_png_file_dialog(&_default_dir).default_file_name("maps_screenshot.png");
+                file_dialog_builder::png(&_default_dir).default_file_name("maps_screenshot.png");
         }
 
         const TRACING_BUFFER_SIZE: usize = 600;

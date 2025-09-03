@@ -5,6 +5,8 @@ mod compat;
 pub(crate) mod constants;
 pub(crate) mod debug_window;
 pub(crate) mod error_modal;
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) mod file_dialog_builder;
 pub(crate) mod footer_panel;
 mod grid_settings;
 pub(crate) mod header_panel;
