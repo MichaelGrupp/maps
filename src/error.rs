@@ -1,13 +1,19 @@
+//! Error handling for the `maps` crate.
+
 use log::error;
 use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+/// Error types for the `maps` crate.
+/// Allows to handle app errors and wrapped external errors in a unified way.
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("{context}")]
-    App { context: String },
+    /// A `maps`-internal and application-specific error.
+    #[error("{message}")]
+    App { message: String },
 
+    /// An I/O error with additional context.
     #[error("[IO error] {context} ({source})")]
     Io {
         context: String,
@@ -15,6 +21,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
+    /// Image loading or processing error with additional context.
     #[error("[Image error] {context} ({source})")]
     Image {
         context: String,
@@ -22,6 +29,7 @@ pub enum Error {
         source: image::ImageError,
     },
 
+    /// YAML serialization or deserialization error with additional context.
     #[error("[YAML error] {context} ({source})")]
     Yaml {
         context: String,
@@ -29,6 +37,7 @@ pub enum Error {
         source: serde_yaml_ng::Error,
     },
 
+    /// TOML deserialization error with additional context.
     #[error("[TOML error] {context} ({source})")]
     TomlDeserialize {
         context: String,
@@ -36,6 +45,7 @@ pub enum Error {
         source: toml::de::Error,
     },
 
+    /// TOML serialization error with additional context.
     #[error("[TOML error] {context} ({source})")]
     TomlSerialize {
         context: String,
@@ -44,10 +54,11 @@ pub enum Error {
     },
 }
 
-/// Macro for implementing error constructors.
+/// Macro for generating wrapping error constructors with doc comments.
 macro_rules! impl_error_constructors {
     ($($method_name:ident => $variant:ident, $error_type:ty);* $(;)?) => {
         $(
+            #[doc = concat!("Wrap a `", stringify!($error_type), "` with additional context message.")]
             pub fn $method_name(context: impl ToString, source: $error_type) -> Self {
                 Self::$variant {
                     context: context.to_string(),
@@ -59,12 +70,14 @@ macro_rules! impl_error_constructors {
 }
 
 impl Error {
-    pub fn app(context: impl ToString) -> Self {
+    /// Create a new app-related error with a full error message.
+    pub fn app(message: impl ToString) -> Self {
         Self::App {
-            context: context.to_string(),
+            message: message.to_string(),
         }
     }
 
+    // Generate the wrapping error constructors.
     impl_error_constructors! {
         io => Io, std::io::Error;
         image => Image, image::ImageError;
