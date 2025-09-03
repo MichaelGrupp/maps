@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 #[cfg(not(target_arch = "wasm32"))]
 use std::env::current_dir;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use eframe::egui;
@@ -96,7 +96,7 @@ impl AppState {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    fn load_meta(&mut self, yaml_path: &Path) -> Result<bool, Error> {
+    fn load_meta(&mut self, yaml_path: &std::path::Path) -> Result<bool, Error> {
         let meta = Meta::load_from_file(yaml_path)?;
         self.load_map(meta)?;
         Ok(true)
