@@ -5,7 +5,7 @@ use fast_image_resize::images::Image as ResizeImage;
 use fast_image_resize::{IntoImageView, ResizeOptions, Resizer};
 use image::{GenericImageView, ImageBuffer, ImageReader};
 use imageproc::map::map_colors_mut;
-use log::{debug, info};
+use log::debug;
 
 #[allow(unused_imports)]
 use fast_image_resize::CpuExtensions;
@@ -15,7 +15,7 @@ use crate::path_helpers::resolve_symlink;
 
 pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
     let path = resolve_symlink(path);
-    info!("Loading image: {:?}", path);
+    debug!("Loading image: {:?}", path);
     let mut reader =
         ImageReader::open(&path).map_err(|e| Error::io(format!("Cannot open {path:?}"), e))?;
 
