@@ -54,6 +54,9 @@ impl AppState {
                         ui.label("left click / l");
                         ui.label("Toggle hovering lens.");
                         ui.end_row();
+                        ui.label("double click");
+                        ui.label("Reset grid in 'Aligned' view.");
+                        ui.end_row();
                         ui.label("g");
                         ui.label("Toggle grid lines in 'Aligned' view.");
                         ui.end_row();

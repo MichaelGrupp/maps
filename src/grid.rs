@@ -235,6 +235,9 @@ impl Grid {
                 options.zoom(scale_delta, Some(target_pos));
             }
         }
+        if self.response.double_clicked() {
+            *options = GridOptions::default();
+        }
     }
 
     pub fn draw_background(&self, color: egui::Color32) {
