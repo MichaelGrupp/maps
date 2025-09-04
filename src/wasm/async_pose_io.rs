@@ -25,7 +25,7 @@ fn pick_load_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String) {
             let result = {
                 match MapPose::from_bytes(&file_handle.read().await) {
                     Ok(map_pose) => Ok(map_pose),
-                    Err(e) => Err(format!("Loading map pose file: {}", e)),
+                    Err(e) => Err(format!("Loading map pose file: {e}")),
                 }
             };
             match result {
@@ -66,14 +66,12 @@ fn pick_save_map_pose(data: Arc<Mutex<AsyncData>>, map_name: String, map_pose: M
                 match file_handle.write(bytes.as_slice()).await {
                     Ok(_) => Ok(()),
                     Err(e) => Err(format!(
-                        "Error saving map pose file for map {}: {:?}",
-                        map_name, e
+                        "Error saving map pose file for map {map_name}: {e:?}"
                     )),
                 }
             } else {
                 Err(format!(
-                    "Error serializing map pose file for map {}",
-                    map_name
+                    "Error serializing map pose file for map {map_name}"
                 ))
             }
         };
@@ -101,7 +99,7 @@ impl AppState {
     pub(crate) fn save_map_pose_button(&mut self, ui: &mut egui::Ui, map_name: &str) {
         if ui.button("💾 Save Pose").clicked() {
             let Some(map_pose) = self.data.maps.get(map_name).map(|map| map.pose.clone()) else {
-                self.status.error = format!("Can't save pose, map {} not found.", map_name);
+                self.status.error = format!("Can't save pose, map {map_name} not found.");
                 return;
             };
 

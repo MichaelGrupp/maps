@@ -25,7 +25,7 @@ pub(crate) fn demo_button(
     if button_handle.is_none() {
         *button_handle = Some(ui.ctx().load_texture(
             texture_name,
-            to_egui_image(load_image_from_bytes(image_bytes).expect("broken demo")),
+            to_egui_image(&load_image_from_bytes(image_bytes).expect("broken demo")),
             Default::default(),
         ));
     }
@@ -72,7 +72,7 @@ fn load_cartographer_demo(app_state: &mut AppState) {
                 &name,
             )
             .expect("broken demo");
-            app_state.add_map(&name, meta, img);
+            app_state.add_map(&name, meta, &img);
 
             let map = app_state
                 .data
@@ -162,7 +162,7 @@ struct Nav2MapConfig<'a> {
 
 /// Helper function to load a single nav2 example map.
 #[cfg(target_arch = "wasm32")]
-fn load_nav2_map(app_state: &mut AppState, config: Nav2MapConfig) {
+fn load_nav2_map(app_state: &mut AppState, config: &Nav2MapConfig) {
     let name = config.name.to_string();
     let img = Arc::new(ImagePyramid::new(
         load_image_from_bytes(config.image_bytes).expect("broken nav2 demo"),
@@ -179,7 +179,7 @@ fn load_nav2_map(app_state: &mut AppState, config: Nav2MapConfig) {
         meta.value_interpretation.colormap = cmap;
     }
 
-    app_state.add_map(&name, meta, img);
+    app_state.add_map(&name, meta, &img);
 
     let map = app_state
         .data
@@ -200,7 +200,7 @@ fn load_nav2_map(app_state: &mut AppState, config: Nav2MapConfig) {
 fn load_nav2_demo(app_state: &mut AppState) {
     load_nav2_map(
         app_state,
-        Nav2MapConfig {
+        &Nav2MapConfig {
             name: "warehouse_speed.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/warehouse_speed.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/warehouse_speed.yaml"),
@@ -213,7 +213,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
 
     load_nav2_map(
         app_state,
-        Nav2MapConfig {
+        &Nav2MapConfig {
             name: "warehouse_keepout.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/warehouse_keepout.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/warehouse_keepout.yaml"),
@@ -226,7 +226,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
 
     load_nav2_map(
         app_state,
-        Nav2MapConfig {
+        &Nav2MapConfig {
             name: "warehouse.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/warehouse.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/warehouse.yaml"),
@@ -239,7 +239,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
 
     load_nav2_map(
         app_state,
-        Nav2MapConfig {
+        &Nav2MapConfig {
             name: "depot_speed.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/depot_speed.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/depot_speed.yaml"),
@@ -252,7 +252,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
 
     load_nav2_map(
         app_state,
-        Nav2MapConfig {
+        &Nav2MapConfig {
             name: "depot_keepout.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/depot_keepout.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/depot_keepout.yaml"),
@@ -265,7 +265,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
 
     load_nav2_map(
         app_state,
-        Nav2MapConfig {
+        &Nav2MapConfig {
             name: "depot.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/depot.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/depot.yaml"),

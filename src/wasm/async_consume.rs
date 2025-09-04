@@ -38,7 +38,7 @@ impl AppState {
 
         for (meta, image_pyramid) in metas_and_images {
             let name = meta.yaml_path.to_str().unwrap().to_owned();
-            self.add_map(&name, meta, image_pyramid);
+            self.add_map(&name, meta, &image_pyramid);
         }
 
         for (name, map_pose) in map_poses {
