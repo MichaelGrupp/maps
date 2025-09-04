@@ -31,6 +31,12 @@ inherits = "release"
 # To check all pedantic lints, alternatively add pedantic = "warn" here.
 [lints.clippy]
 # pedantic = "warn"
+manual_let_else = "warn"
+match_same_arms = "warn"
+needless_pass_by_value = "warn"
+redundant_else = "warn"
+ref_option = "warn"
+trivially_copy_pass_by_ref = "warn"
 uninlined_format_args = "warn"
 
 [dependencies]

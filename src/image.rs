@@ -42,7 +42,7 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
     Ok(img)
 }
 
-pub fn to_egui_image(img: image::DynamicImage) -> egui::ColorImage {
+pub fn to_egui_image(img: &image::DynamicImage) -> egui::ColorImage {
     let size = [img.width() as usize, img.height() as usize];
     // TODO: rgba might make sense here if we want to use alpha later?
     let pixels = img.to_rgba8().into_raw();
@@ -135,9 +135,9 @@ pub fn color_to_alpha(img: &mut image::DynamicImage, color: Option<egui::Color32
 
 pub fn to_rgba8(img: image::DynamicImage) -> image::DynamicImage {
     match img.color() {
-        image::ColorType::L8 => image::DynamicImage::from(img.to_rgba8()),
-        image::ColorType::La8 => image::DynamicImage::from(img.to_rgba8()),
-        image::ColorType::Rgb8 => image::DynamicImage::from(img.to_rgba8()),
+        image::ColorType::L8 | image::ColorType::La8 | image::ColorType::Rgb8 => {
+            image::DynamicImage::from(img.to_rgba8())
+        }
         image::ColorType::Rgba8 => img,
         _ => panic!("Unsupported color type: {:?}", img.color()),
     }

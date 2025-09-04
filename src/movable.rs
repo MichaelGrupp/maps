@@ -31,10 +31,8 @@ pub trait Rotatable {
 
     fn rotate_directed(&mut self, amount: f32, direction: DragDirection) {
         let delta = match direction {
-            DragDirection::Up => amount,
-            DragDirection::Down => -amount,
-            DragDirection::Left => amount,
-            DragDirection::Right => -amount,
+            DragDirection::Up | DragDirection::Left => amount,
+            DragDirection::Down | DragDirection::Right => -amount,
         };
         self.rotate(delta);
     }

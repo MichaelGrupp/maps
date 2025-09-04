@@ -50,7 +50,7 @@ impl AppState {
         }
     }
 
-    pub(crate) fn add_map(&mut self, name: &String, meta: Meta, image_pyramid: Arc<ImagePyramid>) {
+    pub(crate) fn add_map(&mut self, name: &String, meta: Meta, image_pyramid: &Arc<ImagePyramid>) {
         let use_interpretation = meta.value_interpretation.explicit_mode;
         if use_interpretation {
             // This map has an explicitly specified value interpretation.
@@ -98,7 +98,7 @@ impl AppState {
             .to_str()
             .expect("invalid unicode path, can't use as map name")
             .to_owned();
-        self.add_map(&name, meta, image_pyramid);
+        self.add_map(&name, meta, &image_pyramid);
         Ok(name)
     }
 

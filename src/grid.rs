@@ -120,12 +120,12 @@ impl Grid {
     }
 
     /// Converts a point grid coordinate to a metric coordinate.
-    pub fn to_metric(&self, point: &egui::Pos2) -> egui::Pos2 {
-        (flip(*point - self.origin_in_points) / self.points_per_meter).to_pos2()
+    pub fn to_metric(&self, point: egui::Pos2) -> egui::Pos2 {
+        (flip(point - self.origin_in_points) / self.points_per_meter).to_pos2()
     }
 
     /// Converts a metric grid coordinate to points.
-    pub fn to_point(&self, metric: &egui::Pos2) -> egui::Pos2 {
+    pub fn to_point(&self, metric: egui::Pos2) -> egui::Pos2 {
         flip(metric.to_vec2()).to_pos2() * self.points_per_meter + self.origin_in_points.to_vec2()
     }
 
@@ -155,7 +155,7 @@ impl Grid {
             .with_tint(map.tint)
             .with_color_to_alpha(map.color_to_alpha)
             .with_thresholding(map.get_value_interpretation())
-            .with_texture_options(&map.texture_filter.get(relation.points_per_cell));
+            .with_texture_options(map.texture_filter.get(relation.points_per_cell));
 
         let placement = ImagePlacement {
             rotation: pose_rotation * origin_rotation,
@@ -209,7 +209,7 @@ impl Grid {
         if !self.response.hovered() {
             return None;
         }
-        self.response.hover_pos().map(|pos| self.to_metric(&pos))
+        self.response.hover_pos().map(|pos| self.to_metric(pos))
     }
 
     /// Drags and zooms the grid according to the input interaction.
@@ -243,7 +243,7 @@ impl Grid {
     }
 
     /// Draws vertical & horizontal grid lines according to the desired options and line type.
-    pub fn draw_lines(&self, options: &GridOptions, line_type: LineType) {
+    pub fn draw_lines(&self, options: &GridOptions, line_type: &LineType) {
         if !options.lines_visible {
             return;
         }
@@ -252,7 +252,7 @@ impl Grid {
             GridLineDimension::Screen => options.line_spacing_points,
             GridLineDimension::Metric => options.line_spacing_meters * self.points_per_meter,
         };
-        if line_type == LineType::Sub {
+        if *line_type == LineType::Sub {
             spacing_points /= options.sub_lines_factor as f32;
         }
 
@@ -290,7 +290,13 @@ impl Grid {
             for i in -neg_lines..=pos_lines {
                 let coord = origin_coord + (i as f32) * spacing_points;
                 if coord >= min_bound && coord <= max_bound {
-                    self.draw_line(coord, options, &line_type, &label_text_options, &direction);
+                    self.draw_line(
+                        coord,
+                        options,
+                        line_type,
+                        label_text_options.as_ref(),
+                        &direction,
+                    );
                 }
             }
         }
@@ -301,7 +307,7 @@ impl Grid {
         coord: f32,
         options: &GridOptions,
         line_type: &LineType,
-        label_text_options: &Option<LabelTextOptions>,
+        label_text_options: Option<&LabelTextOptions>,
         direction: &LineDirection,
     ) {
         let stroke = match line_type {
@@ -371,7 +377,7 @@ impl Grid {
         );
 
         let pos = match pose {
-            Some(p) => self.to_point(&(p.vec2()).to_pos2()),
+            Some(p) => self.to_point(p.vec2().to_pos2()),
             None => self.origin_in_points,
         };
         let x_vec = match pose {
@@ -398,7 +404,7 @@ impl Grid {
     /// Set `temporary_end` to display an unfinished measurement.
     pub fn draw_measure(&self, options: &GridOptions, temporary_end: Option<egui::Pos2>) {
         if let Some(start_metric) = options.measure_start {
-            let start = self.to_point(&start_metric);
+            let start = self.to_point(start_metric);
             self.painter.circle_filled(
                 start,
                 options.measure_stroke.width * 2.,
@@ -408,7 +414,7 @@ impl Grid {
             let end_metric = options
                 .measure_end
                 .unwrap_or(temporary_end.unwrap_or(start_metric));
-            let end = self.to_point(&end_metric);
+            let end = self.to_point(end_metric);
             self.painter
                 .line_segment([start, end], options.measure_stroke);
             self.painter.circle_filled(

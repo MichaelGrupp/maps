@@ -6,21 +6,21 @@ use eframe::egui;
 use egui_file_dialog::FileDialog;
 
 /// Creates a file dialog for YAML files.
-pub fn yaml(initial_dir: &Option<PathBuf>) -> FileDialog {
+pub fn yaml(initial_dir: Option<&PathBuf>) -> FileDialog {
     FileDialogBuilder::new(initial_dir)
         .with_filter("YAML", vec!["yaml", "yml"])
         .build()
 }
 
 /// Creates a file dialog for TOML files.
-pub fn toml(initial_dir: &Option<PathBuf>) -> FileDialog {
+pub fn toml(initial_dir: Option<&PathBuf>) -> FileDialog {
     FileDialogBuilder::new(initial_dir)
         .with_filter("TOML", vec!["toml"])
         .build()
 }
 
 /// Creates a file dialog for PNG files.
-pub fn png(initial_dir: &Option<PathBuf>) -> FileDialog {
+pub fn png(initial_dir: Option<&PathBuf>) -> FileDialog {
     FileDialogBuilder::new(initial_dir)
         .with_filter("PNG", vec!["png"])
         .build()
@@ -31,13 +31,13 @@ pub(crate) struct FileDialogBuilder {
 }
 
 impl FileDialogBuilder {
-    pub fn new(initial_dir: &Option<PathBuf>) -> Self {
+    pub fn new(initial_dir: Option<&PathBuf>) -> Self {
         FileDialogBuilder {
             dialog: FileDialog::new()
                 .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0., 0.))
                 .initial_directory(
                     initial_dir
-                        .clone()
+                        .cloned()
                         .unwrap_or(current_dir().expect("wtf no cwd??")),
                 ),
         }

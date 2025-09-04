@@ -132,13 +132,13 @@ impl ValueInterpretation {
                 map_colors_mut(img, |c| {
                     self.colormap
                         .get()
-                        .map(self.interpret(&c, original_has_alpha)[0])
+                        .map(self.interpret(c, original_has_alpha)[0])
                 });
             }
         }
     }
 
-    fn avg_float(&self, pixel: &Rgba<u8>, has_alpha: bool) -> f32 {
+    fn avg_float(&self, pixel: Rgba<u8>, has_alpha: bool) -> f32 {
         let num_channels = match self.quirks {
             // Nothing documented about alpha averaging in ROS 1 Wiki.
             Quirks::Ros1Wiki => 3,
@@ -164,7 +164,7 @@ impl ValueInterpretation {
         (255. - avg) / 255.
     }
 
-    fn interpret(&self, pixel: &Rgba<u8>, has_alpha: bool) -> Rgba<u8> {
+    fn interpret(&self, pixel: Rgba<u8>, has_alpha: bool) -> Rgba<u8> {
         let p = self.avg_float(pixel, has_alpha);
         let alpha = pixel[3];
 
@@ -210,13 +210,13 @@ mod tests {
         let thresholding = ValueInterpretation::new(0.196, 0.65, false, None);
 
         let pixel = Rgba([128, 128, 128, 255]);
-        assert!(thresholding.avg_float(&pixel, false) - 0.5 < EPS);
+        assert!(thresholding.avg_float(pixel, false) - 0.5 < EPS);
 
         let pixel = Rgba([255, 255, 255, 255]);
-        assert_eq!(thresholding.avg_float(&pixel, false), 0.);
+        assert_eq!(thresholding.avg_float(pixel, false), 0.);
 
         let pixel = Rgba([0, 0, 0, 255]);
-        assert_eq!(thresholding.avg_float(&pixel, false), 1.);
+        assert_eq!(thresholding.avg_float(pixel, false), 1.);
     }
 
     #[test]

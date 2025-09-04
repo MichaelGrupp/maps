@@ -55,11 +55,10 @@ impl TextureCache {
         if let Some(cached_texture) = self.cache.get(&cache_key) {
             if cached_texture.matches_appearance(request) {
                 return Some(cached_texture.texture_handle.clone());
-            } else {
-                trace!("Cache miss for client {client} at level {pyramid_level}.");
-                // Remove outdated cache entry.
-                self.cache.remove(&cache_key);
             }
+            trace!("Cache miss for client {client} at level {pyramid_level}.");
+            // Remove outdated cache entry.
+            self.cache.remove(&cache_key);
         }
 
         None

@@ -61,12 +61,9 @@ impl<'a> Lens<'a> {
             .entry(texture_state_id.to_string())
             .or_insert(TextureState::new(map.image_pyramid.clone()));
 
-        let response = match &texture_state.image_response {
-            Some(response) => response,
-            None => {
-                // Can be missing e.g. if a tab is not visible yet.
-                return false;
-            }
+        let Some(response) = &texture_state.image_response else {
+            // Can be missing e.g. if a tab is not visible yet.
+            return false;
         };
 
         let Some(pointer_pos) = response.hover_pos() else {
@@ -128,7 +125,7 @@ impl<'a> Lens<'a> {
 
         let overlay_texture_handle = ui.ctx().load_texture(
             "overlay_".to_owned() + texture_state_id,
-            to_egui_image(cropped_image),
+            to_egui_image(&cropped_image),
             map.texture_filter.get(1.),
         );
 

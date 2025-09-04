@@ -232,17 +232,17 @@ impl AppState {
 
         #[cfg(not(target_arch = "wasm32"))]
         {
-            state.load_meta_file_dialog = file_dialog_builder::yaml(&_default_dir);
-            state.load_map_pose_file_dialog = file_dialog_builder::yaml(&_default_dir);
-            state.save_map_pose_file_dialog = file_dialog_builder::yaml(&_default_dir)
+            state.load_meta_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref());
+            state.load_map_pose_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref());
+            state.save_map_pose_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref())
                 .allow_file_overwrite(true)
                 .default_file_name("map_pose.yaml");
-            state.load_session_file_dialog = file_dialog_builder::toml(&_default_dir);
-            state.save_session_file_dialog = file_dialog_builder::toml(&_default_dir)
+            state.load_session_file_dialog = file_dialog_builder::toml(_default_dir.as_ref());
+            state.save_session_file_dialog = file_dialog_builder::toml(_default_dir.as_ref())
                 .allow_file_overwrite(true)
                 .default_file_name("maps_session.toml");
-            state.save_screenshot_dialog =
-                file_dialog_builder::png(&_default_dir).default_file_name("maps_screenshot.png");
+            state.save_screenshot_dialog = file_dialog_builder::png(_default_dir.as_ref())
+                .default_file_name("maps_screenshot.png");
         }
 
         const TRACING_BUFFER_SIZE: usize = 600;

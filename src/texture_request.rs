@@ -69,11 +69,8 @@ impl TextureRequest {
         self
     }
 
-    pub fn with_texture_options(
-        mut self,
-        texture_options: &egui::TextureOptions,
-    ) -> TextureRequest {
-        self.texture_options = Some(*texture_options);
+    pub fn with_texture_options(mut self, texture_options: egui::TextureOptions) -> TextureRequest {
+        self.texture_options = Some(texture_options);
         self
     }
 }
@@ -125,15 +122,15 @@ impl RotatedCropRequest {
         ui: &egui::Ui,
         viewport_clip_rect: &egui::Rect,
         image_rect: &egui::Rect,
-        rotation: &eframe::emath::Rot2,
-        translation: &egui::Vec2,
-        rotation_center_in_points: &egui::Vec2,
+        rotation: eframe::emath::Rot2,
+        translation: egui::Vec2,
+        rotation_center_in_points: egui::Vec2,
         points_per_pixel: f32,
     ) -> egui::Rect {
-        let origin_in_points = (image_rect.min - *rotation_center_in_points).to_vec2();
+        let origin_in_points = (image_rect.min - rotation_center_in_points).to_vec2();
 
-        let rotated = rotate(image_rect, *rotation, origin_in_points);
-        let transformed = rotated.translate(*translation);
+        let rotated = rotate(image_rect, rotation, origin_in_points);
+        let transformed = rotated.translate(translation);
         debug_paint(ui, transformed, egui::Color32::RED, "transformed");
 
         let transformed_visible = transformed.intersect(*viewport_clip_rect);
@@ -145,7 +142,7 @@ impl RotatedCropRequest {
         );
 
         let min_crop = rotate(
-            &transformed_visible.translate(-*translation),
+            &transformed_visible.translate(-translation),
             rotation.inverse(),
             origin_in_points,
         );
@@ -192,9 +189,9 @@ impl RotatedCropRequest {
                 ui,
                 viewport_clip_rect,
                 &image_rect,
-                &placement.rotation,
-                &placement.translation,
-                &placement.rotation_center,
+                placement.rotation,
+                placement.translation,
+                placement.rotation_center,
                 placement.points_per_pixel,
             )
         };

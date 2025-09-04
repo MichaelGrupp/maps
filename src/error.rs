@@ -71,6 +71,7 @@ macro_rules! impl_error_constructors {
 
 impl Error {
     /// Create a new app-related error with a full error message.
+    #[allow(clippy::needless_pass_by_value)]
     pub fn app(message: impl ToString) -> Self {
         Self::App {
             message: message.to_string(),

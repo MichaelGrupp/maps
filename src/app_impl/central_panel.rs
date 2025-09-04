@@ -54,7 +54,7 @@ impl AppState {
                     .with_tint(map.tint)
                     .with_color_to_alpha(map.color_to_alpha)
                     .with_thresholding(map.get_value_interpretation())
-                    .with_texture_options(&map.texture_filter.get(1.));
+                    .with_texture_options(map.texture_filter.get(1.));
                 map.get_or_create_texture_state(STACKED_TEXTURE_ID)
                     .put(ui, request);
                 if let Some(response) = &map
@@ -94,10 +94,10 @@ impl AppState {
 
         grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
         if options.lines_visible {
-            grid.draw_lines(options, LineType::Main);
+            grid.draw_lines(options, &LineType::Main);
         }
         if options.sub_lines_visible == SubLineVisibility::Always {
-            grid.draw_lines(options, LineType::Sub);
+            grid.draw_lines(options, &LineType::Sub);
         }
         if options.marker_visibility.zero_visible() {
             grid.draw_axes(options, None);
@@ -204,12 +204,12 @@ impl AppState {
             if center_pos.is_some() {
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
                 if options.lines_visible {
-                    mini_grid.draw_lines(options, LineType::Main);
+                    mini_grid.draw_lines(options, &LineType::Main);
                 }
                 if options.sub_lines_visible == SubLineVisibility::Always
                     || options.sub_lines_visible == SubLineVisibility::OnlyLens
                 {
-                    mini_grid.draw_lines(options, LineType::Sub);
+                    mini_grid.draw_lines(options, &LineType::Sub);
                 }
                 if options.marker_visibility.zero_visible() {
                     mini_grid.draw_axes(options, None);

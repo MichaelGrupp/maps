@@ -76,7 +76,7 @@ impl TextureState {
             }
             ui.ctx().load_texture(
                 request.client.clone(),
-                to_egui_image(image),
+                to_egui_image(&image),
                 self.texture_options,
             )
         });
@@ -198,7 +198,7 @@ impl TextureState {
 
         let texture_handle = ui.ctx().load_texture(
             format!("{}_{}", request.uncropped.client, level),
-            to_egui_image(cropped_image),
+            to_egui_image(&cropped_image),
             self.texture_options,
         );
 
