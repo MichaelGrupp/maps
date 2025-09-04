@@ -187,7 +187,7 @@ impl AppState {
             ui.ctx().request_repaint();
             debug!("Saving pose file: {:?}", path);
             let Some(map) = self.data.maps.get(map_name) else {
-                self.status.error = format!("Can't save pose, map doesn't exist: {}", map_name);
+                self.status.error = format!("Can't save pose, map doesn't exist: {map_name}");
                 error!("{}", self.status.error);
                 return;
             };

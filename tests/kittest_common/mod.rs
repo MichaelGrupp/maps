@@ -27,9 +27,8 @@ pub fn snapshot_full_app(app_state: AppState, test_name: &str, size: egui::Vec2)
         harness.snapshot(test_name);
     } else {
         println!(
-            "Snapshot diff test for {} skipped. \
-            Enable the 'kittest_snapshots' feature to run it.",
-            test_name
+            "Snapshot diff test for {test_name} skipped. \
+            Enable the 'kittest_snapshots' feature to run it."
         );
     }
 }

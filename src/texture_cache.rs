@@ -39,7 +39,7 @@ impl TextureCache {
     }
 
     fn generate_key(client: &str, pyramid_level: u32) -> String {
-        format!("{}_{}", client, pyramid_level)
+        format!("{client}_{pyramid_level}")
     }
 
     /// Queries the cache for a texture that matches the client, level, and appearance requirements.

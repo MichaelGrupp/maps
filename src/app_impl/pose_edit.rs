@@ -216,7 +216,7 @@ impl AppState {
                     }
                     if ui
                         .button(display_path(name, self.options.display.show_full_paths))
-                        .on_hover_text(format!("Click to copy the map pose also to {}.", name))
+                        .on_hover_text(format!("Click to copy the map pose also to {name}."))
                         .clicked()
                     {
                         selected_maps.push(name.clone());

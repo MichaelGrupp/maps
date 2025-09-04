@@ -68,10 +68,10 @@ pub fn save_app_options(options: &AppOptions) {
 pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<()> {
     info!("Saving session to {:?}", path);
     let toml = toml::to_string_pretty(session)
-        .map_err(|e| Error::toml_serialize(format!("Cannot serialize session to {:?}", path), e))?;
+        .map_err(|e| Error::toml_serialize(format!("Cannot serialize session to {path:?}"), e))?;
 
     std::fs::write(path, toml)
-        .map_err(|e| Error::io(format!("Cannot save session to {:?}", path), e))?;
+        .map_err(|e| Error::io(format!("Cannot save session to {path:?}"), e))?;
 
     Ok(())
 }
@@ -79,9 +79,9 @@ pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<()> {
 pub fn load_session(path: &PathBuf) -> Result<SessionData> {
     info!("Loading session from {:?}", path);
     let toml = std::fs::read_to_string(path)
-        .map_err(|e| Error::io(format!("Cannot load session from {:?}", path), e))?;
+        .map_err(|e| Error::io(format!("Cannot load session from {path:?}"), e))?;
 
     toml::from_str(&toml).map_err(|e| {
-        Error::toml_deserialize(format!("Cannot deserialize session from {:?}", path), e)
+        Error::toml_deserialize(format!("Cannot deserialize session from {path:?}"), e)
     })
 }

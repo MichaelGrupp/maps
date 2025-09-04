@@ -17,12 +17,12 @@ pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
     let path = resolve_symlink(path);
     info!("Loading image: {:?}", path);
     let mut reader =
-        ImageReader::open(&path).map_err(|e| Error::io(format!("Cannot open {:?}", path), e))?;
+        ImageReader::open(&path).map_err(|e| Error::io(format!("Cannot open {path:?}"), e))?;
 
     reader.no_limits();
     let img = reader
         .decode()
-        .map_err(|e| Error::image(format!("Cannot decode {:?}", path), e))?;
+        .map_err(|e| Error::image(format!("Cannot decode {path:?}"), e))?;
 
     debug!("Loaded image: {:?} {:?}", path, img.dimensions());
     Ok(img)

@@ -123,10 +123,10 @@ impl MapPose {
     /// Note that angles are normalized to the range [-π, π] by this.
     pub fn from_yaml_file(yaml_path: &PathBuf) -> Result<MapPose> {
         let file = std::fs::File::open(resolve_symlink(yaml_path))
-            .map_err(|e| Error::io(format!("Cannot open map pose file {:?}", yaml_path), e))?;
+            .map_err(|e| Error::io(format!("Cannot open map pose file {yaml_path:?}"), e))?;
 
         let map_pose = serde_yaml_ng::from_reader::<std::fs::File, MapPose>(file)
-            .map_err(|e| Error::yaml(format!("Cannot parse map pose from {:?}", yaml_path), e))?
+            .map_err(|e| Error::yaml(format!("Cannot parse map pose from {yaml_path:?}"), e))?
             .normalized();
 
         debug!(
@@ -154,7 +154,7 @@ impl MapPose {
     pub fn to_yaml_file(&self, yaml_path: &PathBuf) -> Result<()> {
         let yaml_content = self.to_yaml()?;
         std::fs::write(yaml_path, yaml_content)
-            .map_err(|e| Error::io(format!("Cannot write map pose to {:?}", yaml_path), e))
+            .map_err(|e| Error::io(format!("Cannot write map pose to {yaml_path:?}"), e))
     }
 
     #[cfg(target_arch = "wasm32")]

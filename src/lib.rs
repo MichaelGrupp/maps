@@ -5,6 +5,10 @@
 //! Note that public API is not the main focus of this app crate.
 //! But feel free to use parts of it as you see fit.
 
+// Enable selected pedantic lints.
+// https://rust-lang.github.io/rust-clippy/master/index.html#uninlined_format_args
+#![warn(clippy::uninlined_format_args)]
+
 pub mod app;
 mod app_impl;
 mod draw_order;

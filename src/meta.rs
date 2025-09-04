@@ -31,10 +31,10 @@ impl MetaYamlAnnotated {
     fn from(yaml_path: &Path) -> Result<MetaYamlAnnotated> {
         let yaml_path = resolve_symlink(yaml_path);
         let buffer = std::fs::read_to_string(&yaml_path)
-            .map_err(|e| Error::io(format!("Cannot read {:?}", yaml_path), e))?;
+            .map_err(|e| Error::io(format!("Cannot read {yaml_path:?}"), e))?;
 
         let meta_yaml = serde_yaml_ng::from_str::<MetaYaml>(&buffer)
-            .map_err(|e| Error::yaml(format!("Cannot parse {:?}", yaml_path), e))?;
+            .map_err(|e| Error::yaml(format!("Cannot parse {yaml_path:?}"), e))?;
 
         Ok(MetaYamlAnnotated {
             meta_yaml,
@@ -44,7 +44,7 @@ impl MetaYamlAnnotated {
 
     fn from_bytes(bytes: &[u8], yaml_name: &str) -> Result<MetaYamlAnnotated> {
         let meta_yaml = serde_yaml_ng::from_slice::<MetaYaml>(bytes)
-            .map_err(|e| Error::yaml(format!("Cannot parse {}", yaml_name), e))?;
+            .map_err(|e| Error::yaml(format!("Cannot parse {yaml_name}"), e))?;
 
         Ok(MetaYamlAnnotated {
             yaml_path: PathBuf::from(yaml_name),

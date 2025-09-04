@@ -68,7 +68,7 @@ impl AppState {
                             name.to_string(),
                             display_path(name, self.options.display.show_full_paths),
                         )
-                        .on_hover_text(format!("Select {} for tinting", name));
+                        .on_hover_text(format!("Select {name} for tinting"));
                     }
                 });
         });

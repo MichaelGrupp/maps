@@ -351,7 +351,7 @@ impl Grid {
             self.painter.text(
                 label_pos,
                 egui::Align2::LEFT_CENTER,
-                format!("{:.1}", label_value),
+                format!("{label_value:.1}"),
                 label_text_options.font_id.clone(),
                 options.tick_labels_color,
             );

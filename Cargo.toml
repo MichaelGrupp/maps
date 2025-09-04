@@ -27,6 +27,12 @@ built = { version = "0.7.5", features = ["git2"] }
 # kittests would be a bit too slow without optimizations.
 inherits = "release"
 
+# Enable selected pedantic lints.
+# To check all pedantic lints, alternatively add pedantic = "warn" here.
+[lints.clippy]
+# pedantic = "warn"
+uninlined_format_args = "warn"
+
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
 confy = "0.6.1"
