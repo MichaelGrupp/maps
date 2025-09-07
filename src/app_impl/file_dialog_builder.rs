@@ -26,6 +26,13 @@ pub fn png(initial_dir: Option<&PathBuf>) -> FileDialog {
         .build()
 }
 
+/// Creates a file dialog for JSON files.
+pub fn json(initial_dir: Option<&PathBuf>) -> FileDialog {
+    FileDialogBuilder::new(initial_dir)
+        .with_filter("JSON", vec!["json"])
+        .build()
+}
+
 pub(crate) struct FileDialogBuilder {
     dialog: FileDialog,
 }

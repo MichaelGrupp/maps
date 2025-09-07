@@ -52,6 +52,14 @@ pub enum Error {
         #[source]
         source: toml::ser::Error,
     },
+
+    /// JSON serialization or deserialization error with additional context.
+    #[error("[JSON error] {context} ({source})")]
+    Json {
+        context: String,
+        #[source]
+        source: serde_json::Error,
+    },
 }
 
 /// Macro for generating wrapping error constructors with doc comments.
@@ -82,6 +90,7 @@ impl Error {
     impl_error_constructors! {
         io => Io, std::io::Error;
         image => Image, image::ImageError;
+        json => Json, serde_json::Error;
         yaml => Yaml, serde_yaml_ng::Error;
         toml_deserialize => TomlDeserialize, toml::de::Error;
         toml_serialize => TomlSerialize, toml::ser::Error;

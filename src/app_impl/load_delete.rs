@@ -210,6 +210,52 @@ impl AppState {
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn load_layout(&mut self, path: &PathBuf) -> Result<(), Error> {
+        let lif_json = std::fs::read_to_string(path).map_err(|e| {
+            Error::app(format!("Failed to read layout file {path:?}: {e}"))
+        })?;
+        let lif_file = crate::graph::vda_lif::LifFile::from_json(&lif_json)?;
+        if lif_file.layouts.is_empty() {
+            return Err(Error::app("No layouts found in LIF file."));
+        }
+        
+        for lif_layout in &lif_file.layouts {
+            let layout = crate::graph::layout::Layout::from_vda_lif(lif_layout);
+            self.data.layouts.push(layout);
+        }
+        info!("Loaded {} layout(s) from {:?}", lif_file.layouts.len(), path);
+        Ok(())
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn load_layout_button(&mut self, ui: &mut egui::Ui) {
+        if ui
+            .button("📂 Load Layout")
+            .on_hover_text("Load a layout from a VDA LIF file.")
+            .on_disabled_hover_text("Only supported in native builds.")
+            .clicked()
+        {
+            self.load_layout_file_dialog.pick_file();
+        }
+        self.load_layout_file_dialog.update(ui.ctx());
+       
+        if let Some(path) = self.load_layout_file_dialog.take_picked() {
+            match self.load_layout(&path) {
+                Ok(_) => {
+                    // Start from the same path the next time.
+                    self.load_layout_file_dialog
+                        .config_mut()
+                        .initial_directory = path;
+                }
+                Err(e) => {
+                    self.status.error = e.to_string();
+                    error!("{}", e);
+                }
+            }
+        }
+    }
+
     pub fn load_session(&mut self, path: &PathBuf) -> Result<(), Error> {
         let deserialized_session = persistence::load_session(path)?;
 

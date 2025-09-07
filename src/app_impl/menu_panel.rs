@@ -162,6 +162,12 @@ impl AppState {
 
         ui.separator();
         ui.add_space(SPACE);
+        ui.heading("Layout");
+        self.load_layout_button(ui);
+        ui.add_space(SPACE);
+
+        ui.separator();
+        ui.add_space(SPACE);
         ui.heading("Pose");
         ui.add_space(SPACE);
         self.pose_edit(ui);

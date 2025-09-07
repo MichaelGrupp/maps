@@ -152,6 +152,8 @@ pub struct SessionData {
     #[serde(default)]
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
+    #[serde(default)]
+    pub layouts: Vec<crate::graph::layout::Layout>,
 
     #[cfg(not(target_arch = "wasm32"))]
     #[serde(skip)]
@@ -201,6 +203,7 @@ pub struct AppState {
     pub load_meta_file_dialog: FileDialog,
     pub load_map_pose_file_dialog: FileDialog,
     pub save_map_pose_file_dialog: FileDialog,
+    pub load_layout_file_dialog: FileDialog,
     pub load_session_file_dialog: FileDialog,
     pub save_session_file_dialog: FileDialog,
     pub save_screenshot_dialog: FileDialog,
@@ -237,6 +240,7 @@ impl AppState {
             state.save_map_pose_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref())
                 .allow_file_overwrite(true)
                 .default_file_name("map_pose.yaml");
+            state.load_layout_file_dialog = file_dialog_builder::json(_default_dir.as_ref());
             state.load_session_file_dialog = file_dialog_builder::toml(_default_dir.as_ref());
             state.save_session_file_dialog = file_dialog_builder::toml(_default_dir.as_ref())
                 .allow_file_overwrite(true)

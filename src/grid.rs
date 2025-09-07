@@ -434,4 +434,96 @@ impl Grid {
             );
         }
     }
+
+    /// Helper function to draw an arrow tip at the end of a line.
+    fn draw_arrow_tip(&self, start: egui::Pos2, end: egui::Pos2, size: f32, stroke: egui::Stroke) {
+        let direction = (end - start).normalized();
+        let perpendicular = egui::vec2(-direction.y, direction.x);
+        
+        // Calculate arrow head points
+        let arrow_base = end - direction * size;
+        let arrow_left = arrow_base + perpendicular * size * 0.5;
+        let arrow_right = arrow_base - perpendicular * size * 0.5;
+        
+        // Draw the arrow head as a filled triangle
+        let triangle = [end, arrow_left, arrow_right];
+        self.painter.add(egui::Shape::convex_polygon(
+            triangle.to_vec(),
+            stroke.color,
+            egui::Stroke::NONE,
+        ));
+    }
+
+    /// Draws a layout showing nodes, edges, and stations.
+    pub fn draw_layout(&self, layout: &crate::graph::layout::Layout) {
+        // Define drawing styles
+        let node_radius = 0.1 * self.points_per_meter;
+        let node_color = egui::Color32::from_rgb(100, 150, 255);
+        let edge_stroke = egui::Stroke::new(0.05 * self.points_per_meter, egui::Color32::GRAY);
+        let station_color = egui::Color32::from_rgb(255, 100, 100);
+        let station_radius = 0.15 * self.points_per_meter;
+        let text_color = node_color;
+        let font_id = egui::FontId::new(12.0, egui::FontFamily::Monospace);
+        let arrow_size = 2. * node_radius;
+
+        // Draw edges
+        for edge in &layout.edges {
+            if let (Some(start_node), Some(end_node)) = (
+                layout.nodes.get(&edge.start_node_id),
+                layout.nodes.get(&edge.end_node_id),
+            ) {
+                let start_point = self.to_point(start_node.position);
+                let end_point = self.to_point(end_node.position);
+                
+                // Adjust end point to stop at the edge of the destination node + buffer
+                let direction = (end_point - start_point).normalized();
+                let adjusted_tip_end = end_point - direction * node_radius;
+                let adjusted_edge_end = end_point - direction * 2. * node_radius;
+
+                // Also adjust the start, to avoid overlap with bidirectional edges.
+                let adjusted_start = start_point + direction * 2. * node_radius;
+
+                // Draw the edge line
+                self.painter.line_segment([adjusted_start, adjusted_edge_end], edge_stroke);
+
+                // Draw arrow tip at the adjusted end point
+                self.draw_arrow_tip(start_point, adjusted_tip_end, arrow_size, edge_stroke);
+            }
+        }
+
+        // Draw nodes
+        for node in layout.nodes.values() {
+            let point = self.to_point(node.position);
+            self.painter.circle_filled(point, node_radius, node_color);
+
+            // Draw node ID label if scale isnt too small
+            if self.points_per_meter > 10.0 {
+                self.painter.text(
+                    point + egui::vec2(0.0, -node_radius - 5.0),
+                    egui::Align2::CENTER_BOTTOM,
+                    &node.node_id,
+                    font_id.clone(),
+                    text_color,
+                );
+            }
+        }
+
+        // Draw stations
+        for station in &layout.stations {
+            if let Some(position) = station.position {
+                let point = self.to_point(position);
+                self.painter
+                    .circle_filled(point, station_radius, station_color);
+
+                // Draw station name label
+                self.painter.text(
+                    point + egui::vec2(0.0, station_radius + 5.0),
+                    egui::Align2::CENTER_TOP,
+                    &station.station_name,
+                    font_id.clone(),
+                    text_color,
+                );
+            }
+        }
+    }
 }

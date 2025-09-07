@@ -51,6 +51,12 @@ struct Args {
     #[clap(
         short,
         long,
+        help = "Layout file (JSON) containing a navigation graph."
+    )]
+    graph: Option<PathBuf>,
+    #[clap(
+        short,
+        long,
         help = "Initial alpha value for all maps. 0. is transparent, 1.0 is opaque."
     )]
     alpha: Option<f32>,
@@ -232,6 +238,17 @@ fn main() -> eframe::Result {
         for (name, map) in app_state.data.maps.iter_mut() {
             info!("Applying pose to map: {}", name);
             map.pose = pose.clone();
+        }
+    }
+
+    if let Some(graph_path) = args.graph.as_ref() {
+        info!("Loading navigation graph layout from {:?}", graph_path);
+        match app_state.load_layout(graph_path) {
+            Ok(_) => {}
+            Err(e) => {
+                error!("{}", e);
+                exit(1);
+            }
         }
     }
 

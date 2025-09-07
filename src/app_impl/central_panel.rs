@@ -102,6 +102,9 @@ impl AppState {
         if options.marker_visibility.zero_visible() {
             grid.draw_axes(options, None);
         }
+        for layout in &self.data.layouts {
+            grid.draw_layout(layout);
+        }
         self.status.hover_position = grid.hover_pos_metric();
 
         if self.options.active_tool == ActiveTool::None {
