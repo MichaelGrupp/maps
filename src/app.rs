@@ -296,7 +296,7 @@ impl eframe::App for AppState {
         self.tracing.measure();
     }
 
-    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+    fn on_exit(&mut self) {
         if !self.options.persistence.autosave {
             return;
         }
