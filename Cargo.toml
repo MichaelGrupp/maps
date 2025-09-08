@@ -44,7 +44,7 @@ uninlined_format_args = "warn"
 
 [dependencies]
 confy = "0.6.1"
-eframe = {version = "0.32.1", features = ["wgpu"]}
+eframe = {version = "0.32.1", default-features = false, features = ["wgpu", "default_fonts"]}
 egui_dnd = "0.13.0"
 egui-file-dialog = "0.11.0"
 egui_plot = "0.33.0"
@@ -61,6 +61,7 @@ strum_macros = "0.26.3"
 thiserror = "2.0.16"
 toml = "0.8.19"
 uuid = { version = "1.11.0", features = ["v4"] }
+wgpu = { version = "25", features = ["webgpu"] }
 
 # Native only:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
