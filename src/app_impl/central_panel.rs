@@ -308,7 +308,7 @@ impl AppState {
             .show(ui.ctx(), |ui| {
                 viewport_rect = ui.clip_rect();
 
-                if self.data.maps.is_empty() {
+                if self.data.maps.is_empty() && self.data.layouts.is_empty() {
                     self.show_empty(ui);
                     return;
                 }
