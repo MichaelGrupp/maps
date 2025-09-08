@@ -82,7 +82,10 @@ impl Layout {
             for lif_station in lif_stations {
                 let station = Station {
                     station_id: lif_station.station_id.clone(),
-                    station_name: lif_station.station_name.clone(),
+                    station_name: lif_station.station_name.clone().unwrap_or_else(|| {
+                        // Default to station ID if no name provided
+                        lif_station.station_id.clone()
+                    }),
                     position: lif_station
                         .station_position
                         .as_ref()

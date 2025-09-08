@@ -46,8 +46,10 @@ pub struct Layout {
     pub layout_name: String,
     #[serde(rename = "layoutVersion")]
     pub layout_version: String,
+    #[serde(rename = "layoutLevelId")]
+    pub layout_level_id: Option<String>,
     #[serde(rename = "layoutDescription")]
-    pub layout_description: String,
+    pub layout_description: Option<String>,
     pub nodes: Vec<Node>,
     pub edges: Vec<Edge>,
     pub stations: Option<Vec<Station>>,
@@ -58,6 +60,10 @@ pub struct Layout {
 pub struct Node {
     #[serde(rename = "nodeId")]
     pub node_id: String,
+    #[serde(rename = "nodeName")]
+    pub node_name: Option<String>,
+    #[serde(rename = "nodeDescription")]
+    pub node_description: Option<String>,
     #[serde(rename = "mapId")]
     pub map_id: String,
     #[serde(rename = "nodePosition")]
@@ -100,6 +106,7 @@ fn default_weight() -> f64 {
 pub struct VehicleTypeNodeProperty {
     #[serde(rename = "vehicleTypeId")]
     pub vehicle_type_id: String,
+    pub theta: Option<f64>,
     pub actions: Option<Vec<Action>>,
 }
 
@@ -126,7 +133,7 @@ pub struct VehicleTypeEdgeProperty {
     #[serde(rename = "vehicleTypeId")]
     pub vehicle_type_id: String,
     #[serde(rename = "vehicleOrientation")]
-    pub vehicle_orientation: f64,
+    pub vehicle_orientation: Option<f64>,
     #[serde(rename = "orientationType")]
     pub orientation_type: String,
     #[serde(rename = "rotationAllowed")]
@@ -147,6 +154,8 @@ pub struct VehicleTypeEdgeProperty {
     pub load_restriction: Option<LoadRestriction>,
     pub trajectory: Option<Trajectory>,
     pub actions: Option<Vec<Action>>,
+    #[serde(rename = "reentryAllowed")]
+    pub reentry_allowed: Option<bool>,
 }
 
 /// Trajectory definition for curved paths.
@@ -198,11 +207,11 @@ pub struct Station {
     #[serde(rename = "interactionNodeIds")]
     pub interaction_node_ids: Vec<String>,
     #[serde(rename = "stationName")]
-    pub station_name: String,
+    pub station_name: Option<String>,
     #[serde(rename = "stationDescription")]
-    pub station_description: String,
+    pub station_description: Option<String>,
     #[serde(rename = "stationHeight")]
-    pub station_height: String,
+    pub station_height: Option<f64>,
     #[serde(rename = "stationPosition")]
     pub station_position: Option<StationPosition>,
 }
