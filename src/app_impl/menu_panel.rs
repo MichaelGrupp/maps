@@ -12,7 +12,7 @@ fn map_tooltip(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
             ui,
             &TextureRequest::new(
                 "tooltip".to_owned(),
-                egui::Rect::from_min_size(egui::Pos2::ZERO, egui::Vec2::splat(100.)),
+                egui::Rect::from_min_size(egui::Pos2::ZERO, egui::Vec2::splat(200.)),
             ),
         );
         egui::Grid::new("map_info")
