@@ -2352,7 +2352,7 @@ dependencies = [
 
 [[package]]
 name = "maps"
-version = "1.8.1"
+version = "1.8.2"
 dependencies = [
  "built",
  "clap",
