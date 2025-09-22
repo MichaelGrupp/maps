@@ -62,12 +62,17 @@ impl AppState {
                         ui.end_row();
                         ui.end_row();
 
-                        // Screenshots
+                        // Screenshots, picking etc
                         ui.label("p");
                         ui.label("Take a picture of the full UI and save the screenshot.");
                         ui.end_row();
                         ui.label("shift + p");
                         ui.label("Take a screenshot containing only the central maps panel.");
+                        ui.end_row();
+                        ui.label("Ctrl c (Cmd c)");
+                        ui.label(
+                            "Copy the current hover position to the clipboard in 'Aligned' view.",
+                        );
                         ui.end_row();
                         ui.end_row();
 
