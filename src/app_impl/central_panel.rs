@@ -103,6 +103,12 @@ impl AppState {
             grid.draw_axes(options, None);
         }
         self.status.hover_position = grid.hover_pos_metric();
+        if let Some(pos) = self.status.hover_position
+            && ui.input(|i| i.events.contains(&egui::Event::Copy))
+        {
+            ui.ctx()
+                .copy_text(format!("{{x: {:.2}, y: {:.2}, z: 0}}", pos.x, pos.y));
+        }
 
         if self.options.active_tool == ActiveTool::None {
             self.status.active_tool = None;
