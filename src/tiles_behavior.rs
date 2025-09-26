@@ -36,8 +36,6 @@ impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
             egui::ScrollArea::both().show(ui, |ui| {
                 let texture_state = map.get_or_create_texture_state(pane.id.as_str());
 
-                texture_state.update(ui, &request);
-
                 texture_state.put(ui, &request);
                 if let Some(image_response) = &texture_state.image_response {
                     if image_response.drag_started_by(egui::PointerButton::Primary) {

@@ -53,7 +53,7 @@ impl TextureState {
 
     /// Updates the texture state for a new incoming request, if needed.
     /// Chooses the appropriate level from the image pyramid.
-    pub fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
+    fn update(&mut self, ui: &egui::Ui, request: &TextureRequest) {
         if self.changed(request) {
             // Free the old texture if the size changed.
             self.texture_handle = None;
@@ -146,7 +146,7 @@ impl TextureState {
     /// 1. Try to reuse cached texture for full textures.
     /// 2. Check if any changes require creating a new texture.
     /// 3. Create and optionally cache the new texture.
-    pub fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
+    fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
         let desired_size = request.uncropped.desired_rect.size();
 
         // Try to use cached texture for full textures.
