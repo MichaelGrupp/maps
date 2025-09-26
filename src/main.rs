@@ -245,13 +245,17 @@ fn main() -> eframe::Result {
         });
 
         if args.init_only {
-            // In init_only mode, directly save the (possibly updated) session and exit.
+            // In init_only mode, directly save the (possibly updated) session.
             save_session(session, &app_state.data).unwrap_or_else(|e| {
                 error!("{}", e);
                 exit(1);
             });
-            exit(0);
         }
+    }
+
+    if args.init_only {
+        info!("Exiting without GUI due to --init-only flag.");
+        exit(0);
     }
 
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
