@@ -5,4 +5,4 @@ pub const ICON_SIZE: f32 = 20.;
 /// This frees a bit of space and looks more elegant. Available only on macOS.
 pub const CUSTOM_TITLEBAR_SUPPORTED: bool = cfg!(target_os = "macos");
 /// Indentation to make room for window controls when a custom titlebar is used.
-pub const HEADER_PANEL_INDENT: f32 = 65.; // 3 Mac buttons + padding
+pub const HEADER_PANEL_INDENT: f32 = 75.; // 3 Mac buttons + padding
