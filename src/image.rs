@@ -2,7 +2,7 @@ use std::path::Path;
 
 use eframe::egui;
 use fast_image_resize::images::Image as ResizeImage;
-use fast_image_resize::{IntoImageView, ResizeOptions, Resizer};
+use fast_image_resize::{FilterType, IntoImageView, ResizeAlg, ResizeOptions, Resizer};
 use image::{GenericImageView, ImageBuffer, ImageReader};
 use imageproc::map::map_colors_mut;
 use log::debug;
@@ -65,7 +65,12 @@ fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::Dyn
     );
     let mut resizer = Resizer::new();
 
-    let options = ResizeOptions::default();
+    let options = ResizeOptions {
+        // Use box filter instead of Lanczos3. This suits discrete occupancy maps better
+        // and reduces artifacts like different pixel values on edges of shapes.
+        algorithm: ResizeAlg::Convolution(FilterType::Box),
+        ..ResizeOptions::default()
+    };
     resizer
         .resize(img, &mut resized_img, &options)
         .expect("failed to resize image");
