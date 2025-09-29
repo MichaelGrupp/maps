@@ -292,7 +292,6 @@ fn load_nav2_demo(app_state: &mut AppState) {
     app_state.options.grid.marker_visibility = MarkerVisibility::All;
     app_state.options.grid.marker_length_meters = 2.;
     app_state.options.grid.marker_width_meters = 0.3;
-    app_state.options.canvas_settings.theme_preference = egui::ThemePreference::Dark;
 
     // Collapse some settings to be less overwhelming.
     app_state.options.collapsed.app_settings = true;

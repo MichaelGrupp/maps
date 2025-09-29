@@ -130,6 +130,12 @@ impl AppOptions {
     pub fn custom_titlebar(&self) -> bool {
         self.titlebar == TitleBar::Custom
     }
+
+    #[cfg(target_arch = "wasm32")]
+    pub fn with_dark_theme(mut self) -> Self {
+        self.canvas_settings.theme_preference = egui::ThemePreference::Dark;
+        self
+    }
 }
 
 #[derive(Default)]

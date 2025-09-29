@@ -299,7 +299,7 @@ fn main() {
             .dyn_into::<web_sys::HtmlCanvasElement>()
             .expect("maps_canvas_id was not a HtmlCanvasElement");
 
-        let app_state = AppState::init(Vec::new(), AppOptions::default())
+        let app_state = AppState::init(Vec::new(), AppOptions::default().with_dark_theme())
             .expect("Failed to initialize AppState")
             .with_build_info(build_info_string());
 
