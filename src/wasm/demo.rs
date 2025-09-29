@@ -10,6 +10,7 @@ use crate::image_pyramid::ImagePyramid;
 use crate::map_pose::MapPose;
 use crate::meta::Meta;
 use crate::movable::Draggable;
+use crate::render_options::TextureFilter;
 use crate::value_colormap::ColorMap;
 use crate::value_interpretation;
 
@@ -158,6 +159,7 @@ struct Nav2MapConfig<'a> {
     value_mode: Option<value_interpretation::Mode>,
     colormap: Option<ColorMap>,
     color_to_alpha: Option<egui::Color32>,
+    tint: Option<egui::Color32>,
 }
 
 /// Helper function to load a single nav2 example map.
@@ -186,12 +188,13 @@ fn load_nav2_map(app_state: &mut AppState, config: &Nav2MapConfig) {
         .maps
         .get_mut(&name)
         .expect("missing nav2 demo map");
-    map.tint = Some(egui::Color32::from_rgba_premultiplied(255, 255, 255, 255));
+    map.tint = config.tint;
     if let Some(alpha_color) = config.color_to_alpha {
         map.color_to_alpha = Some(alpha_color);
     }
     map.pose = MapPose::from_bytes(config.pose_bytes).expect("broken nav2 demo");
     map.use_value_interpretation = config.value_mode.is_some();
+    map.texture_filter = TextureFilter::Crisp;
 }
 
 /// Embeds all nav2 demo maps like in the native app session file
@@ -201,13 +204,28 @@ fn load_nav2_demo(app_state: &mut AppState) {
     load_nav2_map(
         app_state,
         &Nav2MapConfig {
+            name: "warehouse.yaml",
+            image_bytes: include_bytes!("../../data/nav2_example/warehouse.png"),
+            yaml_bytes: include_bytes!("../../data/nav2_example/warehouse.yaml"),
+            pose_bytes: include_bytes!("../../data/nav2_example/map_pose_warehouse.yaml"),
+            value_mode: Some(value_interpretation::Mode::Trinary),
+            colormap: Some(ColorMap::RvizMap),
+            color_to_alpha: None,
+            tint: None,
+        },
+    );
+
+    load_nav2_map(
+        app_state,
+        &Nav2MapConfig {
             name: "warehouse_speed.yaml",
             image_bytes: include_bytes!("../../data/nav2_example/warehouse_speed.png"),
             yaml_bytes: include_bytes!("../../data/nav2_example/warehouse_speed.yaml"),
             pose_bytes: include_bytes!("../../data/nav2_example/map_pose_warehouse.yaml"),
             value_mode: Some(value_interpretation::Mode::Scale),
-            colormap: Some(ColorMap::CoolCostmap),
+            colormap: Some(ColorMap::RvizMap),
             color_to_alpha: None,
+            tint: Some(egui::Color32::from_rgba_premultiplied(140, 140, 140, 140)),
         },
     );
 
@@ -221,19 +239,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
             value_mode: Some(value_interpretation::Mode::Trinary),
             colormap: Some(ColorMap::RvizCostmap),
             color_to_alpha: None,
-        },
-    );
-
-    load_nav2_map(
-        app_state,
-        &Nav2MapConfig {
-            name: "warehouse.yaml",
-            image_bytes: include_bytes!("../../data/nav2_example/warehouse.png"),
-            yaml_bytes: include_bytes!("../../data/nav2_example/warehouse.yaml"),
-            pose_bytes: include_bytes!("../../data/nav2_example/map_pose_warehouse.yaml"),
-            value_mode: None,
-            colormap: None,
-            color_to_alpha: Some(egui::Color32::from_rgba_premultiplied(254, 254, 254, 255)),
+            tint: Some(egui::Color32::from_rgba_premultiplied(140, 140, 140, 140)),
         },
     );
 
@@ -247,6 +253,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
             value_mode: Some(value_interpretation::Mode::Scale),
             colormap: Some(ColorMap::CoolCostmap),
             color_to_alpha: None,
+            tint: None,
         },
     );
 
@@ -260,6 +267,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
             value_mode: Some(value_interpretation::Mode::Trinary),
             colormap: Some(ColorMap::RvizCostmap),
             color_to_alpha: None,
+            tint: Some(egui::Color32::from_rgba_premultiplied(140, 140, 140, 140)),
         },
     );
 
@@ -273,6 +281,7 @@ fn load_nav2_demo(app_state: &mut AppState) {
             value_mode: None,
             colormap: None,
             color_to_alpha: Some(egui::Color32::from_rgba_premultiplied(254, 254, 254, 255)),
+            tint: None,
         },
     );
 

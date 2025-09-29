@@ -1,10 +1,20 @@
-version = "1.8.0"
+version = "1.8.2"
 
 [maps."depot.yaml"]
 visible = true
-tint = [255, 255, 255, 255]
-color_to_alpha = [254, 254, 254, 255]
-texture_filter = "Auto"
+tint = [
+    255,
+    255,
+    255,
+    255,
+]
+color_to_alpha = [
+    254,
+    254,
+    254,
+    255,
+]
+texture_filter = "Crisp"
 use_value_interpretation = false
 
 [maps."depot.yaml".meta]
@@ -54,8 +64,13 @@ yaw = -0.7499939203262329
 
 [maps."depot_keepout.yaml"]
 visible = true
-tint = [255, 255, 255, 255]
-texture_filter = "Auto"
+tint = [
+    140,
+    140,
+    140,
+    140,
+]
+texture_filter = "Crisp"
 use_value_interpretation = true
 
 [maps."depot_keepout.yaml".meta]
@@ -105,8 +120,13 @@ yaw = -0.7499939203262329
 
 [maps."depot_speed.yaml"]
 visible = true
-tint = [255, 255, 255, 255]
-texture_filter = "Auto"
+tint = [
+    255,
+    255,
+    255,
+    255,
+]
+texture_filter = "Crisp"
 use_value_interpretation = true
 
 [maps."depot_speed.yaml".meta]
@@ -156,10 +176,14 @@ yaw = -0.7499939203262329
 
 [maps."warehouse.yaml"]
 visible = true
-tint = [160, 160, 160, 160]
-color_to_alpha = [254, 254, 254, 255]
-texture_filter = "Auto"
-use_value_interpretation = false
+tint = [
+    255,
+    255,
+    255,
+    255,
+]
+texture_filter = "Crisp"
+use_value_interpretation = true
 
 [maps."warehouse.yaml".meta]
 image_path = "warehouse.png"
@@ -179,7 +203,7 @@ free = 0.10000000149011612
 occupied = 0.6499999761581421
 negate = false
 mode = "trinary"
-explicit_mode = false
+explicit_mode = true
 quirks = "Ros1MapServer"
 colormap = "RvizMap"
 
@@ -208,8 +232,13 @@ yaw = 0.0
 
 [maps."warehouse_keepout.yaml"]
 visible = true
-tint = [255, 255, 255, 255]
-texture_filter = "Auto"
+tint = [
+    140,
+    140,
+    140,
+    140,
+]
+texture_filter = "Crisp"
 use_value_interpretation = true
 
 [maps."warehouse_keepout.yaml".meta]
@@ -259,8 +288,13 @@ yaw = 0.0
 
 [maps."warehouse_speed.yaml"]
 visible = true
-tint = [255, 255, 255, 255]
-texture_filter = "Auto"
+tint = [
+    171,
+    171,
+    171,
+    171,
+]
+texture_filter = "Crisp"
 use_value_interpretation = true
 
 [maps."warehouse_speed.yaml".meta]
@@ -283,7 +317,7 @@ negate = false
 mode = "scale"
 explicit_mode = true
 quirks = "Ros1MapServer"
-colormap = "CoolCostmap"
+colormap = "RvizMap"
 
 [maps."warehouse_speed.yaml".meta.original_value_interpretation]
 free = 0.0
@@ -309,6 +343,13 @@ pitch = 0.0
 yaw = 0.0
 
 [draw_order]
-keys = ["warehouse_speed.yaml", "warehouse_keepout.yaml", "warehouse.yaml", "depot_speed.yaml", "depot_keepout.yaml", "depot.yaml"]
+keys = [
+    "warehouse.yaml",
+    "warehouse_speed.yaml",
+    "warehouse_keepout.yaml",
+    "depot_speed.yaml",
+    "depot_keepout.yaml",
+    "depot.yaml",
+]
 
 [grid_lenses]
