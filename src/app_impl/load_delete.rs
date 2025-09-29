@@ -247,6 +247,7 @@ impl AppState {
             if migrate_colors {
                 map_state.tint = migrate_old_egui_color(map_state.tint);
             }
+            map_state.texture_filter = map.texture_filter;
             if map_state.tint.is_some()
                 || map_state.meta.value_interpretation.mode != value_interpretation::Mode::Raw
             {
