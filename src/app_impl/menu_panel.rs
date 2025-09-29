@@ -1,4 +1,5 @@
 use eframe::egui;
+use log::error;
 
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
@@ -76,7 +77,12 @@ impl AppState {
             .num_columns(3)
             .striped(true)
             .show(ui, |ui| {
-                for (name, map) in &mut self.data.maps {
+                for name in self.data.draw_order.keys() {
+                    let Some(map) = self.data.maps.get_mut(name) else {
+                        error!("Unknown draw order key: {name}");
+                        continue;
+                    };
+
                     if ui
                         .checkbox(
                             &mut map.visible,
@@ -138,7 +144,7 @@ impl AppState {
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.toggle_value(&mut self.status.draw_order_edit_active, "⬆⬇")
-                        .on_hover_text("Click to view and edit the draw order via drag and drop.");
+                        .on_hover_text("Click to edit the draw order via drag and drop.");
                     if !self.status.draw_order_edit_active && !self.data.maps.is_empty() {
                         ui.separator();
                         self.deselect_toggle(ui);
