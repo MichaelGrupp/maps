@@ -285,6 +285,8 @@ maps some/map.yaml some/other/map.yaml
 
 See `maps --help` for all command line options.
 
+> **Note for Linux users:** `maps` generates a [.desktop](https://specifications.freedesktop.org/desktop-entry-spec/latest-single/) file when first launched from the terminal. After that, you should be able to launch it also from the launcher of your desktop environment, pin it as favorite etc (you might need to restart the app once). This doesn't apply if you build from source, but you can override this with `--write-desktop-file`.
+
 ## Development / Testing
 
 CI pipelines run for Linux, macOS, Windows and wasm targets:  
