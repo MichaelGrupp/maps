@@ -81,11 +81,16 @@ impl MapPose {
 
     /// In-place inversion of the pose.
     pub fn invert(&mut self) {
+        let inverted_translation = self.rot2().inverse() * (-self.vec2());
+        self.translation.x = inverted_translation.x;
+        self.translation.y = inverted_translation.y;
+        self.rotation.yaw = -self.rotation.yaw;
+    }
+
+    /// Simple in-place negation of the pose components.
+    pub fn negate(&mut self) {
         self.translation.x = -self.translation.x;
         self.translation.y = -self.translation.y;
-        self.translation.z = -self.translation.z;
-        self.rotation.roll = -self.rotation.roll;
-        self.rotation.pitch = -self.rotation.pitch;
         self.rotation.yaw = -self.rotation.yaw;
     }
 
@@ -113,8 +118,6 @@ impl MapPose {
     }
 
     fn normalized(mut self) -> MapPose {
-        self.rotation.roll = emath::normalized_angle(self.rotation.roll);
-        self.rotation.pitch = emath::normalized_angle(self.rotation.pitch);
         self.rotation.yaw = emath::normalized_angle(self.rotation.yaw);
         self
     }

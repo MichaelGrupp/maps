@@ -63,25 +63,20 @@ impl AppState {
 
         ui.add_space(SPACE);
         ui.separator();
-        egui::Grid::new("pose_buttons_grid")
-            .num_columns(2)
-            .striped(false)
-            .show(ui, |ui| {
-                ui.selectable_value(
-                    &mut self.options.active_movable,
-                    ActiveMovable::MapPose,
-                    "Move Map",
-                )
-                .on_hover_text(
-                    "Toggle to move the selected map with the WASD keys, rotate with Q/E.",
-                );
-                ui.selectable_value(
-                    &mut self.options.active_movable,
-                    ActiveMovable::Grid,
-                    "Move Grid",
-                )
-                .on_hover_text("Toggle to move the grid with the WASD keys.");
-            });
+        ui.horizontal(|ui| {
+            ui.selectable_value(
+                &mut self.options.active_movable,
+                ActiveMovable::MapPose,
+                "Move Map",
+            )
+            .on_hover_text("Toggle to move the selected map with the WASD keys, rotate with Q/E.");
+            ui.selectable_value(
+                &mut self.options.active_movable,
+                ActiveMovable::Grid,
+                "Move Grid",
+            )
+            .on_hover_text("Toggle to move the grid with the WASD keys.");
+        });
 
         ui.add_space(SPACE);
         ui.vertical(|ui| {
@@ -129,10 +124,25 @@ impl AppState {
         ui.vertical(|ui| {
             ui.add_space(SPACE);
             ui.horizontal(|ui| {
-                if ui.button("Zero values").clicked() {
+                if ui
+                    .button("Reset")
+                    .on_hover_text("Resets all values.")
+                    .clicked()
+                {
                     *map_pose = Default::default();
                 }
-                if ui.button("Invert pose").clicked() {
+                if ui
+                    .button("Negate")
+                    .on_hover_text("Negates the pose components.")
+                    .clicked()
+                {
+                    map_pose.negate();
+                }
+                if ui
+                    .button("Invert")
+                    .on_hover_text("Inverts the pose.")
+                    .clicked()
+                {
                     map_pose.invert();
                 }
             });
