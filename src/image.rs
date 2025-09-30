@@ -11,7 +11,7 @@ use log::debug;
 use fast_image_resize::CpuExtensions;
 
 use crate::error::{Error, Result};
-use crate::path_helpers::resolve_symlink;
+use crate::os_helpers::resolve_symlink;
 
 pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
     let path = resolve_symlink(path);

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=maps
+Comment=Inspect, compare and align multiple grid maps in an intuitive & fast GUI
+Exec=/home/grupp/.cargo/bin/maps
+Icon=/home/grupp/.local/share/applications/maps_icon.png
+Type=Application
+Categories=ROS;Development;Engineering;
+StartupNotify=false

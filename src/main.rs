@@ -21,10 +21,10 @@ use maps::{
     persistence::{load_app_options, save_session},
 };
 
-use {
-    maps::app::{AppOptions, AppState},
-    std::vec::Vec,
-};
+use maps::app::{AppOptions, AppState};
+
+#[cfg(target_os = "linux")]
+use maps::os_helpers::write_desktop_file;
 
 #[cfg(not(target_arch = "wasm32"))]
 const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
@@ -105,6 +105,14 @@ struct Args {
         file, e.g. using a script."
     )]
     init_only: bool,
+    #[cfg(target_os = "linux")]
+    #[clap(
+        long,
+        help = "Write a .desktop file for easier launching of maps from application menus, and exit.\n\
+        Only has an effect on Linux systems using the freedesktop.org standards.\n\
+        Overwrites a previous maps desktop file if it exists."
+    )]
+    write_desktop_file: bool,
 }
 
 // Gather build information from build.rs during compile time.
@@ -119,7 +127,7 @@ fn build_info_string() -> String {
         built_info::PKG_VERSION,
         built_info::GIT_VERSION.unwrap_or("unknown"),
         if built_info::GIT_DIRTY.unwrap_or(false) {
-            "(+ uncommited changes)"
+            "(+ uncommitted changes)"
         } else {
             ""
         },
@@ -157,11 +165,11 @@ fn load_icon() -> egui::IconData {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn parse_hex_color(hex_str: &str) -> Result<egui::Color32, std::io::Error> {
+fn parse_hex_color(hex_str: &str) -> std::result::Result<egui::Color32, std::io::Error> {
     match egui::Color32::from_hex(hex_str) {
         Ok(color) => Ok(color),
         Err(_) => Err(std::io::Error::new(
-            std::io::ErrorKind::Unsupported,
+            std::io::ErrorKind::InvalidData,
             "failed to parse hex string",
         )),
     }
@@ -183,6 +191,21 @@ fn main() -> eframe::Result {
         env_logger::init();
     }
     info!("{}", build_info);
+
+    #[cfg(target_os = "linux")]
+    if built_info::GIT_VERSION.is_some() && !args.write_desktop_file {
+        info!(
+            "Development build detected, not writing a .desktop file. \
+            Use --write-desktop-file to force this."
+        );
+    } else {
+        if let Err(e) = write_desktop_file(args.write_desktop_file) {
+            warn!("Failed to write .desktop file: {}", e);
+        }
+        if args.write_desktop_file {
+            exit(0);
+        }
+    }
 
     let mut metas: Vec<Meta> = Vec::new();
 
