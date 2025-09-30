@@ -131,7 +131,16 @@ fn build_info_string() -> String {
 #[cfg(not(target_arch = "wasm32"))]
 fn load_icon() -> egui::IconData {
     let (icon_rgba, icon_width, icon_height) = {
-        let icon = include_bytes!("../data/icon.png");
+        cfg_if::cfg_if! {
+            if #[cfg(target_os = "macos")] {
+                // Icon composer PNG export from maps_icon.icon,
+                // with 100px padding to match size of other macOS icons.
+                let icon = include_bytes!("../data/icon_mac.png");
+            } else {
+                // No padding on other platforms.
+                let icon = include_bytes!("../data/icon.png");
+            }
+        }
         let image = image::load_from_memory(icon)
             .expect("Failed to open icon path")
             .into_rgba8();
