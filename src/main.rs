@@ -29,6 +29,7 @@ use maps::os_helpers::write_desktop_file;
 #[cfg(not(target_arch = "wasm32"))]
 const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
 
+#[cfg(not(target_arch = "wasm32"))]
 const APP_ID: &str = "maps";
 
 #[cfg(not(target_arch = "wasm32"))]
