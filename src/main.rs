@@ -29,9 +29,11 @@ use maps::os_helpers::write_desktop_file;
 #[cfg(not(target_arch = "wasm32"))]
 const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
 
+const APP_ID: &str = "maps";
+
 #[cfg(not(target_arch = "wasm32"))]
 #[derive(Parser, Debug)]
-#[command(name = "maps", version, author = "Michael Grupp", about)]
+#[command(name = APP_ID, version, author = "Michael Grupp", about)]
 struct Args {
     #[clap(name = "yaml_files", help = "ROS map yaml files", required = false)]
     yaml_files: Vec<String>,
@@ -185,7 +187,7 @@ fn main() -> eframe::Result {
     if env::var("RUST_LOG").is_err() {
         env_logger::Builder::from_default_env()
             .filter_level(log::LevelFilter::Off)
-            .filter_module("maps", args.log_level)
+            .filter_module(APP_ID, args.log_level)
             .init();
     } else {
         env_logger::init();
@@ -199,7 +201,7 @@ fn main() -> eframe::Result {
             Use --write-desktop-file to force this."
         );
     } else {
-        if let Err(e) = write_desktop_file(args.write_desktop_file) {
+        if let Err(e) = write_desktop_file(APP_ID, args.write_desktop_file) {
             warn!("Failed to write .desktop file: {}", e);
         }
         if args.write_desktop_file {
@@ -293,6 +295,7 @@ fn main() -> eframe::Result {
     let size = egui::Vec2::from([args.window_size[0], args.window_size[1]]);
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
+            .with_app_id(APP_ID)
             .with_icon(load_icon())
             .with_inner_size(size)
             .with_min_inner_size(MIN_SIZE)
@@ -303,7 +306,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
 
-    eframe::run_native("maps", options, Box::new(|_cc| Ok(app_state)))
+    eframe::run_native(APP_ID, options, Box::new(|_cc| Ok(app_state)))
 }
 
 #[cfg(target_arch = "wasm32")]

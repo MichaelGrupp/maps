@@ -16,7 +16,9 @@ pub(crate) fn resolve_symlink(path: &Path) -> PathBuf {
 /// This allows to launch the app from the application menu or desktop.
 ///
 /// Doesn't overwrite an existing file unless `overwrite` is true.
-pub fn write_desktop_file(overwrite: bool) -> Result<()> {
+/// `app_id` has to match the app ID of the eframe app on Wayland, see also:
+/// https://github.com/emilk/egui/issues/3992#issuecomment-3067278124
+pub fn write_desktop_file(app_id: &str, overwrite: bool) -> Result<()> {
     let Some(home_dir) = std::env::home_dir() else {
         return Err(Error::app(
             "Cannot determine home directory to write desktop file.",
@@ -40,7 +42,7 @@ pub fn write_desktop_file(overwrite: bool) -> Result<()> {
     let icon_path = home_dir.join(".local/share/applications/maps_icon.png");
     let desktop_entry = format!(
         "[Desktop Entry]\n\
-         Name=maps\n\
+         Name={app_id}\n\
          Comment=Inspect, compare and align multiple grid maps in an intuitive & fast GUI\n\
          Exec={}\n\
          Icon={}\n\
@@ -50,7 +52,7 @@ pub fn write_desktop_file(overwrite: bool) -> Result<()> {
         exec_path.to_str().expect("non UTF-8 exec_path!"),
         icon_path.to_str().expect("non UTF-8 icon_path!")
     );
-    let desktop_file_path = local_share_app_dir.join("maps.desktop");
+    let desktop_file_path = local_share_app_dir.join(format!("{app_id}.desktop"));
     if !overwrite && desktop_file_path.exists() {
         debug!("Not overwriting existing desktop file at {desktop_file_path:?}");
         return Ok(());
