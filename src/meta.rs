@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 use crate::error::{Error, Result};
-use crate::path_helpers::resolve_symlink;
+use crate::os_helpers::resolve_symlink;
 use crate::value_interpretation::{Mode, ValueInterpretation};
 
 /// Plain ROS map metadata yaml file format.

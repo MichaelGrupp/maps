@@ -18,7 +18,7 @@ pub mod map_pose;
 mod map_state;
 pub mod meta;
 mod movable;
-mod path_helpers;
+pub mod os_helpers;
 pub mod persistence;
 mod rect_helpers;
 mod render_options;

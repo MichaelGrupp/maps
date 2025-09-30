@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
 use crate::movable::{Draggable, Rotatable};
-use crate::path_helpers::resolve_symlink;
+use crate::os_helpers::resolve_symlink;
 
 /// Pose of a map in metric coordinates.
 /// Allows to align the map independently of the map metadata file contents.
