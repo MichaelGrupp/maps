@@ -21,7 +21,7 @@ use crate::{
 use crate::app::{AppOptions, AppState};
 
 #[cfg(target_os = "linux")]
-use maps::os_helpers::write_desktop_file;
+use crate::os_helpers::write_desktop_file;
 
 const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
 const APP_ID: &str = "maps";
@@ -165,7 +165,7 @@ pub fn main_native() -> eframe::Result {
     info!("{}", build_info);
 
     #[cfg(target_os = "linux")]
-    if built_info::GIT_VERSION.is_some() && !args.write_desktop_file {
+    if crate::built_info::GIT_VERSION.is_some() && !args.write_desktop_file {
         info!(
             "Development build detected, not writing a .desktop file. \
             Use --write-desktop-file to force this."
