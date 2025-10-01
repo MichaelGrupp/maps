@@ -1,11 +1,9 @@
-#[cfg(not(target_arch = "wasm32"))]
 use std::{
     env,
     path::{Path, PathBuf},
     process::exit,
 };
 
-#[cfg(not(target_arch = "wasm32"))]
 use {
     clap::Parser,
     eframe::egui,
@@ -13,26 +11,21 @@ use {
     strum::VariantNames,
 };
 
-#[cfg(not(target_arch = "wasm32"))]
-use maps::{
+use crate::{
     app::ViewMode,
     map_pose::MapPose,
     meta::Meta,
     persistence::{load_app_options, save_session},
 };
 
-use maps::app::{AppOptions, AppState};
+use crate::app::{AppOptions, AppState};
 
 #[cfg(target_os = "linux")]
 use maps::os_helpers::write_desktop_file;
 
-#[cfg(not(target_arch = "wasm32"))]
 const MIN_SIZE: egui::Vec2 = egui::vec2(450., 200.);
-
-#[cfg(not(target_arch = "wasm32"))]
 const APP_ID: &str = "maps";
 
-#[cfg(not(target_arch = "wasm32"))]
 #[derive(Parser, Debug)]
 #[command(name = APP_ID, version, author = "Michael Grupp", about)]
 struct Args {
@@ -118,28 +111,6 @@ struct Args {
     write_desktop_file: bool,
 }
 
-// Gather build information from build.rs during compile time.
-pub mod built_info {
-    // The file has been placed there by the build script.
-    include!(concat!(env!("OUT_DIR"), "/built.rs"));
-}
-
-fn build_info_string() -> String {
-    format!(
-        "maps v{} rev:{}{} | {} | {}",
-        built_info::PKG_VERSION,
-        built_info::GIT_VERSION.unwrap_or("unknown"),
-        if built_info::GIT_DIRTY.unwrap_or(false) {
-            "(+ uncommitted changes)"
-        } else {
-            ""
-        },
-        built_info::TARGET,
-        built_info::PROFILE,
-    )
-}
-
-#[cfg(not(target_arch = "wasm32"))]
 fn load_icon() -> egui::IconData {
     let (icon_rgba, icon_width, icon_height) = {
         cfg_if::cfg_if! {
@@ -167,7 +138,6 @@ fn load_icon() -> egui::IconData {
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 fn parse_hex_color(hex_str: &str) -> std::result::Result<egui::Color32, std::io::Error> {
     match egui::Color32::from_hex(hex_str) {
         Ok(color) => Ok(color),
@@ -178,10 +148,9 @@ fn parse_hex_color(hex_str: &str) -> std::result::Result<egui::Color32, std::io:
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn main() -> eframe::Result {
+pub fn main_native() -> eframe::Result {
     let args = Args::parse();
-    let build_info = build_info_string();
+    let build_info = crate::build_info_string();
 
     // Use env_logger to log to stderr when executing: RUST_LOG=debug maps
     // To show only logs of this app: RUST_LOG=maps=debug maps
@@ -217,7 +186,7 @@ fn main() -> eframe::Result {
         info!("Loading map YAML {}", yaml_path.display());
         let meta = Meta::load_from_file(yaml_path).unwrap_or_else(|e| {
             error!("{}", e);
-            if matches!(e, maps::error::Error::Yaml { .. }) {
+            if matches!(e, crate::error::Error::Yaml { .. }) {
                 warn!("In case you want to load a session file, use the -s / --session flag.");
             }
             exit(1);
@@ -234,7 +203,7 @@ fn main() -> eframe::Result {
     });
 
     let mut options: AppOptions = load_app_options(&args.config).with_custom_titlebar();
-    options.version = built_info::PKG_VERSION.to_string();
+    options.version = crate::built_info::PKG_VERSION.to_string();
     options.persistence.custom_config_path = args.config;
     options.view_mode = args.view_mode.unwrap_or(options.view_mode);
     options.advanced.dry_run = args.init_only;
@@ -308,39 +277,4 @@ fn main() -> eframe::Result {
     };
 
     eframe::run_native(APP_ID, options, Box::new(|_cc| Ok(app_state)))
-}
-
-#[cfg(target_arch = "wasm32")]
-fn main() {
-    use eframe::wasm_bindgen::JsCast as _;
-    extern crate console_error_panic_hook;
-    use std::panic;
-
-    panic::set_hook(Box::new(console_error_panic_hook::hook));
-
-    // Redirect `log` message to `console.log` and friends:
-    eframe::WebLogger::init(log::LevelFilter::Debug).ok();
-
-    let web_options = eframe::WebOptions::default();
-
-    wasm_bindgen_futures::spawn_local(async {
-        let document = web_sys::window()
-            .expect("No window")
-            .document()
-            .expect("No document");
-
-        let canvas = document
-            .get_element_by_id("maps_canvas_id")
-            .expect("Failed to find maps_canvas_id")
-            .dyn_into::<web_sys::HtmlCanvasElement>()
-            .expect("maps_canvas_id was not a HtmlCanvasElement");
-
-        let app_state = AppState::init(Vec::new(), AppOptions::default().with_dark_theme())
-            .expect("Failed to initialize AppState")
-            .with_build_info(build_info_string());
-
-        let _ = eframe::WebRunner::new()
-            .start(canvas, web_options, Box::new(|_cc| Ok(Box::new(app_state))))
-            .await;
-    });
 }

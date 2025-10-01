@@ -31,5 +31,31 @@ mod tracing;
 pub mod value_colormap;
 pub mod value_interpretation;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod main_native;
+
+#[cfg(target_arch = "wasm32")]
+pub mod main_wasm;
 #[cfg(target_arch = "wasm32")]
 mod wasm;
+
+// Gather build information from build.rs during compile time.
+pub(crate) mod built_info {
+    // The file has been placed there by the build script.
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
+pub(crate) fn build_info_string() -> String {
+    format!(
+        "maps v{} rev:{}{} | {} | {}",
+        built_info::PKG_VERSION,
+        built_info::GIT_VERSION.unwrap_or("unknown"),
+        if built_info::GIT_DIRTY.unwrap_or(false) {
+            "(+ uncommitted changes)"
+        } else {
+            ""
+        },
+        built_info::TARGET,
+        built_info::PROFILE,
+    )
+}
