@@ -3,7 +3,9 @@
 //! The public components listed here can be reused in external applications.
 //!
 //! Note that public API is not the main focus of this app crate.
-//! But feel free to use parts of it as you see fit.
+//!
+//! See also the `maps_io_ros` crate for a reusable ROS map core library
+//! that's used by this app.
 
 pub mod app;
 mod app_impl;
@@ -14,9 +16,8 @@ mod grid_options;
 mod image;
 mod image_pyramid;
 mod lens;
-pub mod map_pose;
+mod map_pose_ext;
 mod map_state;
-pub mod meta;
 mod movable;
 pub mod os_helpers;
 pub mod persistence;
@@ -28,8 +29,6 @@ mod texture_state;
 mod tiles;
 mod tiles_behavior;
 mod tracing;
-pub mod value_colormap;
-pub mod value_interpretation;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod main_native;

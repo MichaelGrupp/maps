@@ -1,3 +1,13 @@
+[workspace]
+members = [".", "maps_io_ros"]
+# Build / test both crates also when calling cargo without --workspace.
+default-members = [".", "maps_io_ros"]
+resolver = "2"
+
+[workspace.dependencies]
+# Use core lib from path for local development, and version when publishing.
+maps_io_ros = { path = "maps_io_ros", version = "0.1.0" }
+
 [package]
 name = "maps"
 description = "Inspect, compare and align multiple grid maps in an intuitive & fast GUI"
@@ -43,6 +53,7 @@ trivially_copy_pass_by_ref = "warn"
 uninlined_format_args = "warn"
 
 [dependencies]
+maps_io_ros = { workspace = true }
 confy = "0.6.1"
 eframe = {version = "0.32.1", features = ["wgpu"]}
 egui_dnd = "0.13.0"

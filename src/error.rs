@@ -3,6 +3,8 @@
 use log::error;
 use thiserror::Error;
 
+use maps_io_ros::impl_error_constructors;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Error types for the `maps` crate.
@@ -13,14 +15,6 @@ pub enum Error {
     #[error("{message}")]
     App { message: String },
 
-    /// An I/O error with additional context.
-    #[error("[IO error] {context} ({source})")]
-    Io {
-        context: String,
-        #[source]
-        source: std::io::Error,
-    },
-
     /// Image loading or processing error with additional context.
     #[error("[Image error] {context} ({source})")]
     Image {
@@ -29,13 +23,9 @@ pub enum Error {
         source: image::ImageError,
     },
 
-    /// YAML serialization or deserialization error with additional context.
-    #[error("[YAML error] {context} ({source})")]
-    Yaml {
-        context: String,
-        #[source]
-        source: serde_yaml_ng::Error,
-    },
+    /// Error from maps_io_ros (I/O, YAML parsing, etc.)
+    #[error(transparent)]
+    Core(#[from] maps_io_ros::Error),
 
     /// TOML deserialization error with additional context.
     #[error("[TOML error] {context} ({source})")]
@@ -54,21 +44,6 @@ pub enum Error {
     },
 }
 
-/// Macro for generating wrapping error constructors with doc comments.
-macro_rules! impl_error_constructors {
-    ($($method_name:ident => $variant:ident, $error_type:ty);* $(;)?) => {
-        $(
-            #[doc = concat!("Wrap a `", stringify!($error_type), "` with additional context message.")]
-            pub fn $method_name(context: impl ToString, source: $error_type) -> Self {
-                Self::$variant {
-                    context: context.to_string(),
-                    source,
-                }
-            }
-        )*
-    };
-}
-
 impl Error {
     /// Create a new app-related error with a full error message.
     #[allow(clippy::needless_pass_by_value)]
@@ -80,10 +55,13 @@ impl Error {
 
     // Generate the wrapping error constructors.
     impl_error_constructors! {
-        io => Io, std::io::Error;
         image => Image, image::ImageError;
-        yaml => Yaml, serde_yaml_ng::Error;
         toml_deserialize => TomlDeserialize, toml::de::Error;
         toml_serialize => TomlSerialize, toml::ser::Error;
+    }
+
+    /// Create I/O errors by delegating to maps_io_ros
+    pub fn io(context: impl ToString, source: std::io::Error) -> Self {
+        Error::Core(maps_io_ros::Error::io(context, source))
     }
 }

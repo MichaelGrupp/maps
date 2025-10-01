@@ -15,16 +15,16 @@ pub use crate::app_impl::tint_settings::TintOptions;
 pub use crate::error::{Error, Result};
 pub use crate::grid_options::GridOptions;
 pub use crate::lens::LensOptions;
-pub use crate::value_colormap::ColorMap;
+pub use maps_io_ros::ColorMap;
 
 use crate::app_impl::CUSTOM_TITLEBAR_SUPPORTED;
 use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
-use crate::meta::Meta;
 use crate::persistence::{PersistenceOptions, save_app_options};
 use crate::render_options::default_crop_threshold;
 use crate::tiles::Tiles;
 use crate::tracing::Tracing;
+use maps_io_ros::Meta;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;

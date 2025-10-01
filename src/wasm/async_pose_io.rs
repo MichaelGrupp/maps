@@ -4,8 +4,8 @@ use eframe::egui;
 use rfd::AsyncFileDialog;
 
 use crate::app::AppState;
-use crate::map_pose::MapPose;
 use crate::wasm::async_data::AsyncData;
+use maps_io_ros::MapPose;
 
 /// Pick a map pose file via rfd dialog (websys -> <input> html).
 #[cfg(target_arch = "wasm32")]

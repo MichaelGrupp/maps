@@ -1,4 +1,5 @@
 //! Color map implementations.
+//! Includes reimplementations of the classic RViz colormaps for occupancy grids.
 
 use image::Rgba;
 use lazy_static::lazy_static;

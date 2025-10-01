@@ -1,0 +1,22 @@
+[package]
+name = "maps_io_ros"
+description = "Fundamental IO for 2D ROS grid maps."
+authors = ["Michael Grupp"]
+license = "Apache-2.0"
+repository = "https://github.com/MichaelGrupp/maps"
+categories = ["science::robotics", "data-structures", "filesystem", "multimedia::images"]
+keywords = ["map", "navigation", "SLAM", "ROS", "robotics"]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88.0"
+
+[dependencies]
+emath = { version = "0.32.1", features = ["serde"] }
+image = { version = "0.25.5", default-features = false }
+imageproc = "0.25.0"
+lazy_static = "1.5.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml_ng = "0.10.0"
+strum = { version = "0.26.3", features = ["derive"] }
+strum_macros = "0.26.3"
+thiserror = "2.0.16"

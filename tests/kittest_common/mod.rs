@@ -4,7 +4,7 @@ use eframe::egui;
 use egui_kittest::HarnessBuilder;
 
 use maps::app::AppState;
-use maps::meta::Meta;
+use maps_io_ros::Meta;
 
 // Expects that cargo test is run from the root of the repository.
 #[allow(dead_code)]

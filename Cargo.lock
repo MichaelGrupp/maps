@@ -2371,6 +2371,7 @@ dependencies = [
  "imageproc",
  "lazy_static",
  "log",
+ "maps_io_ros",
  "rfd",
  "serde",
  "serde_yaml_ng",
@@ -2381,6 +2382,21 @@ dependencies = [
  "uuid",
  "wasm-bindgen-futures",
  "web-sys",
+]
+
+[[package]]
+name = "maps_io_ros"
+version = "0.1.0"
+dependencies = [
+ "emath",
+ "image",
+ "imageproc",
+ "lazy_static",
+ "serde",
+ "serde_yaml_ng",
+ "strum",
+ "strum_macros",
+ "thiserror 2.0.16",
 ]
 
 [[package]]

@@ -6,8 +6,10 @@ use serde::{Deserialize, Serialize};
 use crate::app::AppState;
 use crate::app_impl::ui_helpers::{display_path, section_heading};
 use crate::render_options::TextureFilter;
-use crate::value_colormap::ColorMap;
-use crate::value_interpretation::{Mode, Quirks, ValueInterpretation};
+use maps_io_ros::{
+    ColorMap,
+    value_interpretation::{Mode, Quirks, ValueInterpretation},
+};
 
 use crate::texture_request::NO_TINT;
 
