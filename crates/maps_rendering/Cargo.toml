@@ -25,11 +25,5 @@ thiserror = { workspace = true }
 web-sys = "0.3.70"
 
 # Enable selected pedantic lints to match main crate.
-[lints.clippy]
-manual_let_else = "warn"
-match_same_arms = "warn"
-needless_pass_by_value = "warn"
-redundant_else = "warn"
-ref_option = "warn"
-trivially_copy_pass_by_ref = "warn"
-uninlined_format_args = "warn"
+[lints]
+workspace = true

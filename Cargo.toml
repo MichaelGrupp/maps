@@ -22,5 +22,16 @@ strum = { version = "0.26.3", features = ["derive"] }
 strum_macros = "0.26.3"
 thiserror = "2.0.16"
 
+# Enable selected pedantic lints.
+# To check all pedantic lints, alternatively add pedantic = "warn" here.
+[workspace.lints.clippy]
+manual_let_else = "warn"
+match_same_arms = "warn"
+needless_pass_by_value = "warn"
+redundant_else = "warn"
+ref_option = "warn"
+trivially_copy_pass_by_ref = "warn"
+uninlined_format_args = "warn"
+
 [profile.release]
 opt-level = 2 # fast and small wasm
