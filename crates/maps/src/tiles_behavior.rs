@@ -5,7 +5,7 @@ use eframe::egui;
 
 use crate::map_state::MapState;
 use crate::tiles::Pane;
-use maps_rendering::texture_request::TextureRequest;
+use maps_rendering::TextureRequest;
 
 // Behavior for the tiles tree that displays maps.
 pub struct MapsTreeBehavior<'a> {

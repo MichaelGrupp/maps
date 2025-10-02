@@ -6,9 +6,7 @@ use std::sync::Arc;
 use eframe::egui;
 
 use maps_io_ros::{MapPose, Meta, ValueInterpretation};
-use maps_rendering::{
-    image_pyramid::ImagePyramid, render_options::TextureFilter, texture_state::TextureState,
-};
+use maps_rendering::{ImagePyramid, TextureFilter, TextureState};
 
 #[derive(Serialize, Deserialize)]
 pub struct MapState {

@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 use crate::app::CanvasOptions;
 use crate::map_state::MapState;
 use maps_rendering::{
+    TextureState,
     image::{color_to_alpha, to_egui_image},
-    texture_state::TextureState,
 };
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -9,9 +9,7 @@ use maps_io_ros::{
     ColorMap,
     value_interpretation::{Mode, Quirks, ValueInterpretation},
 };
-use maps_rendering::render_options::TextureFilter;
-
-use maps_rendering::texture_request::NO_TINT;
+use maps_rendering::{NO_TINT, TextureFilter};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TintOptions {
