@@ -6,14 +6,14 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("IO error: {context}")]
+    #[error("[IO error] {context} ({source})")]
     Io {
         context: String,
         #[source]
         source: std::io::Error,
     },
 
-    #[error("Image error: {context}")]
+    #[error("[Image error] {context} ({source})")]
     Image {
         context: String,
         #[source]
