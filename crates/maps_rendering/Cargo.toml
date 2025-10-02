@@ -9,6 +9,7 @@ keywords = ["rendering", "texture", "image", "egui", "graphics"]
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.88.0"
+readme = "README.md"
 
 [dependencies]
 eframe = {version = "0.32.1", features = ["wgpu"]}

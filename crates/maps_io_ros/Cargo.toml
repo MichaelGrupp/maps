@@ -9,6 +9,7 @@ keywords = ["map", "navigation", "SLAM", "ROS", "robotics"]
 version = "0.1.1"
 edition = "2024"
 rust-version = "1.88.0"
+readme = "README.md"
 
 [dependencies]
 emath = { version = "0.32.1", features = ["serde"] }
