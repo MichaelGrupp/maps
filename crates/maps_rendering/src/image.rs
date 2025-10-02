@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use eframe::egui;
 use fast_image_resize::images::Image as ResizeImage;
@@ -11,10 +11,7 @@ use log::debug;
 use fast_image_resize::CpuExtensions;
 
 use crate::error::{Error, Result};
-
-fn resolve_symlink(path: &Path) -> PathBuf {
-    path.canonicalize().unwrap_or(path.to_path_buf())
-}
+use maps_io_ros::os_helpers::resolve_symlink;
 
 pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
     let path = resolve_symlink(path);
