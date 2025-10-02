@@ -2,7 +2,7 @@
 
 **Inspect, compare and align multiple grid maps in an intuitive & fast GUI**
 
-| <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_0.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_1.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/screenshot_2.png" width="250" /> |
+| <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/screenshot_0.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/screenshot_1.png" width="250" />  | <img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/screenshot_2.png" width="250" /> |
 |---|---|---|
 
 `maps` is 100% Rust and compiles & runs natively (cross-platform) or as web assembly.
@@ -108,7 +108,7 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 `maps` provides three different main view modes.
 
-<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/view_selection.png" width="150" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/view_selection.png" width="150" />
 
 * `Aligned`:
   * Maps are shown in a metric grid, with their origin at zero.
@@ -120,13 +120,13 @@ See the [ROS documentation](http://wiki.ros.org/map_server#Map_format) for all d
 
 ### Measurements
 
-<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/tool_measure.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/tool_measure.png" width="125" />
 
 Does exactly what you think: activate the tool and click two points in the aligned grid view to measure their distance.
 
 ### Lens
 
-<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/tool_hover_lens.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/tool_hover_lens.png" width="125" />
 
 The lens tool magnifies a region below the mouse cursor with a magnification factor (in Aligned view) or to the original image size (in Tiles / Stacked view). This makes it fast to inspect details of large maps in selected regions without tedious zooming and/or dragging.
 
@@ -137,7 +137,7 @@ The lens tool magnifies a region below the mouse cursor with a magnification fac
 
 ### Fixed Lens
 
-<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/tool_fixed_lens.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/tool_fixed_lens.png" width="125" />
 
 In the Aligned view, you can add multiple lenses that are looking at a fixed coordinate each. They stay centered at the coordinate that was clicked, even if the main grid is moved.
 
@@ -158,7 +158,7 @@ or to align with a fixed layout, etc.
    * add fixed lenses in different areas of a large map
    * adjust the movement step size for the WASD/QE keybindings to the sensitivity you need
 
-<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/alignment.gif" height="150" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/alignment.gif" height="150" />
 
 > 👉 maps doesn't touch the `origin` of your `map.yaml` file, but writes a separate file.
 > Many ROS tools don't support rotations in the map yaml file, and it's anyway cleaner to separate the alignment pose from the map origin.
@@ -244,7 +244,7 @@ You can also build completely from source if you want.
 
 Clone this repository, then:
 ```bash
-cargo install --path maps/
+cargo install --path crates/maps/
 ```
 
 (or `cargo build --release` if you just want to build)
@@ -254,7 +254,7 @@ cargo install --path maps/
 You can use [trunk](https://trunkrs.dev/) to directly build & serve the wasm version of `maps` from source. Just run:
 
 ```
-trunk serve --release
+trunk serve --release --open
 ```
 and go to: http://localhost:8080/index.html/#dev
 
@@ -322,7 +322,7 @@ The core I/O library can be reused for other applications, see the [maps_io_ros]
 
 With `-log-level debug` or `trace`, a debug window can be opened through a ⚒️ button in the footer panel.
 
-<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/data/doc/debug_button.png" width="125" />
+<img src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps/data/doc/debug_button.png" width="125" />
 
 ## License
 

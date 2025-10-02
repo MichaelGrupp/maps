@@ -16,8 +16,8 @@ See `examples/demo.rs` for a minimal example how this library can be used. The d
 You can run it from within the maps repository with:
 
 ```
-cd maps_io_ros/
+cd crates/maps_io_ros/
 cargo run -r --example demo your_map.yaml
 ```
-<img width=200 src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/maps_io_ros/doc/orig.png" />
-<img width=200 src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/maps_io_ros/doc/proc.png" /> |
+<img width=200 src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps_io_ros/doc/orig.png" />
+<img width=200 src="https://raw.githubusercontent.com/MichaelGrupp/maps/refs/heads/master/crates/maps_io_ros/doc/proc.png" /> |

@@ -1,8 +1,8 @@
 /target
 
-/tests/snapshots/*new.png
-/tests/snapshots/*old.png
-/tests/snapshots/*diff.png
+/crates/maps/tests/snapshots/*new.png
+/crates/maps/tests/snapshots/*old.png
+/crates/maps/tests/snapshots/*diff.png
 /dist
 
 .DS_Store
