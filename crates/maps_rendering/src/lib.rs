@@ -6,8 +6,8 @@
 pub mod error;
 pub mod image;
 pub mod image_pyramid;
-pub mod rect_helpers;
+mod rect_helpers;
 pub mod render_options;
-pub mod texture_cache;
+mod texture_cache;
 pub mod texture_request;
 pub mod texture_state;
