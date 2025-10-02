@@ -2352,7 +2352,7 @@ dependencies = [
 
 [[package]]
 name = "maps"
-version = "1.8.5"
+version = "1.9.0"
 dependencies = [
  "built",
  "cfg-if",
@@ -2384,7 +2384,7 @@ dependencies = [
 
 [[package]]
 name = "maps_io_ros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "emath",
  "image",

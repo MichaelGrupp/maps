@@ -7,10 +7,10 @@ repository = "https://github.com/MichaelGrupp/maps"
 homepage = "https://michaelgrupp.github.io/maps"
 categories = ["science::robotics", "visualization", "gui", "multimedia::images"]
 keywords = ["map", "navigation", "SLAM", "ROS", "egui"]
-version = "1.8.5"
+version = "1.9.0"
 edition = "2024"
 rust-version = "1.88.0"
-readme = "../../README.md"
+readme = "README.md"
 build = "build.rs"
 exclude = ["data/**/", "tests/snapshots"]
 
