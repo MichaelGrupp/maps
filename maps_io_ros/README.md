@@ -4,7 +4,7 @@
 
 See the [maps](https://crates.io/crates/maps) app crate for a full GUI application that builds on top of this I/O library.
 
-This crate was split out of `maps` with minimal dependencies and can be used also in other robotics applications that work with ROS map files and/or display 2D occupancy grids. It does __not__ require ROS installation.
+This crate was split out of `maps` with minimal dependencies and can be used also in other robotics applications that work with ROS map files and/or display 2D occupancy grids. It does __not__ require a ROS installation.
 
 > ⚠️ While the `maps` app is stable, `maps_io_ros` doesn't have a stable API yet.
 > Parts of the library might change in upcoming minor versions.

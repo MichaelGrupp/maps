@@ -4,10 +4,6 @@ members = [".", "maps_io_ros"]
 default-members = [".", "maps_io_ros"]
 resolver = "2"
 
-[workspace.dependencies]
-# Use core lib from path for local development, and version when publishing.
-maps_io_ros = { path = "maps_io_ros", version = "0.1.0" }
-
 [package]
 name = "maps"
 description = "Inspect, compare and align multiple grid maps in an intuitive & fast GUI"
@@ -52,6 +48,20 @@ ref_option = "warn"
 trivially_copy_pass_by_ref = "warn"
 uninlined_format_args = "warn"
 
+# Shared dependencies across workspace members.
+[workspace.dependencies]
+# Use core lib from path for local development, and version when publishing.
+maps_io_ros = { path = "maps_io_ros", version = "0.1.0" }
+image = { version = "0.25.5", features = ["jpeg", "png", "pnm"] }
+imageproc = "0.25.0"
+lazy_static = "1.5.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml_ng = "0.10.0"
+strum = { version = "0.26.3", features = ["derive"] }
+strum_macros = "0.26.3"
+thiserror = "2.0.16"
+
+# Dependencies of the main app crate.
 [dependencies]
 maps_io_ros = { workspace = true }
 confy = "0.6.1"
@@ -61,15 +71,14 @@ egui-file-dialog = "0.11.0"
 egui_plot = "0.33.0"
 egui_tiles = "0.13.0"
 fast_image_resize = { version = "5.3.0", features = ["image"] }
-lazy_static = "1.5.0"
-image = { version = "0.25.5", features = ["jpeg", "png", "pnm"] }
-imageproc = "0.25.0"
+lazy_static = { workspace = true }
+image = { workspace = true }
+imageproc = { workspace = true }
 log = "0.4.22 "
-serde = "1.0"
-serde_yaml_ng = "0.10.0"
-strum = { version = "0.26.3", features = ["derive"] }
-strum_macros = "0.26.3"
-thiserror = "2.0.16"
+serde = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
+thiserror = { workspace = true }
 toml = "0.8.19"
 uuid = { version = "1.11.0", features = ["v4"] }
 

@@ -2374,7 +2374,6 @@ dependencies = [
  "maps_io_ros",
  "rfd",
  "serde",
- "serde_yaml_ng",
  "strum",
  "strum_macros",
  "thiserror 2.0.16",

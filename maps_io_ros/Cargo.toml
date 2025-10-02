@@ -12,11 +12,11 @@ rust-version = "1.88.0"
 
 [dependencies]
 emath = { version = "0.32.1", features = ["serde"] }
-image = { version = "0.25.5", default-features = false }
-imageproc = "0.25.0"
-lazy_static = "1.5.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_yaml_ng = "0.10.0"
-strum = { version = "0.26.3", features = ["derive"] }
-strum_macros = "0.26.3"
-thiserror = "2.0.16"
+image = { workspace = true }
+imageproc = { workspace = true }
+lazy_static = { workspace = true }
+serde = { workspace = true }
+serde_yaml_ng = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
+thiserror = { workspace = true }
