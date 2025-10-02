@@ -13,10 +13,9 @@ use {
 
 use crate::{
     app::ViewMode,
-    map_pose::MapPose,
-    meta::Meta,
     persistence::{load_app_options, save_session},
 };
+use maps_io_ros::{MapPose, Meta};
 
 use crate::app::{AppOptions, AppState};
 
@@ -184,13 +183,18 @@ pub fn main_native() -> eframe::Result {
     for yaml_file in args.yaml_files {
         let yaml_path = Path::new(&yaml_file);
         info!("Loading map YAML {}", yaml_path.display());
-        let meta = Meta::load_from_file(yaml_path).unwrap_or_else(|e| {
-            error!("{}", e);
-            if matches!(e, crate::error::Error::Yaml { .. }) {
-                warn!("In case you want to load a session file, use the -s / --session flag.");
-            }
-            exit(1);
-        });
+        let meta = Meta::load_from_file(yaml_path)
+            .map_err(crate::error::Error::from)
+            .unwrap_or_else(|e| {
+                error!("{}", e);
+                if matches!(
+                    e,
+                    crate::error::Error::Core(maps_io_ros::Error::Yaml { .. })
+                ) {
+                    warn!("In case you want to load a session file, use the -s / --session flag.");
+                }
+                exit(1);
+            });
         metas.push(meta);
     }
 

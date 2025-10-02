@@ -8,15 +8,15 @@ use log::{debug, error, info};
 use crate::image::load_image;
 use crate::image_pyramid::ImagePyramid;
 use crate::map_state::MapState;
-use crate::meta::Meta;
 use crate::persistence;
 use crate::render_options::TextureFilter;
 use crate::tiles::Pane;
+use maps_io_ros::Meta;
 
 use crate::app::{AppState, Error};
 use crate::app_impl::compat::migrate_old_egui_color;
-use crate::map_pose::MapPose;
-use crate::value_interpretation;
+use maps_io_ros::MapPose;
+use maps_io_ros::value_interpretation;
 
 impl AppState {
     #[cfg(not(target_arch = "wasm32"))]

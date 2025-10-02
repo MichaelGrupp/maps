@@ -6,11 +6,9 @@ use std::sync::Arc;
 use eframe::egui;
 
 use crate::image_pyramid::ImagePyramid;
-use crate::map_pose::MapPose;
-use crate::meta::Meta;
 use crate::render_options::TextureFilter;
 use crate::texture_state::TextureState;
-use crate::value_interpretation::ValueInterpretation;
+use maps_io_ros::{MapPose, Meta, ValueInterpretation};
 
 #[derive(Serialize, Deserialize)]
 pub struct MapState {

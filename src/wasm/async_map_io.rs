@@ -9,8 +9,8 @@ use crate::app::AppState;
 use crate::error::Error;
 use crate::image::load_image_from_bytes;
 use crate::image_pyramid::ImagePyramid;
-use crate::meta::Meta;
 use crate::wasm::async_data::AsyncData;
+use maps_io_ros::Meta;
 
 const YAML_EXTENSIONS: [&str; 2] = ["yml", "yaml"];
 const IMAGE_EXTENSIONS: [&str; 4] = ["png", "jpg", "jpeg", "pgm"];
@@ -29,10 +29,10 @@ async fn load_image(file_handle: &FileHandle) -> Result<Arc<ImagePyramid>, Error
 
 #[cfg(target_arch = "wasm32")]
 async fn load_meta(file_handle: &FileHandle) -> Result<Meta, Error> {
-    Meta::load_from_bytes(
+    Ok(Meta::load_from_bytes(
         file_handle.read().await.as_slice(),
         file_handle.file_name().as_str(),
-    )
+    )?)
 }
 
 fn file_handles_with_extension<'a>(

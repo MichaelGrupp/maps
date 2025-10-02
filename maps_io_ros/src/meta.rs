@@ -1,7 +1,8 @@
 //! Map metadata.
+//! Supports loading files that follow the ROS map server yaml format:
+//! <https://wiki.ros.org/map_server#YAML_format>
 
-use eframe::emath;
-use log::debug;
+use emath;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -95,13 +96,15 @@ impl Meta {
     pub fn load_from_file(yaml_path: &Path) -> Result<Meta> {
         let meta_yaml_annotated = MetaYamlAnnotated::from(yaml_path)?;
         let meta = Meta::from(meta_yaml_annotated);
-        debug!("Parsed metadata: {:?}", meta);
         if !meta.image_path.exists() {
-            return Err(Error::app(format!(
-                "Metadata from {} points to an image that does not exist: {}",
-                yaml_path.display(),
-                meta.image_path.display()
-            )));
+            return Err(Error::io(
+                format!(
+                    "Metadata from {} points to an image that does not exist: {}",
+                    yaml_path.display(),
+                    meta.image_path.display()
+                ),
+                std::io::Error::new(std::io::ErrorKind::NotFound, "Image file not found"),
+            ));
         }
         Ok(meta)
     }
@@ -109,7 +112,6 @@ impl Meta {
     pub fn load_from_bytes(bytes: &[u8], yaml_name: &str) -> Result<Meta> {
         let meta_yaml_annotated = MetaYamlAnnotated::from_bytes(bytes, yaml_name)?;
         let meta = Meta::from(meta_yaml_annotated);
-        debug!("Parsed metadata from bytes: {:?}", meta);
         Ok(meta)
     }
 

@@ -2,8 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::image_pyramid::ImagePyramid;
-use crate::map_pose::MapPose;
-use crate::meta::Meta;
+use maps_io_ros::{MapPose, Meta};
 
 /// Contains data to be passed between the async websys IO and the app.
 /// Held as simple as possible because we don't have complex async operations.

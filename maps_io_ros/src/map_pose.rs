@@ -2,12 +2,10 @@
 
 use std::path::PathBuf;
 
-use eframe::emath;
-use log::debug;
+use emath;
 use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
-use crate::movable::{Draggable, Rotatable};
 use crate::os_helpers::resolve_symlink;
 
 /// Pose of a map in metric coordinates.
@@ -49,23 +47,6 @@ pub struct Translation {
     /// Placeholder for z. Not used by the maps app.
     #[serde(default)]
     pub z: f32,
-}
-
-impl Draggable for MapPose {
-    fn offset_rhs(&self) -> emath::Vec2 {
-        emath::vec2(self.translation.x, self.translation.y)
-    }
-
-    fn drag(&mut self, delta: emath::Vec2) {
-        self.translation.x += delta.x;
-        self.translation.y -= delta.y;
-    }
-}
-
-impl Rotatable for MapPose {
-    fn rotate(&mut self, delta: f32) {
-        self.rotation.yaw = emath::normalized_angle(self.rotation.yaw + delta);
-    }
 }
 
 impl MapPose {
@@ -132,19 +113,13 @@ impl MapPose {
             .map_err(|e| Error::yaml(format!("Cannot parse map pose from {yaml_path:?}"), e))?
             .normalized();
 
-        debug!(
-            "Loaded and normalized map pose from {:?}: {:?}",
-            yaml_path, map_pose
-        );
         Ok(map_pose)
     }
 
-    #[cfg(target_arch = "wasm32")]
     pub fn from_bytes(bytes: &[u8]) -> Result<MapPose> {
         let map_pose = serde_yaml_ng::from_slice::<MapPose>(bytes)
             .map_err(|e| Error::yaml("Cannot parse map pose from bytes", e))?
             .normalized();
-        debug!("Loaded and normalized map pose from bytes: {:?}", map_pose);
         Ok(map_pose)
     }
 
@@ -160,7 +135,6 @@ impl MapPose {
             .map_err(|e| Error::io(format!("Cannot write map pose to {yaml_path:?}"), e))
     }
 
-    #[cfg(target_arch = "wasm32")]
     pub fn to_bytes(&self) -> Result<Vec<u8>> {
         let yaml = self.to_yaml()?;
         Ok(yaml.into_bytes())
