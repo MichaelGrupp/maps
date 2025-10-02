@@ -1,5 +1,5 @@
 //! Image rendering functionality tailored to the [maps](https://crates.io/crates/maps) crate.
-//! 
+//!
 //! For fast displaying of image edits in egui, with arbitrary scale & pose.
 
 pub mod error;
