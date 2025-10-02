@@ -6,12 +6,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("[IO error] {context} ({source})")]
-    Io {
-        context: String,
-        #[source]
-        source: std::io::Error,
-    },
+    /// Error from maps_io_ros (I/O, YAML parsing, etc.)
+    #[error(transparent)]
+    Core(#[from] maps_io_ros::Error),
 
     #[error("[Image error] {context} ({source})")]
     Image {
@@ -22,9 +19,13 @@ pub enum Error {
 }
 
 impl Error {
+    /// Create I/O errors by delegating to maps_io_ros
+    pub fn io(context: impl ToString, source: std::io::Error) -> Self {
+        Error::Core(maps_io_ros::Error::io(context, source))
+    }
+
     // Generate the wrapping error constructors.
     impl_error_constructors! {
-        io => Io, std::io::Error;
         image => Image, image::ImageError;
     }
 }
