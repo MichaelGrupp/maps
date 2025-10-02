@@ -20,10 +20,6 @@ maps_io_ros = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
-# Web only:
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-web-sys = "0.3.70"
-
 # Enable selected pedantic lints to match main crate.
 [lints]
 workspace = true

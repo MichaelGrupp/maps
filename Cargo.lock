@@ -2409,7 +2409,6 @@ dependencies = [
  "maps_io_ros",
  "serde",
  "thiserror 2.0.16",
- "web-sys",
 ]
 
 [[package]]
