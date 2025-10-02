@@ -1,37 +1,29 @@
-use std::fmt;
-
 use thiserror::Error;
+
+use maps_io_ros::impl_error_constructors;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("IO error: {message}")]
+    #[error("IO error: {context}")]
     Io {
-        message: String,
+        context: String,
         #[source]
         source: std::io::Error,
     },
-    #[error("Image error: {message}")]
+    #[error("Image error: {context}")]
     Image {
-        message: String,
+        context: String,
         #[source]
         source: image::ImageError,
     },
 }
 
 impl Error {
-    pub fn io(message: impl fmt::Display, source: std::io::Error) -> Self {
-        Self::Io {
-            message: message.to_string(),
-            source,
-        }
-    }
-
-    pub fn image(message: impl fmt::Display, source: image::ImageError) -> Self {
-        Self::Image {
-            message: message.to_string(),
-            source,
-        }
+    // Generate the wrapping error constructors.
+    impl_error_constructors! {
+        io => Io, std::io::Error;
+        image => Image, image::ImageError;
     }
 }
