@@ -11,7 +11,7 @@ use crate::image::{fit_image, to_rgba8};
 const SIZES: [u32; 5] = [8000, 4000, 2000, 1000, 500];
 
 /// Stores downscaled versions of an image for discrete sizes.
-/// Intended for efficient on-screen rendering of images at different zoom levels.
+/// Intended for efficient editing & rendering of images at different zoom levels.
 #[derive(Default)]
 pub struct ImagePyramid {
     pub original: image::DynamicImage,
