@@ -22,7 +22,7 @@ fn main() {
 
     // Load the map metadata from the yaml file.
     let meta = Meta::load_from_file(&meta_path).unwrap_or_else(|e| {
-        eprintln!("Error loading map yaml {:?}: {}", meta_path, e);
+        eprintln!("Error loading map yaml {meta_path:?}: {e}");
         exit(1);
     });
     println!(
@@ -43,7 +43,7 @@ fn main() {
     // Interpret the image values according to the metadata and apply a colormap.
     // Here we use the classic RViz colormap.
     let colormap = ColorMap::RvizMap;
-    println!("Applying value interpretation with colormap {:?}", colormap);
+    println!("Applying value interpretation with colormap {colormap:?}");
     meta.value_interpretation
         .with_colormap(colormap)
         .apply(&mut img_rgba, img.has_alpha());
@@ -51,8 +51,8 @@ fn main() {
     // Save the resulting image to a temporary file.
     let out_path = std::env::temp_dir().join("processed_".to_owned() + filename(&meta.image_path));
     img_rgba.save(&out_path).unwrap_or_else(|e| {
-        eprintln!("Error saving processed image to {:?}: {}", out_path, e);
+        eprintln!("Error saving processed image to {out_path:?}: {e}");
         exit(1);
     });
-    println!("Saved processed image to {:?}", out_path);
+    println!("Saved processed image to {out_path:?}");
 }

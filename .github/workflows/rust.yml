@@ -20,7 +20,7 @@ jobs:
     - name: Format check
       run: cargo fmt --all -- --check
     - name: Clippy check
-      run: cargo clippy --all-targets --all-features -- -D warnings
+      run: cargo clippy --workspace --all-targets --all-features -- -D warnings
     - name: Build
       run: cargo build --profile kittest --verbose
     - name: Run tests
