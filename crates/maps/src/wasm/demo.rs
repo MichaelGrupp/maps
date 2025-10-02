@@ -5,11 +5,11 @@ use eframe::egui;
 use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 use crate::grid_options::MarkerVisibility;
-use crate::image::{load_image_from_bytes, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::movable::Draggable;
 use crate::render_options::TextureFilter;
 use maps_io_ros::{ColorMap, MapPose, Meta, value_interpretation};
+use maps_rendering::image::{load_image_from_bytes, to_egui_image};
 
 // Helper function to create a demo button with image.
 #[cfg(target_arch = "wasm32")]

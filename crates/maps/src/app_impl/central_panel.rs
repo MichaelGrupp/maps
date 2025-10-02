@@ -7,8 +7,8 @@ use crate::app_impl::constants::SPACE;
 use crate::grid::Grid;
 use crate::grid_options::{LineType, SubLineVisibility};
 use crate::lens::Lens;
-use crate::texture_request::TextureRequest;
 use crate::tiles_behavior::MapsTreeBehavior;
+use maps_rendering::texture_request::TextureRequest;
 
 const STACKED_TEXTURE_ID: &str = "stack";
 

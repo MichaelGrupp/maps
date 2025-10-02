@@ -1,8 +1,8 @@
 use eframe::egui;
 use eframe::emath::GuiRounding as _;
+use maps_io_ros::ValueInterpretation;
 
 use crate::rect_helpers::{debug_paint, quantized_intersection, rotate};
-use maps_io_ros::ValueInterpretation;
 
 pub const NO_TINT: egui::Color32 = egui::Color32::WHITE;
 
@@ -95,8 +95,8 @@ pub struct RotatedCropRequest {
     pub points_per_pixel: f32,
 }
 
-#[derive(Debug)]
 /// Information needed for placement of an image as a scaled texture at a 2D pose.
+#[derive(Debug)]
 pub struct ImagePlacement {
     pub rotation: egui::emath::Rot2,
     /// Position of the upper left image corner in points relative to the viewport.

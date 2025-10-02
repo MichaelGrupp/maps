@@ -22,7 +22,7 @@ pub enum TextureFilter {
 }
 
 impl TextureFilter {
-    pub(crate) fn get(self, points_per_pixel: f32) -> egui::TextureOptions {
+    pub fn get(self, points_per_pixel: f32) -> egui::TextureOptions {
         match self {
             TextureFilter::Smooth => egui::TextureOptions::LINEAR,
             TextureFilter::Crisp => egui::TextureOptions::NEAREST,

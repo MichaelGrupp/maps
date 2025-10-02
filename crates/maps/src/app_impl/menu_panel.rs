@@ -5,7 +5,7 @@ use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::display_path;
 use crate::map_state::MapState;
-use crate::texture_request::TextureRequest;
+use maps_rendering::texture_request::TextureRequest;
 
 fn map_tooltip(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
     ui.horizontal_top(|ui| {

@@ -2366,12 +2366,11 @@ dependencies = [
  "egui_plot",
  "egui_tiles",
  "env_logger",
- "fast_image_resize",
  "image",
- "imageproc",
  "lazy_static",
  "log",
  "maps_io_ros",
+ "maps_rendering",
  "rfd",
  "serde",
  "strum",
@@ -2396,6 +2395,21 @@ dependencies = [
  "strum",
  "strum_macros",
  "thiserror 2.0.16",
+]
+
+[[package]]
+name = "maps_rendering"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "fast_image_resize",
+ "image",
+ "imageproc",
+ "log",
+ "maps_io_ros",
+ "serde",
+ "thiserror 2.0.16",
+ "web-sys",
 ]
 
 [[package]]

@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use eframe::egui;
 use log::trace;
+use maps_io_ros::ValueInterpretation;
 
 use crate::image::{color_to_alpha, fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::texture_cache::TextureCache;
 use crate::texture_request::{RotatedCropRequest, TextureRequest};
-use maps_io_ros::ValueInterpretation;
 
 /// Manages the state of a texture across its lifetime.
 /// Has to be updated every frame using texture requests.

@@ -21,10 +21,10 @@ use crate::app_impl::CUSTOM_TITLEBAR_SUPPORTED;
 use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::persistence::{PersistenceOptions, save_app_options};
-use crate::render_options::default_crop_threshold;
 use crate::tiles::Tiles;
 use crate::tracing::Tracing;
 use maps_io_ros::Meta;
+use maps_rendering::render_options::default_crop_threshold;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;

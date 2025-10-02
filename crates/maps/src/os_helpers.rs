@@ -1,14 +1,8 @@
-use std::path::{Path, PathBuf};
-
 #[cfg(target_os = "linux")]
 use {
     crate::error::{Error, Result},
     log::{debug, info},
 };
-
-pub(crate) fn resolve_symlink(path: &Path) -> PathBuf {
-    path.canonicalize().unwrap_or(path.to_path_buf())
-}
 
 #[cfg(target_os = "linux")]
 /// Writes a .desktop file with icon for Linux desktop environments,

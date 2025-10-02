@@ -4,8 +4,8 @@ use std::collections::BTreeMap;
 use eframe::egui;
 
 use crate::map_state::MapState;
-use crate::texture_request::TextureRequest;
 use crate::tiles::Pane;
+use maps_rendering::texture_request::TextureRequest;
 
 // Behavior for the tiles tree that displays maps.
 pub struct MapsTreeBehavior<'a> {

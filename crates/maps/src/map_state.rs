@@ -5,10 +5,10 @@ use std::sync::Arc;
 
 use eframe::egui;
 
-use crate::image_pyramid::ImagePyramid;
-use crate::render_options::TextureFilter;
-use crate::texture_state::TextureState;
 use maps_io_ros::{MapPose, Meta, ValueInterpretation};
+use maps_rendering::{
+    image_pyramid::ImagePyramid, render_options::TextureFilter, texture_state::TextureState,
+};
 
 #[derive(Serialize, Deserialize)]
 pub struct MapState {

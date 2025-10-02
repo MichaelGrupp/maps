@@ -1,0 +1,35 @@
+[package]
+name = "maps_rendering"
+description = "Image rendering functionality tailored to the maps crate"
+authors = ["Michael Grupp"]
+license = "Apache-2.0"
+repository = "https://github.com/MichaelGrupp/maps"
+categories = ["graphics", "multimedia::images", "visualization", "science::robotics"]
+keywords = ["rendering", "texture", "image", "egui", "graphics"]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88.0"
+
+[dependencies]
+eframe = {version = "0.32.1", features = ["wgpu"]}
+fast_image_resize = { version = "5.3.0", features = ["image"] }
+image = { workspace = true }
+imageproc = { workspace = true }
+log = "0.4.22"
+maps_io_ros = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+# Web only:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = "0.3.70"
+
+# Enable selected pedantic lints to match main crate.
+[lints.clippy]
+manual_let_else = "warn"
+match_same_arms = "warn"
+needless_pass_by_value = "warn"
+redundant_else = "warn"
+ref_option = "warn"
+trivially_copy_pass_by_ref = "warn"
+uninlined_format_args = "warn"
