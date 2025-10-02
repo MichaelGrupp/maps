@@ -12,6 +12,7 @@ pub enum Error {
         #[source]
         source: std::io::Error,
     },
+
     #[error("Image error: {context}")]
     Image {
         context: String,
