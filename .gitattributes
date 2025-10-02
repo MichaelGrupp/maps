@@ -1,4 +1,4 @@
-tests/snapshots/*png filter=lfs diff=lfs merge=lfs -text
-tests/snapshots/map_server_rviz_referencs/*png filter=lfs diff=lfs merge=lfs -text
-data/google_cartographer_example/*png filter=lfs diff=lfs merge=lfs -text
-data/google_cartographer_example/jpeg/*.jpg filter=lfs diff=lfs merge=lfs -text
+crates/maps/tests/snapshots/*png filter=lfs diff=lfs merge=lfs -text
+crates/maps/tests/snapshots/map_server_rviz_referencs/*png filter=lfs diff=lfs merge=lfs -text
+crates/maps/data/google_cartographer_example/*png filter=lfs diff=lfs merge=lfs -text
+crates/maps/data/google_cartographer_example/jpeg/*.jpg filter=lfs diff=lfs merge=lfs -text

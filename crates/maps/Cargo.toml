@@ -1,0 +1,73 @@
+[package]
+name = "maps"
+description = "Inspect, compare and align multiple grid maps in an intuitive & fast GUI"
+authors = ["Michael Grupp"]
+license = "Apache-2.0"
+repository = "https://github.com/MichaelGrupp/maps"
+homepage = "https://michaelgrupp.github.io/maps"
+categories = ["science::robotics", "visualization", "gui", "multimedia::images"]
+keywords = ["map", "navigation", "SLAM", "ROS", "egui"]
+version = "1.8.5"
+edition = "2024"
+rust-version = "1.88.0"
+readme = "../../README.md"
+build = "build.rs"
+exclude = ["data/**/", "tests/snapshots"]
+
+[features]
+# kittest snapshot diff tests are enabled by default (see tests/).
+# Disable when testing on a runner without wgpu support.
+kittest_snapshots = []
+default = ["kittest_snapshots"]
+
+[build-dependencies]
+built = { version = "0.7.5", features = ["git2"] }
+
+[dev-dependencies]
+egui_kittest = { version = "0.32.0", features = ["wgpu", "snapshot", "eframe"] }
+
+# Dependencies of the main app crate.
+[dependencies]
+maps_io_ros = { workspace = true }
+confy = "0.6.1"
+eframe = {version = "0.32.1", features = ["wgpu"]}
+egui_dnd = "0.13.0"
+egui-file-dialog = "0.11.0"
+egui_plot = "0.33.0"
+egui_tiles = "0.13.0"
+fast_image_resize = { version = "5.3.0", features = ["image"] }
+lazy_static = { workspace = true }
+image = { workspace = true }
+imageproc = { workspace = true }
+log = "0.4.22 "
+serde = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
+thiserror = { workspace = true }
+toml = "0.8.19"
+uuid = { version = "1.11.0", features = ["v4"] }
+
+# Native only:
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+cfg-if = "1.0.3"
+clap = { version = "4.5.23", features = ["derive"] }
+env_logger = "0.11.5"
+
+# Web only:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"
+web-sys = "0.3.70"
+console_error_panic_hook = "0.1.7"  # wasm error messages in the browser console
+rfd = "0.15.2"
+
+# Enable selected pedantic lints.
+# To check all pedantic lints, alternatively add pedantic = "warn" here.
+[lints.clippy]
+# pedantic = "warn"
+manual_let_else = "warn"
+match_same_arms = "warn"
+needless_pass_by_value = "warn"
+redundant_else = "warn"
+ref_option = "warn"
+trivially_copy_pass_by_ref = "warn"
+uninlined_format_args = "warn"

@@ -31,7 +31,7 @@ jobs:
       with:
         name: kittest-snapshots
         path: |
-          tests/snapshots/
+          crates/maps/tests/snapshots/
 
   ubuntu:
     runs-on: [ubuntu-latest]

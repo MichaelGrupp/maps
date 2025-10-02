@@ -1,0 +1,2 @@
+[build]
+target = "crates/maps/index.html"
