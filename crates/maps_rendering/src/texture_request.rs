@@ -95,8 +95,8 @@ pub struct RotatedCropRequest {
     pub points_per_pixel: f32,
 }
 
-#[derive(Debug)]
 /// Information needed for placement of an image as a scaled texture at a 2D pose.
+#[derive(Debug)]
 pub struct ImagePlacement {
     pub rotation: egui::emath::Rot2,
     /// Position of the upper left image corner in points relative to the viewport.

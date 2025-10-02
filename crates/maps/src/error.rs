@@ -15,17 +15,13 @@ pub enum Error {
     #[error("{message}")]
     App { message: String },
 
-    /// Image loading or processing error with additional context.
-    #[error("[Image error] {context} ({source})")]
-    Image {
-        context: String,
-        #[source]
-        source: image::ImageError,
-    },
-
     /// Error from maps_io_ros (I/O, YAML parsing, etc.)
     #[error(transparent)]
     Core(#[from] maps_io_ros::Error),
+
+    /// Error from maps_rendering (image processing, texture management, etc.)
+    #[error(transparent)]
+    Rendering(#[from] maps_rendering::error::Error),
 
     /// TOML deserialization error with additional context.
     #[error("[TOML error] {context} ({source})")]
@@ -55,7 +51,6 @@ impl Error {
 
     // Generate the wrapping error constructors.
     impl_error_constructors! {
-        image => Image, image::ImageError;
         toml_deserialize => TomlDeserialize, toml::de::Error;
         toml_serialize => TomlSerialize, toml::ser::Error;
     }

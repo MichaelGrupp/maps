@@ -10,7 +10,7 @@
 pub mod error;
 pub mod map_pose;
 pub mod meta;
-mod os_helpers;
+pub mod os_helpers;
 pub mod value_colormap;
 pub mod value_interpretation;
 

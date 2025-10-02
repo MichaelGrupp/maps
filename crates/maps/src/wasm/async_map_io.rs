@@ -7,10 +7,10 @@ use rfd::{AsyncFileDialog, FileHandle};
 
 use crate::app::AppState;
 use crate::error::Error;
-use crate::image::load_image_from_bytes;
-use crate::image_pyramid::ImagePyramid;
 use crate::wasm::async_data::AsyncData;
 use maps_io_ros::Meta;
+use maps_rendering::ImagePyramid;
+use maps_rendering::image::load_image_from_bytes;
 
 const YAML_EXTENSIONS: [&str; 2] = ["yml", "yaml"];
 const IMAGE_EXTENSIONS: [&str; 4] = ["png", "jpg", "jpeg", "pgm"];

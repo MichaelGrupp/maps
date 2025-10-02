@@ -1,7 +1,7 @@
 [workspace]
-members = ["crates/maps", "crates/maps_io_ros"]
-# Build / test both crates also when calling cargo without --workspace.
-default-members = ["crates/maps", "crates/maps_io_ros"]
+members = ["crates/maps", "crates/maps_io_ros", "crates/maps_rendering"]
+# Build / test all crates also when calling cargo without --workspace.
+default-members = ["crates/maps", "crates/maps_io_ros", "crates/maps_rendering"]
 resolver = "2"
 
 [profile.kittest]
@@ -10,8 +10,9 @@ inherits = "release"
 
 # Shared dependencies across workspace members.
 [workspace.dependencies]
-# Use core lib from path for local development, and version when publishing.
+# Use core libs from path for local development, and version when publishing.
 maps_io_ros = { path = "crates/maps_io_ros", version = "0.1.0" }
+maps_rendering = { path = "crates/maps_rendering", version = "0.1.0" }
 image = { version = "0.25.5", features = ["jpeg", "png", "pnm"] }
 imageproc = "0.25.0"
 lazy_static = "1.5.0"
@@ -20,6 +21,17 @@ serde_yaml_ng = "0.10.0"
 strum = { version = "0.26.3", features = ["derive"] }
 strum_macros = "0.26.3"
 thiserror = "2.0.16"
+
+# Enable selected pedantic lints.
+# To check all pedantic lints, alternatively add pedantic = "warn" here.
+[workspace.lints.clippy]
+manual_let_else = "warn"
+match_same_arms = "warn"
+needless_pass_by_value = "warn"
+redundant_else = "warn"
+ref_option = "warn"
+trivially_copy_pass_by_ref = "warn"
+uninlined_format_args = "warn"
 
 [profile.release]
 opt-level = 2 # fast and small wasm

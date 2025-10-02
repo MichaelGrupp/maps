@@ -1,0 +1,25 @@
+[package]
+name = "maps_rendering"
+description = "Image rendering and texture management tailored to the maps crate"
+authors = ["Michael Grupp"]
+license = "Apache-2.0"
+repository = "https://github.com/MichaelGrupp/maps"
+categories = ["graphics", "multimedia::images", "visualization", "science::robotics"]
+keywords = ["rendering", "texture", "image", "egui", "graphics"]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88.0"
+readme = "README.md"
+
+[dependencies]
+eframe = {version = "0.32.1", features = ["wgpu"]}
+fast_image_resize = { version = "5.3.0", features = ["image"] }
+image = { workspace = true }
+imageproc = { workspace = true }
+log = "0.4.22"
+maps_io_ros = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

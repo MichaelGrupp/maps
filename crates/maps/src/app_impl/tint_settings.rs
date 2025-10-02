@@ -5,13 +5,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::AppState;
 use crate::app_impl::ui_helpers::{display_path, section_heading};
-use crate::render_options::TextureFilter;
 use maps_io_ros::{
     ColorMap,
     value_interpretation::{Mode, Quirks, ValueInterpretation},
 };
-
-use crate::texture_request::NO_TINT;
+use maps_rendering::{NO_TINT, TextureFilter};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TintOptions {

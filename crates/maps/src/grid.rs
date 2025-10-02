@@ -7,8 +7,8 @@ use crate::draw_order::DrawOrder;
 use crate::grid_options::{GridLineDimension, GridOptions, LineType};
 use crate::map_state::MapState;
 use crate::movable::Draggable;
-use crate::texture_request::{ImagePlacement, RotatedCropRequest, TextureRequest};
 use maps_io_ros::MapPose;
+use maps_rendering::{ImagePlacement, RotatedCropRequest, TextureRequest};
 
 /// Grid area for displaying metric objects in screen space (points).
 pub struct Grid {

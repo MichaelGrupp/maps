@@ -11,7 +11,7 @@ use log::debug;
 use fast_image_resize::CpuExtensions;
 
 use crate::error::{Error, Result};
-use crate::os_helpers::resolve_symlink;
+use maps_io_ros::os_helpers::resolve_symlink;
 
 pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
     let path = resolve_symlink(path);
@@ -104,8 +104,8 @@ fn fast_resize(img: &image::DynamicImage, width: u32, height: u32) -> image::Dyn
     }
 }
 
-// Fit the image into the desired size while keeping the aspect ratio.
-// Clones the original if the desired size is larger or equal than the original image.
+/// Fit the image into the desired size while keeping the aspect ratio.
+/// Clones the original if the desired size is larger or equal than the original image.
 pub fn fit_image(img: &image::DynamicImage, desired_size: egui::Vec2) -> image::DynamicImage {
     let (original_width, original_height) = img.dimensions();
     if (desired_size.x as u32) >= original_width && (desired_size.y as u32) >= original_height {
@@ -127,7 +127,7 @@ pub fn fit_image(img: &image::DynamicImage, desired_size: egui::Vec2) -> image::
     fast_resize(img, new_width, new_height)
 }
 
-// In-place conversion of all pixels with a color to alpha, if set.
+/// In-place conversion of all pixels with a color to alpha, if set.
 pub fn color_to_alpha(img: &mut image::DynamicImage, color: Option<egui::Color32>) {
     if let Some(color) = color {
         let color = image::Rgba([color.r(), color.g(), color.b(), color.a()]);

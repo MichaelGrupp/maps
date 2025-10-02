@@ -10,9 +10,11 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::app::CanvasOptions;
-use crate::image::{color_to_alpha, to_egui_image};
 use crate::map_state::MapState;
-use crate::texture_state::TextureState;
+use maps_rendering::{
+    TextureState,
+    image::{color_to_alpha, to_egui_image},
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LensOptions {

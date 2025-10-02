@@ -5,13 +5,12 @@ use std::sync::Arc;
 use eframe::egui;
 use log::{debug, error, info};
 
-use crate::image::load_image;
-use crate::image_pyramid::ImagePyramid;
 use crate::map_state::MapState;
 use crate::persistence;
-use crate::render_options::TextureFilter;
 use crate::tiles::Pane;
 use maps_io_ros::Meta;
+use maps_rendering::image::load_image;
+use maps_rendering::{ImagePyramid, TextureFilter};
 
 use crate::app::{AppState, Error};
 use crate::app_impl::compat::migrate_old_egui_color;

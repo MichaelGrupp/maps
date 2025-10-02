@@ -3,7 +3,7 @@ use log::{debug, error, info};
 use strum::Display;
 
 use crate::app::AppState;
-use crate::image::from_egui_image;
+use maps_rendering::image::from_egui_image;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_image_io;
