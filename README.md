@@ -315,7 +315,8 @@ RUST_LOG=maps=info cargo test --profile kittest --verbose --no-default-features 
 
 </details>
 
-`maps` has only a small public library. But in case you are interested: https://docs.rs/maps/latest/maps/
+The core I/O library can be reused for other applications, see the [maps_io_ros](https://crates.io/crates/maps_io_ros) crate ([docs](https://docs.rs/maps_io_ros)).
+`maps` itself has only a small public library. But in case you are interested: https://docs.rs/maps/latest/maps/
 
 ---
 

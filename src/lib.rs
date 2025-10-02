@@ -4,8 +4,8 @@
 //!
 //! Note that public API is not the main focus of this app crate.
 //!
-//! See also the `maps_io_ros` crate for a reusable ROS map core library
-//! that's used by this app.
+//! See also the [maps_io_ros](https://docs.rs/maps_io_ros) crate for a reusable
+//! ROS map core library that's used by this app.
 
 pub mod app;
 mod app_impl;
