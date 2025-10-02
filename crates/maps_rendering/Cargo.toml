@@ -1,6 +1,6 @@
 [package]
 name = "maps_rendering"
-description = "Image rendering functionality tailored to the maps crate"
+description = "Image rendering and texture management tailored to the maps crate"
 authors = ["Michael Grupp"]
 license = "Apache-2.0"
 repository = "https://github.com/MichaelGrupp/maps"
@@ -20,6 +20,5 @@ maps_io_ros = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
-# Enable selected pedantic lints to match main crate.
 [lints]
 workspace = true
