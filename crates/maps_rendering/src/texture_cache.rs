@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use eframe::egui;
 use log::trace;
-use maps_io_ros::ValueInterpretation;
 
 use crate::texture_request::TextureRequest;
+use maps_io_ros::ValueInterpretation;
 
 /// A cached texture handle with its appearance properties.
 #[derive(Clone)]

@@ -1,8 +1,8 @@
 use eframe::egui;
 use eframe::emath::GuiRounding as _;
-use maps_io_ros::ValueInterpretation;
 
 use crate::rect_helpers::{debug_paint, quantized_intersection, rotate};
+use maps_io_ros::ValueInterpretation;
 
 pub const NO_TINT: egui::Color32 = egui::Color32::WHITE;
 
