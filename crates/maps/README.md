@@ -248,6 +248,14 @@ cargo install --path crates/maps/
 ```
 
 (or `cargo build --release` if you just want to build)
+</details>
+
+<details>
+<summary>Potential issues</summary>
+
+**Windows:** if `cargo` fails with a LINK / link.exe error, make sure that you installed Visual Studio or Visual Studio Build Tools with the C++ option enabled to have all the necessary APIs and build tools. (Re-)open the Visual Studio installer to select that option.
+
+</details>
 
 ### Web assembly build
 
@@ -315,6 +323,7 @@ RUST_LOG=maps=info cargo test --profile kittest --verbose --no-default-features 
 
 </details>
 
+The repository is organized in separate crates for modularity and faster rebuilds during development.
 The core I/O library can be reused for other applications, see the [maps_io_ros](https://crates.io/crates/maps_io_ros) crate ([docs](https://docs.rs/maps_io_ros)).
 `maps` itself has only a small public library. But in case you are interested: https://docs.rs/maps/latest/maps/
 
