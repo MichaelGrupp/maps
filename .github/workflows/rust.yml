@@ -51,8 +51,8 @@ jobs:
       run: cargo test --profile kittest --verbose --no-default-features -- --show-output
 
   windows:
-    # Disabled until #76 is resolved.
-    if: false
+    # Set below to false to disable build (see also #76).
+    if: true
     runs-on: [windows-latest]
     steps:
     - uses: actions/checkout@v4
