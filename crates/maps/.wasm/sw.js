@@ -1,9 +1,7 @@
-var cacheName = 'egui-template-pwa';
+var cacheName = 'maps-pwa';
 var filesToCache = [
   './',
   './index.html',
-  './eframe_template.js',
-  './eframe_template_bg.wasm',
 ];
 
 /* Start the service worker and cache all of the app's content */
@@ -19,7 +17,22 @@ self.addEventListener('install', function (e) {
 self.addEventListener('fetch', function (e) {
   e.respondWith(
     caches.match(e.request).then(function (response) {
-      return response || fetch(e.request);
+      if (response) {
+        return response;
+      }
+      // Fetch and cache the response for future use
+      return fetch(e.request).then(function(response) {
+        // Check if we received a valid response
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        // Clone the response as it can only be consumed once
+        var responseToCache = response.clone();
+        caches.open(cacheName).then(function(cache) {
+          cache.put(e.request, responseToCache);
+        });
+        return response;
+      });
     })
   );
 });
