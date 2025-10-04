@@ -341,7 +341,7 @@ impl Grid {
         let (label_pos, label_value, line_visible) = match direction {
             LineDirection::Vertical => (
                 egui::Pos2::new(
-                    coord,
+                    coord + stroke.width,
                     self.painter.clip_rect().height() + self.ui_offset.y
                         - label_text_options.offset.y,
                 ),
