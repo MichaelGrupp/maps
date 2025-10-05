@@ -349,7 +349,7 @@ impl Grid {
                 coord > self.painter.clip_rect().min.x && coord < self.painter.clip_rect().max.x,
             ),
             LineDirection::Horizontal => (
-                egui::Pos2::new(self.ui_offset.x, coord) + label_text_options.offset,
+                egui::Pos2::new(self.ui_offset.x, coord + stroke.width) + label_text_options.offset,
                 (self.origin_in_points.y - coord) / self.points_per_meter,
                 coord > self.painter.clip_rect().min.y && coord < self.painter.clip_rect().max.y,
             ),
