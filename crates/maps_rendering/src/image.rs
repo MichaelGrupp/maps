@@ -1,46 +1,11 @@
-use std::path::Path;
-
 use eframe::egui;
 use fast_image_resize::images::Image as ResizeImage;
 use fast_image_resize::{FilterType, IntoImageView, ResizeAlg, ResizeOptions, Resizer};
-use image::{GenericImageView, ImageBuffer, ImageReader};
+use image::{GenericImageView, ImageBuffer};
 use imageproc::map::map_colors_mut;
-use log::debug;
 
 #[allow(unused_imports)]
 use fast_image_resize::CpuExtensions;
-
-use crate::error::{Error, Result};
-use maps_io_ros::os_helpers::resolve_symlink;
-
-pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
-    let path = resolve_symlink(path);
-    debug!("Loading image: {:?}", path);
-    let mut reader =
-        ImageReader::open(&path).map_err(|e| Error::io(format!("Cannot open {path:?}"), e))?;
-
-    reader.no_limits();
-    let img = reader
-        .decode()
-        .map_err(|e| Error::image(format!("Cannot decode {path:?}"), e))?;
-
-    debug!("Loaded image: {:?} {:?}", path, img.dimensions());
-    Ok(img)
-}
-
-#[cfg(target_arch = "wasm32")]
-pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
-    let img_io = ImageReader::new(std::io::Cursor::new(bytes))
-        .with_guessed_format()
-        .map_err(|e| Error::io("Cannot create image reader from bytes", e))?;
-
-    let img = img_io
-        .decode()
-        .map_err(|e| Error::image("Cannot decode image from bytes", e))?;
-
-    debug!("Loaded image from bytes: {:?}", img.dimensions());
-    Ok(img)
-}
 
 pub fn to_egui_image(img: &image::DynamicImage) -> egui::ColorImage {
     let size = [img.width() as usize, img.height() as usize];

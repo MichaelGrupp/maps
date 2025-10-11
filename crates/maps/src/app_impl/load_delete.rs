@@ -3,13 +3,13 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use eframe::egui;
+use image::GenericImageView;
 use log::{debug, error, info};
 
 use crate::map_state::MapState;
 use crate::persistence;
 use crate::tiles::Pane;
-use maps_io_ros::Meta;
-use maps_rendering::image::load_image;
+use maps_io_ros::{Meta, load_image};
 use maps_rendering::{ImagePyramid, TextureFilter};
 
 use crate::app::{AppState, Error};
@@ -88,8 +88,14 @@ impl AppState {
             info!("Dry-run mode, not loading image {:?}.", meta.image_path);
             Ok(image::DynamicImage::new_rgba8(0, 0))
         } else {
+            debug!("Loading image: {:?}", meta.image_path);
             load_image(&meta.image_path)
         }?;
+        debug!(
+            "Loaded image: {:?} {:?}",
+            meta.image_path,
+            image.dimensions()
+        );
 
         let image_pyramid = Arc::new(ImagePyramid::new(image));
         let name = meta

@@ -3,7 +3,6 @@
 //! For fast image editing previews in egui, with arbitrary scale & pose,
 //! and potentially very large source images.
 
-pub mod error;
 pub mod image;
 pub mod image_pyramid;
 mod rect_helpers;
@@ -13,7 +12,6 @@ pub mod texture_request;
 pub mod texture_state;
 
 // Re-export commonly used structs and types.
-pub use error::{Error, Result};
 pub use image_pyramid::ImagePyramid;
 pub use render_options::TextureFilter;
 pub use texture_request::{ImagePlacement, NO_TINT, RotatedCropRequest, TextureRequest};

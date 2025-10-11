@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 
 use image::DynamicImage;
-use maps_io_ros::{ColorMap, Meta};
+use maps_io_ros::{ColorMap, Meta, load_image};
 
 fn filename(path: &Path) -> &str {
     path.file_name()
@@ -31,7 +31,7 @@ fn main() {
     );
 
     // Load the map image from the path specified in the metadata.
-    let img = image::open(&meta.image_path).unwrap_or_else(|e| {
+    let img = load_image(&meta.image_path).unwrap_or_else(|e| {
         eprintln!("Error loading map image {:?}: {}", meta.image_path, e);
         exit(1);
     });
