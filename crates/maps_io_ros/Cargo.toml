@@ -16,7 +16,6 @@ emath = { version = "0.32.1", features = ["serde"] }
 image = { workspace = true }
 imageproc = { workspace = true }
 lazy_static = { workspace = true }
-log = { workspace = true }
 serde = { workspace = true }
 serde_yaml_ng = { workspace = true }
 strum = { workspace = true }
