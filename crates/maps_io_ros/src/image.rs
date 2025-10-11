@@ -39,7 +39,7 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
 /// Save an image to the given path.
 /// The image format is inferred from the file extension.
 pub fn save_image(path: &Path, img: &image::DynamicImage) -> Result<()> {
-    img.save(&path)
+    img.save(path)
         .map_err(|e| crate::Error::image(format!("Failed to save image to {path:?}"), e))?;
     Ok(())
 }
