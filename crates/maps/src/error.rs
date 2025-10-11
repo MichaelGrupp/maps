@@ -19,10 +19,6 @@ pub enum Error {
     #[error(transparent)]
     Core(#[from] maps_io_ros::Error),
 
-    /// Error from maps_rendering (image processing, texture management, etc.)
-    #[error(transparent)]
-    Rendering(#[from] maps_rendering::error::Error),
-
     /// TOML deserialization error with additional context.
     #[error("[TOML error] {context} ({source})")]
     TomlDeserialize {
