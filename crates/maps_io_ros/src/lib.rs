@@ -11,7 +11,7 @@ pub mod error;
 pub mod image;
 pub mod map_pose;
 pub mod meta;
-pub mod os_helpers;
+mod os_helpers;
 pub mod value_colormap;
 pub mod value_interpretation;
 

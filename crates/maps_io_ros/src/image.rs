@@ -1,3 +1,5 @@
+//! Functions for loading images.
+
 use std::path::Path;
 
 use image::ImageReader;
