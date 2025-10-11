@@ -16,7 +16,7 @@ fn filename(path: &Path) -> &str {
 
 fn demo(meta_path: &Path) -> maps_io_ros::Result<()> {
     // Load the map metadata from the yaml file.
-    let meta = Meta::load_from_file(&meta_path)?;
+    let meta = Meta::load_from_file(meta_path)?;
     println!(
         "Loaded map metadata: {:?} (image path: {:?})",
         meta_path, meta.image_path
