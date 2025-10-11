@@ -1,4 +1,4 @@
-//! Functions for loading images.
+//! Functions for loading / saving images.
 
 use std::path::Path;
 
@@ -34,4 +34,12 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
         .map_err(|e| Error::image("Cannot decode image from bytes", e))?;
 
     Ok(img)
+}
+
+/// Save an image to the given path.
+/// The image format is inferred from the file extension.
+pub fn save_image(path: &Path, img: &image::DynamicImage) -> Result<()> {
+    img.save(path)
+        .map_err(|e| crate::Error::image(format!("Failed to save image to {path:?}"), e))?;
+    Ok(())
 }

@@ -17,7 +17,7 @@ pub mod value_interpretation;
 
 // Re-export commonly used types.
 pub use error::{Error, Result};
-pub use image::{load_image, load_image_from_bytes};
+pub use image::{load_image, load_image_from_bytes, save_image};
 pub use map_pose::MapPose;
 pub use meta::Meta;
 pub use value_colormap::ColorMap;

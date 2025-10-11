@@ -7,6 +7,8 @@ use maps_rendering::image::from_egui_image;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_image_io;
+#[cfg(not(target_arch = "wasm32"))]
+use maps_io_ros::save_image;
 
 #[derive(Clone, Debug, Display)]
 pub enum Viewport {
@@ -91,12 +93,12 @@ impl AppState {
             if let Some(file_path) = self.save_screenshot_dialog.take_picked()
                 && let Some(image) = self.data.screenshot.take()
             {
-                match image.save(file_path.clone()) {
+                match save_image(&file_path, &image) {
                     Ok(_) => {
                         info!("Saved screenshot to {:?}", file_path);
                     }
                     Err(e) => {
-                        self.status.error = format!("Saving screenshot: {e}");
+                        self.status.error = format!("Failed to save screenshot: {e}");
                         error!("{}", e);
                     }
                 }
