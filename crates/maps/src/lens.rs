@@ -191,8 +191,8 @@ impl<'a> Lens<'a> {
     fn bounce_pos(ui: &egui::Ui, pointer_pos: egui::Pos2, overlay_size: egui::Vec2) -> egui::Pos2 {
         let offset = overlay_size / 2. + egui::vec2(10., 10.);
         let window_uv = egui::vec2(
-            pointer_pos.x / ui.ctx().screen_rect().width(),
-            pointer_pos.y / ui.ctx().screen_rect().height(),
+            pointer_pos.x / ui.ctx().content_rect().width(),
+            pointer_pos.y / ui.ctx().content_rect().height(),
         );
 
         if window_uv.x < 0.5 && window_uv.y < 0.5 {

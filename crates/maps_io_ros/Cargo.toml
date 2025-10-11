@@ -12,7 +12,7 @@ rust-version = "1.88.0"
 readme = "README.md"
 
 [dependencies]
-emath = { version = "0.32.1", features = ["serde"] }
+emath = { version = "0.33.0", features = ["serde"] }
 image = { workspace = true }
 imageproc = { workspace = true }
 lazy_static = { workspace = true }
