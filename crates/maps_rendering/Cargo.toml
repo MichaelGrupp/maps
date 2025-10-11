@@ -16,7 +16,7 @@ eframe = {version = "0.32.1", features = ["wgpu"]}
 fast_image_resize = { version = "5.3.0", features = ["image"] }
 image = { workspace = true }
 imageproc = { workspace = true }
-log = "0.4.22"
+log = { workspace = true }
 maps_io_ros = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }

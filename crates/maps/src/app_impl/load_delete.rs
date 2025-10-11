@@ -8,8 +8,7 @@ use log::{debug, error, info};
 use crate::map_state::MapState;
 use crate::persistence;
 use crate::tiles::Pane;
-use maps_io_ros::Meta;
-use maps_rendering::image::load_image;
+use maps_io_ros::{Meta, load_image};
 use maps_rendering::{ImagePyramid, TextureFilter};
 
 use crate::app::{AppState, Error};

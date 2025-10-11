@@ -1,0 +1,39 @@
+use std::path::Path;
+
+use image::{GenericImageView, ImageReader};
+use log::debug;
+
+use crate::error::{Error, Result};
+use crate::os_helpers::resolve_symlink;
+
+/// Load an image from the given path.
+/// Symlinks are resolved automatically.
+pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
+    let path = resolve_symlink(path);
+    debug!("Loading image: {:?}", path);
+    let mut reader =
+        ImageReader::open(&path).map_err(|e| Error::io(format!("Cannot open {path:?}"), e))?;
+
+    reader.no_limits();
+    let img = reader
+        .decode()
+        .map_err(|e| Error::image(format!("Cannot decode {path:?}"), e))?;
+
+    debug!("Loaded image: {:?} {:?}", path, img.dimensions());
+    Ok(img)
+}
+
+/// Load an image from a bytes stream (e.g. in wasm applications).
+/// The image format is guessed automatically.
+pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
+    let img_io = ImageReader::new(std::io::Cursor::new(bytes))
+        .with_guessed_format()
+        .map_err(|e| Error::io("Cannot create image reader from bytes", e))?;
+
+    let img = img_io
+        .decode()
+        .map_err(|e| Error::image("Cannot decode image from bytes", e))?;
+
+    debug!("Loaded image from bytes: {:?}", img.dimensions());
+    Ok(img)
+}

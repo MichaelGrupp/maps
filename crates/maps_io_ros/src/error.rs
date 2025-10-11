@@ -16,6 +16,14 @@ pub enum Error {
         source: std::io::Error,
     },
 
+    /// An image loading error with additional context.
+    #[error("[Image error] {context} ({source})")]
+    Image {
+        context: String,
+        #[source]
+        source: image::ImageError,
+    },
+
     /// YAML serialization or deserialization error with additional context.
     #[error("[YAML error] {context} ({source})")]
     Yaml {
@@ -45,6 +53,7 @@ impl Error {
     // Generate the wrapping error constructors.
     impl_error_constructors! {
         io => Io, std::io::Error;
+        image => Image, image::ImageError;
         yaml => Yaml, serde_yaml_ng::Error;
     }
 }

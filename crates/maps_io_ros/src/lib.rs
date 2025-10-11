@@ -8,6 +8,7 @@
 //! other robotics applications that work with ROS map files.
 
 pub mod error;
+pub mod image;
 pub mod map_pose;
 pub mod meta;
 pub mod os_helpers;
@@ -16,6 +17,7 @@ pub mod value_interpretation;
 
 // Re-export commonly used types.
 pub use error::{Error, Result};
+pub use image::{load_image, load_image_from_bytes};
 pub use map_pose::MapPose;
 pub use meta::Meta;
 pub use value_colormap::ColorMap;
