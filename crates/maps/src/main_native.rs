@@ -171,7 +171,7 @@ pub fn main_native() -> eframe::Result {
         );
     } else {
         if let Err(e) = write_desktop_file(APP_ID, args.write_desktop_file) {
-            warn!("Failed to write .desktop file: {}", e);
+            warn!("Failed to write .desktop file: {e}");
         }
         if args.write_desktop_file {
             exit(0);

@@ -27,7 +27,7 @@ pub(crate) fn demo_button(
         ));
     }
     ui.add(
-        egui::ImageButton::new(
+        egui::Button::image(
             egui::Image::new(button_handle.as_ref().expect("missing demo image"))
                 .max_height(200.)
                 .alt_text(alt_text),
