@@ -128,7 +128,7 @@ impl<'a> Lens<'a> {
         let overlay_texture_handle = ui.ctx().load_texture(
             "overlay_".to_owned() + texture_state_id,
             to_egui_image(&cropped_image),
-            map.texture_filter.get(1.),
+            map.texture_filter.to_egui(),
         );
 
         // Show the crop area also in the scaled texture coordinates as a small rectangle.
