@@ -7,12 +7,13 @@ use crate::movable::{DragDirection, Draggable, MovableAmounts, Rotatable};
 
 impl AppState {
     fn dialogs_open(&self) -> bool {
-        self.load_meta_file_dialog.state() == DialogState::Open
-            || self.load_map_pose_file_dialog.state() == DialogState::Open
-            || self.save_map_pose_file_dialog.state() == DialogState::Open
-            || self.load_session_file_dialog.state() == DialogState::Open
-            || self.save_session_file_dialog.state() == DialogState::Open
-            || self.save_screenshot_dialog.state() == DialogState::Open
+        // TODO: track this in a less stupid way.
+        *self.load_meta_file_dialog.state() == DialogState::Open
+            || *self.load_map_pose_file_dialog.state() == DialogState::Open
+            || *self.save_map_pose_file_dialog.state() == DialogState::Open
+            || *self.load_session_file_dialog.state() == DialogState::Open
+            || *self.save_session_file_dialog.state() == DialogState::Open
+            || *self.save_screenshot_dialog.state() == DialogState::Open
             || self.status.quit_modal_active
             || !self.status.error.is_empty()
     }

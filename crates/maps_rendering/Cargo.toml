@@ -12,7 +12,7 @@ rust-version = "1.88.0"
 readme = "README.md"
 
 [dependencies]
-eframe = {version = "0.32.1", features = ["wgpu"]}
+eframe = { workspace = true }
 fast_image_resize = { version = "5.3.0", features = ["image"] }
 image = { workspace = true }
 imageproc = { workspace = true }
