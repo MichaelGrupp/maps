@@ -35,14 +35,11 @@ fn resolve_path_or_die(custom_path: Option<PathBuf>) -> PathBuf {
 
 pub fn load_app_options(custom_path: &Option<PathBuf>) -> AppOptions {
     let config_path = resolve_path_or_die(custom_path.clone());
-    info!("Loading options from {:?}", config_path);
+    info!("Loading options from {config_path:?}");
     match confy::load_path(config_path.as_path()) {
         Ok(options) => options,
         Err(e) => {
-            warn!(
-                "Error loading options from {:?}: {}. Using defaults.",
-                config_path, e
-            );
+            warn!("Error loading options from {config_path:?}: {e}. Using defaults.");
             // Don't use the custom path here, it might be from a different version
             // or an user typo pointing to some random file. So we shouldn't save to it later.
             AppOptions {
@@ -58,15 +55,15 @@ pub fn load_app_options(custom_path: &Option<PathBuf>) -> AppOptions {
 
 pub fn save_app_options(options: &AppOptions) {
     let config_path = resolve_path_or_die(options.persistence.custom_config_path.clone());
-    info!("Saving options to {:?}", config_path);
+    info!("Saving options to {config_path:?}");
     match confy::store_path(config_path, options) {
         Ok(_) => (),
-        Err(e) => error!("Error saving options: {}", e),
+        Err(e) => error!("Error saving options: {e}"),
     }
 }
 
 pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<()> {
-    info!("Saving session to {:?}", path);
+    info!("Saving session to {path:?}");
     let toml = toml::to_string_pretty(session)
         .map_err(|e| Error::toml_serialize(format!("Cannot serialize session to {path:?}"), e))?;
 
@@ -77,7 +74,7 @@ pub fn save_session(path: &PathBuf, session: &SessionData) -> Result<()> {
 }
 
 pub fn load_session(path: &PathBuf) -> Result<SessionData> {
-    info!("Loading session from {:?}", path);
+    info!("Loading session from {path:?}");
     let toml = std::fs::read_to_string(path)
         .map_err(|e| Error::io(format!("Cannot load session from {path:?}"), e))?;
 

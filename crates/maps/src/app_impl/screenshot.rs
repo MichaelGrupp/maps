@@ -18,10 +18,7 @@ pub enum Viewport {
 
 impl AppState {
     pub(crate) fn request_screenshot(&self, ui: &egui::Ui, viewport: Viewport) {
-        debug!(
-            "{} screenshot requested for the next frame.",
-            viewport.to_string()
-        );
+        debug!("{viewport} screenshot requested for the next frame.");
         ui.ctx()
             .send_viewport_cmd(egui::ViewportCommand::Screenshot(egui::UserData::new(
                 viewport,
@@ -95,11 +92,11 @@ impl AppState {
             {
                 match save_image(&file_path, &image) {
                     Ok(_) => {
-                        info!("Saved screenshot to {:?}", file_path);
+                        info!("Saved screenshot to {file_path:?}");
                     }
                     Err(e) => {
                         self.status.error = format!("Failed to save screenshot: {e}");
-                        error!("{}", e);
+                        error!("{e}");
                     }
                 }
             }

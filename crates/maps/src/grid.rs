@@ -194,7 +194,7 @@ impl Grid {
             if let Some(map) = maps.get_mut(name) {
                 self.show_map(ui, map, name, options);
             } else {
-                error!("Unknown draw order key: {}", name);
+                error!("Unknown draw order key: {name}");
             }
         }
     }

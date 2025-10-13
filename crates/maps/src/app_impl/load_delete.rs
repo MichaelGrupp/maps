@@ -42,7 +42,7 @@ impl AppState {
                     }
                     Err(e) => {
                         self.status.error = e.to_string();
-                        error!("{}", e);
+                        error!("{e}");
                     }
                 }
             }
@@ -72,7 +72,7 @@ impl AppState {
             },
         );
         self.data.draw_order.add(name.clone());
-        info!("Loaded map: {}", name);
+        info!("Loaded map: {name}");
         self.status.unsaved_changes = true;
     }
 
@@ -109,7 +109,7 @@ impl AppState {
 
     pub(crate) fn delete(&mut self, to_delete: &Vec<String>) {
         for name in to_delete {
-            info!("Removing {}", name);
+            info!("Removing {name}");
             self.data.maps.remove(name);
             self.data.draw_order.remove(name);
             self.tile_manager.remove_pane(name);
@@ -137,10 +137,10 @@ impl AppState {
     pub(crate) fn add_map_pose(&mut self, map_name: &str, map_pose: MapPose) {
         if let Some(map) = self.data.maps.get_mut(map_name) {
             map.pose = map_pose;
-            info!("Loaded pose for: {}", map_name);
+            info!("Loaded pose for: {map_name}");
             self.status.unsaved_changes = true;
         } else {
-            error!("Tried to add pose to non-existing map: {}", map_name);
+            error!("Tried to add pose to non-existing map: {map_name}");
         }
     }
 
@@ -156,7 +156,7 @@ impl AppState {
         self.load_map_pose_file_dialog.update(ui.ctx());
 
         if let Some(path) = self.load_map_pose_file_dialog.take_picked() {
-            debug!("Loading pose file: {:?}", path);
+            debug!("Loading pose file: {path:?}");
             match MapPose::from_yaml_file(&path) {
                 Ok(map_pose) => {
                     self.add_map_pose(map_name, map_pose);
@@ -171,7 +171,7 @@ impl AppState {
                 }
                 Err(e) => {
                     self.status.error = e.to_string();
-                    error!("{}", e);
+                    error!("{e}");
                 }
             }
         }
@@ -190,7 +190,7 @@ impl AppState {
 
         if let Some(path) = self.save_map_pose_file_dialog.take_picked() {
             ui.ctx().request_repaint();
-            debug!("Saving pose file: {:?}", path);
+            debug!("Saving pose file: {path:?}");
             let Some(map) = self.data.maps.get(map_name) else {
                 self.status.error = format!("Can't save pose, map doesn't exist: {map_name}");
                 error!("{}", self.status.error);
@@ -198,7 +198,7 @@ impl AppState {
             };
             match map.pose.to_yaml_file(&path) {
                 Ok(_) => {
-                    info!("Saved pose file: {:?}", path);
+                    info!("Saved pose file: {path:?}");
                     // Start from the same path the next time, also for loading.
                     self.save_map_pose_file_dialog
                         .config_mut()
@@ -209,7 +209,7 @@ impl AppState {
                 }
                 Err(e) => {
                     self.status.error = e.to_string();
-                    error!("{}", e);
+                    error!("{e}");
                 }
             }
         }
@@ -238,7 +238,7 @@ impl AppState {
 
         // Not everything gets serialized. Load actual data.
         for (name, map) in deserialized_session.maps {
-            debug!("Restoring map state: {}", name);
+            debug!("Restoring map state: {name}");
             let map_name = self.load_map(map.meta).inspect_err(|_| {
                 // Make sure we have no dangling names in draw_order if we fail to load one map.
                 self.data
@@ -270,7 +270,7 @@ impl AppState {
         }
 
         for (id, lens_pos) in deserialized_session.grid_lenses {
-            debug!("Restoring lens {}", id);
+            debug!("Restoring lens {id}");
             self.data.grid_lenses.insert(id, lens_pos);
         }
 
@@ -291,7 +291,7 @@ impl AppState {
         if let Some(path) = self.load_session_file_dialog.take_picked() {
             self.load_session(&path).unwrap_or_else(|e| {
                 self.status.error = e.to_string();
-                error!("{}", e);
+                error!("{e}");
             });
         }
     }
@@ -330,7 +330,7 @@ impl AppState {
                 }
                 Err(e) => {
                     self.status.error = e.to_string();
-                    error!("{}", e);
+                    error!("{e}");
                 }
             }
         }

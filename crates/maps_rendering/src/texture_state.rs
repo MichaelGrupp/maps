@@ -65,7 +65,7 @@ impl TextureState {
         self.texture_options = request.texture_options.unwrap_or_default();
         self.texture_handle.get_or_insert_with(|| {
             // Load the texture only if needed.
-            trace!("Fitting and reloading texture for {:?}", request);
+            trace!("Fitting and reloading texture for {request:?}");
             let mut image = fit_image(
                 self.image_pyramid.get_level(self.desired_size),
                 self.desired_size,
@@ -178,7 +178,7 @@ impl TextureState {
         let level = uncropped.width().max(uncropped.height());
         self.used_level = level;
 
-        trace!("Cropping and reloading texture for {:?}", request);
+        trace!("Cropping and reloading texture for {request:?}");
         let uv_min = request.uv[0];
         let uv_max = request.uv[1];
         let min_x = (uv_min.x * uncropped.width() as f32).round() as u32;

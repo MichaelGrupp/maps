@@ -161,7 +161,7 @@ pub fn main_native() -> eframe::Result {
     } else {
         env_logger::init();
     }
-    info!("{}", build_info);
+    info!("{build_info}");
 
     #[cfg(target_os = "linux")]
     if crate::built_info::GIT_VERSION.is_some() && !args.write_desktop_file {
@@ -186,7 +186,7 @@ pub fn main_native() -> eframe::Result {
         let meta = Meta::load_from_file(yaml_path)
             .map_err(crate::error::Error::from)
             .unwrap_or_else(|e| {
-                error!("{}", e);
+                error!("{e}");
                 if matches!(
                     e,
                     crate::error::Error::Core(maps_io_ros::Error::Yaml { .. })
@@ -199,9 +199,9 @@ pub fn main_native() -> eframe::Result {
     }
 
     let map_pose = args.pose.as_ref().map(|pose_path| {
-        info!("Loading map pose from {:?}", pose_path);
+        info!("Loading map pose from {pose_path:?}");
         MapPose::from_yaml_file(pose_path).unwrap_or_else(|e| {
-            error!("{}", e);
+            error!("{e}");
             exit(1);
         })
     });
@@ -231,14 +231,14 @@ pub fn main_native() -> eframe::Result {
     let mut app_state = match AppState::init(metas, options) {
         Ok(state) => Box::new(state.with_build_info(build_info)),
         Err(e) => {
-            error!("Fatal error during initialization. {}", e);
+            error!("Fatal error during initialization. {e}");
             exit(1);
         }
     };
 
     if let Some(pose) = map_pose {
         for (name, map) in app_state.data.maps.iter_mut() {
-            info!("Applying pose to map: {}", name);
+            info!("Applying pose to map: {name}");
             map.pose = pose.clone();
         }
     }
@@ -247,7 +247,7 @@ pub fn main_native() -> eframe::Result {
         app_state.load_session(session).unwrap_or_else(|e| {
             if !args.init_only {
                 // Ignore missing session file in init_only mode to allow creating it in a script.
-                error!("{}", e);
+                error!("{e}");
                 exit(1);
             }
         });
@@ -255,7 +255,7 @@ pub fn main_native() -> eframe::Result {
         if args.init_only {
             // In init_only mode, directly save the (possibly updated) session.
             save_session(session, &app_state.data).unwrap_or_else(|e| {
-                error!("{}", e);
+                error!("{e}");
                 exit(1);
             });
         }

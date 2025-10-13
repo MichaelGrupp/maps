@@ -42,7 +42,7 @@ impl AppState {
         self.status.active_tool = None;
         for name in self.data.draw_order.keys() {
             let Some(map) = self.data.maps.get_mut(name) else {
-                error!("Unknown draw order key: {}", name);
+                error!("Unknown draw order key: {name}");
                 continue;
             };
 
@@ -148,7 +148,7 @@ impl AppState {
             && let Some(pos) = self.status.hover_position
         {
             let id = Uuid::new_v4().to_string();
-            debug!("Placing lens {} focussing {:?}.", id, pos);
+            debug!("Placing lens {id} focussing {pos:?}.");
             self.data.grid_lenses.insert(id, pos);
             self.status.unsaved_changes = true;
             self.options.active_tool = ActiveTool::None;
@@ -225,10 +225,7 @@ impl AppState {
         if !open {
             self.data.grid_lenses.remove(id);
             for (name, map) in self.data.maps.iter_mut() {
-                debug!(
-                    "Removing lens texture state with ID {} from map {}.",
-                    id, name
-                );
+                debug!("Removing lens texture state with ID {id} from map {name}.");
                 map.texture_states.remove(id);
             }
         }

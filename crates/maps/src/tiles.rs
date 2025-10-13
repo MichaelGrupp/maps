@@ -60,7 +60,7 @@ impl Tiles {
 
     pub fn remove_pane(&mut self, pane_id: &str) {
         if let Some(tile_id) = self.tile_ids_by_pane_id.get(pane_id) {
-            debug!("Removing tile {:?} of {}", tile_id, pane_id);
+            debug!("Removing tile {tile_id:?} of {pane_id}");
             self.tree.remove_recursively(*tile_id);
             self.tile_ids_by_pane_id.remove(pane_id);
         }
@@ -68,10 +68,7 @@ impl Tiles {
 
     pub fn set_visible(&mut self, pane_id: &str, visible: bool) {
         if let Some(tile_id) = self.tile_ids_by_pane_id.get(pane_id) {
-            debug!(
-                "Setting visibility of tile {:?} for {} to {}",
-                tile_id, pane_id, visible
-            );
+            debug!("Setting visibility of tile {tile_id:?} for {pane_id} to {visible}");
             self.tree.tiles.set_visible(*tile_id, visible);
         }
     }
