@@ -30,7 +30,7 @@ impl egui_tiles::Behavior<Pane> for MapsTreeBehavior<'_> {
                 .with_color_to_alpha(map.color_to_alpha)
                 .with_tint(map.tint)
                 .with_thresholding(map.get_value_interpretation())
-                .with_texture_options(map.texture_filter.get(1.))
+                .with_texture_options(map.texture_filter.to_egui())
                 .with_sense(egui::Sense::click_and_drag());
 
             egui::ScrollArea::both().show(ui, |ui| {

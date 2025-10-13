@@ -14,7 +14,7 @@ color_to_alpha = [
     254,
     255,
 ]
-texture_filter = "Crisp"
+texture_filter = "Auto"
 use_value_interpretation = false
 
 [maps."depot.yaml".meta]
@@ -70,7 +70,7 @@ tint = [
     140,
     140,
 ]
-texture_filter = "Crisp"
+texture_filter = "Auto"
 use_value_interpretation = true
 
 [maps."depot_keepout.yaml".meta]
@@ -126,7 +126,7 @@ tint = [
     255,
     255,
 ]
-texture_filter = "Crisp"
+texture_filter = "Auto"
 use_value_interpretation = true
 
 [maps."depot_speed.yaml".meta]
@@ -182,7 +182,7 @@ tint = [
     255,
     255,
 ]
-texture_filter = "Crisp"
+texture_filter = "Auto"
 use_value_interpretation = true
 
 [maps."warehouse.yaml".meta]
@@ -238,7 +238,7 @@ tint = [
     140,
     140,
 ]
-texture_filter = "Crisp"
+texture_filter = "Auto"
 use_value_interpretation = true
 
 [maps."warehouse_keepout.yaml".meta]
@@ -294,7 +294,7 @@ tint = [
     171,
     171,
 ]
-texture_filter = "Crisp"
+texture_filter = "Auto"
 use_value_interpretation = true
 
 [maps."warehouse_speed.yaml".meta]

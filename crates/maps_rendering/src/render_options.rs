@@ -22,17 +22,15 @@ pub enum TextureFilter {
 }
 
 impl TextureFilter {
-    pub fn get(self, points_per_pixel: f32) -> egui::TextureOptions {
+    pub fn to_egui(self) -> egui::TextureOptions {
         match self {
             TextureFilter::Smooth => egui::TextureOptions::LINEAR,
             TextureFilter::Crisp => egui::TextureOptions::NEAREST,
-            TextureFilter::Auto => {
-                if points_per_pixel > 1.0 {
-                    egui::TextureOptions::NEAREST
-                } else {
-                    egui::TextureOptions::LINEAR
-                }
-            }
+            TextureFilter::Auto => egui::TextureOptions {
+                magnification: egui::TextureFilter::Nearest,
+                minification: egui::TextureFilter::Linear,
+                ..Default::default()
+            },
         }
     }
 }

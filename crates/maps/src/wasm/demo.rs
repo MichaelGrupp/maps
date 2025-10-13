@@ -7,8 +7,8 @@ use crate::app_impl::constants::SPACE;
 use crate::grid_options::MarkerVisibility;
 use crate::movable::Draggable;
 use maps_io_ros::{ColorMap, MapPose, Meta, load_image_from_bytes, value_interpretation};
+use maps_rendering::ImagePyramid;
 use maps_rendering::image::to_egui_image;
-use maps_rendering::{ImagePyramid, TextureFilter};
 
 // Helper function to create a demo button with image.
 #[cfg(target_arch = "wasm32")]
@@ -190,7 +190,6 @@ fn load_nav2_map(app_state: &mut AppState, config: &Nav2MapConfig) {
     }
     map.pose = MapPose::from_bytes(config.pose_bytes).expect("broken nav2 demo");
     map.use_value_interpretation = config.value_mode.is_some();
-    map.texture_filter = TextureFilter::Crisp;
 }
 
 /// Embeds all nav2 demo maps like in the native app session file
