@@ -25,11 +25,12 @@ pub fn load_image(path: &Path) -> Result<image::DynamicImage> {
 /// Load an image from a bytes stream (e.g. in wasm applications).
 /// The image format is guessed automatically.
 pub fn load_image_from_bytes(bytes: &[u8]) -> Result<image::DynamicImage> {
-    let img_io = ImageReader::new(std::io::Cursor::new(bytes))
+    let mut reader = ImageReader::new(std::io::Cursor::new(bytes))
         .with_guessed_format()
         .map_err(|e| Error::io("Cannot create image reader from bytes", e))?;
 
-    let img = img_io
+    reader.no_limits();
+    let img = reader
         .decode()
         .map_err(|e| Error::image("Cannot decode image from bytes", e))?;
 
