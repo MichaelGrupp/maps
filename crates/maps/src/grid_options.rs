@@ -128,7 +128,10 @@ impl default::Default for GridOptions {
             line_spacing_points: 200.,
             min_line_spacing_points: 1.,
             max_line_spacing_points: 1000.,
-            line_stroke: egui::Stroke::new(1., egui::Color32::LIGHT_BLUE),
+            line_stroke: egui::Stroke::new(
+                1.,
+                egui::Color32::from_rgba_unmultiplied(173, 216, 230, 90),
+            ),
             sub_lines_visible: SubLineVisibility::default(),
             sub_lines_factor: 10,
             sub_lines_stroke: egui::Stroke::new(
