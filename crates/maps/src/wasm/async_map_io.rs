@@ -95,7 +95,7 @@ fn pick_map_files(data: Arc<Mutex<AsyncData>>) {
             let expected_image = &meta.image_path;
             match image_handles
                 .iter()
-                .find(|image_handle| PathBuf::from(image_handle.file_name()) == *expected_image)
+                .find(|image_handle| Path::from(image_handle.file_name()) == *expected_image)
             {
                 Some(image_file) => match load_image(image_file).await {
                     Ok(image) => {
