@@ -1,6 +1,5 @@
 //! Error handling for the `maps` crate.
 
-use log::error;
 use thiserror::Error;
 
 use maps_io_ros::impl_error_constructors;
