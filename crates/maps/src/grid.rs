@@ -8,7 +8,7 @@ use crate::grid_options::{GridLineDimension, GridOptions, LineType};
 use crate::map_state::MapState;
 use crate::movable::Draggable;
 use maps_io_ros::MapPose;
-use maps_rendering::{ImagePlacement, RotatedCropRequest, TextureRequest};
+use maps_rendering::{ImagePlacement, TextureRequest, TransformedTextureRequest};
 
 /// Grid area for displaying metric objects in screen space (points).
 pub struct Grid {
@@ -143,15 +143,12 @@ impl Grid {
 
         let relation = GridMapRelation::new(self, map);
 
-        let rect = egui::Rect::from_min_size(
-            self.origin_in_points + relation.ulc_to_origin_in_points,
-            relation.scaled_size,
-        );
+        let scaled_rect = egui::Rect::from_min_size(egui::Pos2::ZERO, relation.scaled_size);
 
         let pose_rotation = map.pose.rot2().inverse(); // RHS to LHS
         let origin_rotation = map.meta.origin_theta.inverse();
 
-        let uncropped = TextureRequest::new(map_name.to_string(), rect)
+        let base_request = TextureRequest::new(map_name.to_string(), scaled_rect)
             .with_tint(map.tint)
             .with_color_to_alpha(map.color_to_alpha)
             .with_thresholding(map.get_value_interpretation())
@@ -159,23 +156,22 @@ impl Grid {
 
         let placement = ImagePlacement {
             rotation: pose_rotation * origin_rotation,
-            translation: relation.ulc_to_origin_in_points_translated
-                - relation.ulc_to_origin_in_points,
+            translation: self.origin_in_points.to_vec2()
+                + relation.ulc_to_origin_in_points_translated,
             rotation_center: relation.ulc_to_origin_in_points,
-            points_per_pixel: relation.points_per_cell,
+            points_per_texel: relation.points_per_cell,
             original_image_size: map.image_pyramid.original_size,
         };
 
-        let request = RotatedCropRequest::from_visible(
-            ui,
-            &self.painter.clip_rect(),
-            uncropped,
+        let transformed_request = TransformedTextureRequest::from_visible(
+            &self.painter,
+            base_request,
             &placement,
             self.texture_crop_threshold,
         );
 
         map.get_or_create_texture_state(self.name.as_str())
-            .crop_and_put(ui, &request);
+            .transform_and_put(ui, &transformed_request);
 
         if options.marker_visibility.maps_visible() {
             self.draw_axes(options, Some(&map.pose));

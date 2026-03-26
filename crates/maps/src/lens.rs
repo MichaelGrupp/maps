@@ -92,7 +92,7 @@ impl<'a> Lens<'a> {
         );
 
         // When partially visible, we deal with a UV rect inside an UV rect.
-        let texture_uv = texture_state.desired_uv;
+        let texture_uv = texture_state.desired_crop_uv;
 
         let original_image = &texture_state.image_pyramid.original;
         let original_width = original_image.width() as f32;

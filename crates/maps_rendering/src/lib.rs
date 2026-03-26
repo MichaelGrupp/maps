@@ -14,5 +14,5 @@ pub mod texture_state;
 // Re-export commonly used structs and types.
 pub use image_pyramid::ImagePyramid;
 pub use render_options::TextureFilter;
-pub use texture_request::{ImagePlacement, NO_TINT, RotatedCropRequest, TextureRequest};
+pub use texture_request::{ImagePlacement, NO_TINT, TextureRequest, TransformedTextureRequest};
 pub use texture_state::TextureState;
