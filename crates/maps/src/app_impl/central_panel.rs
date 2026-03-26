@@ -253,7 +253,7 @@ impl AppState {
         }
     }
 
-    fn show_empty(&mut self, ui: &mut egui::Ui) {
+    fn show_load_screen(&mut self, ui: &mut egui::Ui) {
         ui.with_layout(
             egui::Layout::centered_and_justified(egui::Direction::TopDown),
             |ui| {
@@ -261,7 +261,11 @@ impl AppState {
                     ui.vertical_centered(|ui| {
                         let frac = if cfg!(target_arch = "wasm32") { 4. } else { 2. };
                         ui.add_space((ui.available_height() / frac - 100.).max(SPACE));
-                        ui.heading("No maps loaded.");
+                        if self.data.maps.is_empty() {
+                            ui.heading("No maps loaded.");
+                        } else {
+                            ui.heading("Select a view in the top bar or load more maps.");
+                        }
                         ui.add_space(2. * SPACE);
                         self.load_meta_button(ui);
                         ui.add_space(SPACE);
@@ -309,8 +313,7 @@ impl AppState {
                 viewport_rect = ui.clip_rect();
 
                 if self.data.maps.is_empty() {
-                    self.show_empty(ui);
-                    return;
+                    self.options.view_mode = ViewMode::LoadScreen;
                 }
 
                 match self.options.view_mode {
@@ -326,6 +329,9 @@ impl AppState {
                     }
                     ViewMode::Aligned => {
                         self.show_grid(ui);
+                    }
+                    ViewMode::LoadScreen => {
+                        self.show_load_screen(ui);
                     }
                 }
             });

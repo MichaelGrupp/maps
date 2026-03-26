@@ -1,7 +1,7 @@
 use eframe::egui;
 use log::error;
 
-use crate::app::AppState;
+use crate::app::{AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
 use crate::app_impl::ui_helpers::display_path;
 use crate::map_state::MapState;
@@ -118,7 +118,24 @@ impl AppState {
     }
 
     fn menu_content(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Maps");
+        egui::Sides::new().show(
+            ui,
+            |ui_left| {
+                ui_left.heading("Maps");
+            },
+            |ui_right| {
+                ui_right.visuals_mut().widgets.inactive.weak_bg_fill =
+                    ui_right.visuals().window_fill();
+                if ui_right
+                    .button(egui::RichText::new("🏠").heading())
+                    .on_hover_text("Switch to load screen")
+                    .clicked()
+                {
+                    self.options.view_mode = ViewMode::LoadScreen;
+                }
+            },
+        );
+
         ui.add_space(SPACE);
         ui.horizontal(|ui| {
             self.load_meta_button(ui);

@@ -44,6 +44,7 @@ pub enum ViewMode {
     Stacked,
     #[default]
     Aligned,
+    LoadScreen,
 }
 
 #[derive(Clone, Debug, Display, Default, PartialEq, EnumString, VariantNames)]

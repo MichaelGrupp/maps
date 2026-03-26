@@ -12,7 +12,7 @@ use crate::tiles::Pane;
 use maps_io_ros::{Meta, load_image};
 use maps_rendering::{ImagePyramid, TextureFilter};
 
-use crate::app::{AppState, Error};
+use crate::app::{AppState, Error, ViewMode};
 use crate::app_impl::compat::migrate_old_egui_color;
 use maps_io_ros::MapPose;
 use maps_io_ros::value_interpretation;
@@ -74,6 +74,9 @@ impl AppState {
         self.data.draw_order.add(name.clone());
         info!("Loaded map: {name}");
         self.status.unsaved_changes = true;
+        if self.options.view_mode == ViewMode::LoadScreen {
+            self.options.view_mode = ViewMode::default();
+        }
     }
 
     pub(crate) fn load_map(&mut self, meta: Meta) -> Result<String, Error> {
