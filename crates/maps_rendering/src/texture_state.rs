@@ -6,7 +6,7 @@ use log::trace;
 use crate::image::{color_to_alpha, fit_image, to_egui_image};
 use crate::image_pyramid::ImagePyramid;
 use crate::texture_cache::TextureCache;
-use crate::texture_request::{RotatedCropRequest, TextureRequest};
+use crate::texture_request::{TextureRequest, TransformedTextureRequest};
 use maps_io_ros::ValueInterpretation;
 
 /// Manages the state of a texture across its lifetime.
@@ -23,7 +23,7 @@ pub struct TextureState {
     /// Currently active texture (reference to one in the cache).
     pub texture_handle: Option<egui::TextureHandle>,
     pub desired_size: egui::Vec2,
-    pub desired_uv: [egui::Pos2; 2],
+    pub desired_crop_uv: [egui::Pos2; 2],
     pub desired_color_to_alpha: Option<egui::Color32>,
     pub desired_thresholding: Option<ValueInterpretation>,
     pub used_level: u32,
@@ -59,7 +59,7 @@ impl TextureState {
             self.texture_handle = None;
         }
         self.desired_size = request.desired_rect.size();
-        self.desired_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
+        self.desired_crop_uv = [egui::Pos2::ZERO, egui::pos2(1., 1.)];
         self.desired_color_to_alpha = request.color_to_alpha;
         self.desired_thresholding = request.thresholding;
         self.texture_options = request.texture_options.unwrap_or_default();
@@ -100,15 +100,15 @@ impl TextureState {
     }
 
     /// Returns true if the request changes the image cropping.
-    fn changed_crop(&self, request: &RotatedCropRequest) -> bool {
-        self.desired_uv != request.uv
+    fn changed_crop(&self, request: &TransformedTextureRequest) -> bool {
+        self.desired_crop_uv != request.crop_uv
     }
 
     /// Tries to find and use a cached texture for full (non-cropped) textures.
     /// Returns true if a cached texture was found and applied, false otherwise.
     fn try_use_cached_texture(
         &mut self,
-        request: &RotatedCropRequest,
+        request: &TransformedTextureRequest,
         desired_size: egui::Vec2,
     ) -> bool {
         // Only cache full textures (not crops).
@@ -122,16 +122,16 @@ impl TextureState {
         // Check if we have a cached texture that matches appearance.
         if let Some(texture_handle) =
             self.texture_cache
-                .query(&request.uncropped.client, level, &request.uncropped)
+                .query(&request.base_request.client, level, &request.base_request)
         {
             // Reuse cached texture and update state.
             self.texture_handle = Some(texture_handle);
             self.used_level = level;
             self.desired_size = desired_size;
-            self.desired_uv = request.uv;
-            self.desired_color_to_alpha = request.uncropped.color_to_alpha;
-            self.desired_thresholding = request.uncropped.thresholding;
-            self.texture_options = request.uncropped.texture_options.unwrap_or_default();
+            self.desired_crop_uv = request.crop_uv;
+            self.desired_color_to_alpha = request.base_request.color_to_alpha;
+            self.desired_thresholding = request.base_request.thresholding;
+            self.texture_options = request.base_request.texture_options.unwrap_or_default();
             return true;
         }
 
@@ -146,8 +146,8 @@ impl TextureState {
     /// 1. Try to reuse cached texture for full textures.
     /// 2. Check if any changes require creating a new texture.
     /// 3. Create and optionally cache the new texture.
-    fn update_crop(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
-        let desired_size = request.uncropped.desired_rect.size();
+    fn maybe_update_crop(&mut self, ui: &mut egui::Ui, request: &TransformedTextureRequest) {
+        let desired_size = request.base_request.desired_rect.size();
 
         // Try to use cached texture for full textures.
         if self.try_use_cached_texture(request, desired_size) {
@@ -155,21 +155,21 @@ impl TextureState {
         }
 
         // Check if we need to create a new texture.
-        let changed_uncropped = self.changed(&request.uncropped);
+        let changed_base_request = self.changed(&request.base_request);
         let changed_crop = self.changed_crop(request);
-        let changed_appearance = self.changed_appearance(&request.uncropped);
+        let changed_appearance = self.changed_appearance(&request.base_request);
 
-        if !(changed_uncropped || changed_crop || changed_appearance) {
+        if !(changed_base_request || changed_crop || changed_appearance) {
             return;
         }
 
         self.desired_size = desired_size;
-        self.desired_uv = request.uv;
-        self.desired_color_to_alpha = request.uncropped.color_to_alpha;
-        self.desired_thresholding = request.uncropped.thresholding;
-        self.texture_options = request.uncropped.texture_options.unwrap_or_default();
+        self.desired_crop_uv = request.crop_uv;
+        self.desired_color_to_alpha = request.base_request.color_to_alpha;
+        self.desired_thresholding = request.base_request.thresholding;
+        self.texture_options = request.base_request.texture_options.unwrap_or_default();
 
-        if request.visible_rect.is_negative() || request.uv[0] == request.uv[1] {
+        if request.crop_rect.is_negative() || request.crop_uv[0] == request.crop_uv[1] {
             self.texture_handle = None;
             return;
         }
@@ -179,8 +179,8 @@ impl TextureState {
         self.used_level = level;
 
         trace!("Cropping and reloading texture for {request:?}");
-        let uv_min = request.uv[0];
-        let uv_max = request.uv[1];
+        let uv_min = request.crop_uv[0];
+        let uv_max = request.crop_uv[1];
         let min_x = (uv_min.x * uncropped.width() as f32).round() as u32;
         let min_y = (uv_min.y * uncropped.height() as f32).round() as u32;
         let max_x = (uv_max.x * uncropped.width() as f32).round() as u32;
@@ -191,13 +191,13 @@ impl TextureState {
             self.texture_handle = None;
             return;
         }
-        color_to_alpha(&mut cropped_image, request.uncropped.color_to_alpha);
-        if let Some(thresholding) = &request.uncropped.thresholding {
+        color_to_alpha(&mut cropped_image, request.base_request.color_to_alpha);
+        if let Some(thresholding) = &request.base_request.thresholding {
             thresholding.apply(&mut cropped_image, self.image_pyramid.original_has_alpha);
         }
 
         let texture_handle = ui.ctx().load_texture(
-            format!("{}_{}", request.uncropped.client, level),
+            format!("{}_{}", request.base_request.client, level),
             to_egui_image(&cropped_image),
             self.texture_options,
         );
@@ -205,10 +205,10 @@ impl TextureState {
         // Cache full textures for zoom performance.
         if request.is_full_texture() {
             self.texture_cache.store(
-                &request.uncropped.client,
+                &request.base_request.client,
                 level,
                 texture_handle.clone(),
-                &request.uncropped,
+                &request.base_request,
             );
         }
 
@@ -216,8 +216,8 @@ impl TextureState {
     }
 
     /// Updates the state and puts the texture into the UI according to the request.
-    pub fn crop_and_put(&mut self, ui: &mut egui::Ui, request: &RotatedCropRequest) {
-        self.update_crop(ui, request);
+    pub fn transform_and_put(&mut self, ui: &mut egui::Ui, request: &TransformedTextureRequest) {
+        self.maybe_update_crop(ui, request);
 
         if let Some(texture) = &self.texture_handle {
             // Manually paint and get response.
@@ -225,9 +225,9 @@ impl TextureState {
             let image = egui::Image::new(texture)
                 .rotate(request.rotation.angle(), request.rotation_center_in_uv)
                 .maintain_aspect_ratio(false)
-                .fit_to_exact_size(request.visible_rect.size())
-                .tint(request.uncropped.tint);
-            image.paint_at(ui, request.visible_rect.translate(request.translation));
+                .fit_to_exact_size(request.crop_rect.size())
+                .tint(request.base_request.tint);
+            image.paint_at(ui, request.crop_rect.translate(request.translation));
             // We can't get a proper image response from a rotated/translated manual paint,
             // and also don't need one (grid interaction is handled elsewhere).
             self.image_response = None;

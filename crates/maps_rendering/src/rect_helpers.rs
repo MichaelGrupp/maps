@@ -1,8 +1,8 @@
 use eframe::egui;
 use log::{Level, log_enabled};
 
-/// Rotates a rectangle around an origin point and returns the bounding rectangle.
-pub fn rotate(rect: &egui::Rect, rot: egui::emath::Rot2, origin: egui::Vec2) -> egui::Rect {
+/// Rotates a rectangle around an origin point and returns the axis-aligned bounding rectangle.
+pub fn rotate_aabb(rect: &egui::Rect, rot: egui::emath::Rot2, origin: egui::Vec2) -> egui::Rect {
     let a = origin + rot * (rect.left_top() - origin.to_pos2());
     let b = origin + rot * (rect.right_top() - origin.to_pos2());
     let c = origin + rot * (rect.left_bottom() - origin.to_pos2());
@@ -54,9 +54,9 @@ pub fn quantized_intersection(
 }
 
 /// Paints a rectangle with a color when trace logging is enabled.
-pub fn debug_paint(ui: &egui::Ui, rect: egui::Rect, color: egui::Color32, label: &str) {
+pub fn debug_paint(painter: &egui::Painter, rect: egui::Rect, color: egui::Color32, label: &str) {
     if !log_enabled!(Level::Trace) {
         return;
     }
-    ui.painter().debug_rect(rect, color, label);
+    painter.debug_rect(rect, color, label);
 }
