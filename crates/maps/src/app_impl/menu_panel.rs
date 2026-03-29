@@ -107,9 +107,9 @@ impl AppState {
                         )
                         .on_hover_text(
                             "This map has a non-zero origin rotation component in its metadata.\n\
-                        maps uses it, but it's not supported by most ROS tools.\n\n\
-                        It's recommended to save alignment transformations separately,\n\
-                        e.g. using the Pose editor here.",
+                            maps uses it, but it's not supported by most ROS tools.\n\n\
+                            It's recommended to save alignment transformations separately,\n\
+                            e.g. using the Pose editor here.",
                         );
                 }
             },

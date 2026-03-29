@@ -49,9 +49,5 @@ fn main() {
     // egui_kittest expects us to be in the root directory for saving the snapshot.
     std::env::set_current_dir(start_dir).expect("Failed to go back to start directory");
 
-    snapshot_full_app(
-        app_state,
-        "panels_visible",
-        egui::Vec2::new(1500., 1000.),
-    );
+    snapshot_full_app(app_state, "panels_visible", egui::Vec2::new(1500., 1000.));
 }
