@@ -13,7 +13,7 @@ const fn default_stack_scale_factor() -> f32 {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CanvasOptions {
-    pub background_color: egui::Color32,
+    pub background_color: Option<egui::Color32>,
     #[serde(default)]
     pub theme_preference: egui::ThemePreference,
     #[serde(skip, default = "default_stack_scale_factor")]
@@ -23,10 +23,17 @@ pub struct CanvasOptions {
 impl Default for CanvasOptions {
     fn default() -> Self {
         Self {
-            background_color: egui::Visuals::default().faint_bg_color,
+            background_color: None,
             theme_preference: egui::ThemePreference::default(),
             stack_scale_factor: MIN_STACK_SCALE,
         }
+    }
+}
+
+impl CanvasOptions {
+    pub fn background_color_or_default(&self, ctx: &egui::Context) -> egui::Color32 {
+        self.background_color
+            .unwrap_or_else(|| ctx.global_style().visuals.window_fill)
     }
 }
 
@@ -48,7 +55,17 @@ impl AppState {
             .radio_buttons(ui);
         ui.end_row();
         ui.label("Background color");
-        ui.color_edit_button_srgba(&mut self.options.canvas_settings.background_color);
+        if let Some(color) = &mut self.options.canvas_settings.background_color {
+            ui.color_edit_button_srgba(color);
+        } else {
+            if ui.button("Customize").clicked() {
+                self.options.canvas_settings.background_color = Some(
+                    self.options
+                        .canvas_settings
+                        .background_color_or_default(ui.ctx()),
+                );
+            }
+        }
 
         if self.options.view_mode == ViewMode::Stacked {
             ui.end_row();

@@ -43,7 +43,7 @@ impl AppState {
         if !self.options.menu_visible {
             return;
         }
-        egui::SidePanel::left("menu").show(ui.ctx(), |ui| {
+        egui::Panel::left("menu").show_inside(ui, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 self.menu_content(ui);
             });
@@ -140,20 +140,22 @@ impl AppState {
         ui.horizontal(|ui| {
             self.load_meta_button(ui);
             ui.separator();
-            #[cfg(not(target_arch = "wasm32"))]
-            self.load_session_button(ui);
-            #[cfg(target_arch = "wasm32")]
-            ui.add_enabled_ui(false, |ui| {
+            ui.add_enabled_ui(cfg!(not(target_arch = "wasm32")), |ui| {
                 self.load_session_button(ui);
             });
-            #[cfg(not(target_arch = "wasm32"))]
-            self.save_session_button(ui, false);
-            #[cfg(target_arch = "wasm32")]
-            ui.add_enabled_ui(false, |ui| {
-                self.save_session_button(ui, false);
-            });
+            ui.add_enabled_ui(
+                cfg!(not(target_arch = "wasm32")) && !self.data.maps.is_empty(),
+                |ui| {
+                    self.save_session_button(ui, false);
+                },
+            );
         });
         ui.separator();
+
+        if self.data.maps.is_empty() {
+            ui.label(egui::RichText::new("No maps loaded.").weak().italics());
+            return;
+        }
 
         // Allow to hide list to resize panel smaller, e.g. with long paths.
         egui::CollapsingHeader::new("List")
@@ -178,10 +180,6 @@ impl AppState {
                     self.maps_list(ui);
                 }
             });
-
-        if self.data.maps.is_empty() {
-            return;
-        }
 
         ui.separator();
         ui.add_space(SPACE);

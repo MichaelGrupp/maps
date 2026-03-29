@@ -87,16 +87,13 @@ impl AppState {
     }
 
     pub(crate) fn footer_panel(&mut self, ui: &mut egui::Ui) {
-        egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Bottom, "footer").show(
-            ui.ctx(),
-            |ui| {
-                ui.horizontal(|ui| {
-                    // Hide non-essential things if the available width is too narrow.
-                    let narrow = ui.available_width() < 750.;
-                    self.footer_left(ui, narrow);
-                    self.footer_right(ui, narrow);
-                });
-            },
-        );
+        egui::Panel::bottom("footer").show_inside(ui, |ui| {
+            ui.horizontal(|ui| {
+                // Hide non-essential things if the available width is too narrow.
+                let narrow = ui.available_width() < 750.;
+                self.footer_left(ui, narrow);
+                self.footer_right(ui, narrow);
+            });
+        });
     }
 }

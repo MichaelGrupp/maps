@@ -205,7 +205,11 @@ impl AppState {
                 .with_texture_crop_threshold(0);
             // Always fill the lens window with a background rectangle.
             // Ensure that the lens uses the same background color as the main grid canvas.
-            mini_grid.draw_background(self.options.canvas_settings.background_color);
+            mini_grid.draw_background(
+                self.options
+                    .canvas_settings
+                    .background_color_or_default(ui.ctx()),
+            );
             // Only show actual data if the center is set (can be None when hover lens loses focus).
             if center_pos.is_some() {
                 mini_grid.show_maps(ui, &mut self.data.maps, options, &self.data.draw_order);
@@ -308,8 +312,14 @@ impl AppState {
         let mut viewport_rect = egui::Rect::ZERO;
 
         egui::CentralPanel::default()
-            .frame(egui::Frame::default().fill(self.options.canvas_settings.background_color))
-            .show(ui.ctx(), |ui| {
+            .frame(
+                egui::Frame::default().fill(
+                    self.options
+                        .canvas_settings
+                        .background_color_or_default(ui.ctx()),
+                ),
+            )
+            .show_inside(ui, |ui| {
                 viewport_rect = ui.clip_rect();
 
                 if self.data.maps.is_empty() {

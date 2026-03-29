@@ -1,9 +1,9 @@
 //! Simple builders for creating file dialogs with some defaults used by this crate.
 
-use std::{env::current_dir, path::PathBuf, sync::Arc};
+use std::{env::current_dir, path::Path, path::PathBuf};
 
 use eframe::egui;
-use egui_file_dialog::FileDialog;
+use egui_file_dialog::{FileDialog, Filter};
 
 /// Creates a file dialog for YAML files.
 pub fn yaml(initial_dir: Option<&PathBuf>) -> FileDialog {
@@ -49,7 +49,7 @@ impl FileDialogBuilder {
             .dialog
             .add_file_filter(
                 name,
-                Arc::new(move |path| {
+                Filter::new(move |path: &Path| {
                     suffixes_vec.iter().any(|suffix| {
                         path.extension()
                             .unwrap_or_default()

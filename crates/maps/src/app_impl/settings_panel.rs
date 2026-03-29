@@ -7,7 +7,7 @@ impl AppState {
         if !self.options.settings_visible {
             return;
         }
-        egui::SidePanel::right("settings").show(ui.ctx(), |ui| {
+        egui::Panel::right("settings").show_inside(ui, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 egui::Grid::new("settings_grid")
                     .num_columns(2)
@@ -27,7 +27,10 @@ impl AppState {
                             ui.end_row();
                         }
 
-                        if self.options.view_mode != ViewMode::Aligned {
+                        if !matches!(
+                            self.options.view_mode,
+                            ViewMode::Aligned | ViewMode::LoadScreen
+                        ) {
                             self.lens_settings(ui);
                             ui.end_row();
                             ui.end_row();

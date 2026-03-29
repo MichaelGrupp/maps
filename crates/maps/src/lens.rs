@@ -164,8 +164,11 @@ impl<'a> Lens<'a> {
 
         // Ensure that the lens has the same background color as the canvas.
         // (e.g. if color_to_alpha is used)
-        ui.painter()
-            .rect_filled(overlay_rect, 0., canvas_settings.background_color);
+        ui.painter().rect_filled(
+            overlay_rect,
+            0.,
+            canvas_settings.background_color_or_default(ui.ctx()),
+        );
         // TODO: use TextureRequest to load the overlay image.
         ui.put(
             overlay_rect,
@@ -191,8 +194,8 @@ impl<'a> Lens<'a> {
     fn bounce_pos(ui: &egui::Ui, pointer_pos: egui::Pos2, overlay_size: egui::Vec2) -> egui::Pos2 {
         let offset = overlay_size / 2. + egui::vec2(10., 10.);
         let window_uv = egui::vec2(
-            pointer_pos.x / ui.ctx().screen_rect().width(),
-            pointer_pos.y / ui.ctx().screen_rect().height(),
+            pointer_pos.x / ui.ctx().content_rect().width(),
+            pointer_pos.y / ui.ctx().content_rect().height(),
         );
 
         if window_uv.x < 0.5 && window_uv.y < 0.5 {
