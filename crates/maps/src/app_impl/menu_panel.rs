@@ -71,46 +71,60 @@ impl AppState {
         }
     }
 
-    fn maps_list(&mut self, ui: &mut egui::Ui) {
-        let mut to_delete: Vec<String> = Vec::new();
-        egui::Grid::new("maps_list")
-            .num_columns(3)
-            .striped(true)
-            .show(ui, |ui| {
-                for name in self.data.draw_order.keys() {
-                    let Some(map) = self.data.maps.get_mut(name) else {
-                        error!("Unknown draw order key: {name}");
-                        continue;
-                    };
+    fn map_entry(&mut self, ui: &mut egui::Ui, name: &str, to_delete: &mut Vec<String>) {
+        let Some(map) = self.data.maps.get_mut(name) else {
+            error!("Attempted to show map entry for unknown map {name}.");
+            return;
+        };
+        let warn_origin_rotation = map.meta.origin_theta.angle() != 0.;
 
-                    if ui
-                        .checkbox(
-                            &mut map.visible,
-                            display_path(name, self.options.display.show_full_paths),
-                        )
-                        .on_hover_ui(|ui| {
-                            map_tooltip(ui, name, map);
-                        })
-                        .changed()
-                    {
-                        self.tile_manager.set_visible(name, map.visible);
-                    }
-                    if ui.button("🗑").on_hover_text("Delete Map").clicked() {
-                        to_delete.push(name.clone());
-                    }
-                    if map.meta.origin_theta.angle() != 0. {
-                        ui.label(
+        egui::Sides::new().show(
+            ui,
+            |ui_left| {
+                if ui_left
+                    .checkbox(
+                        &mut map.visible,
+                        display_path(name, self.options.display.show_full_paths),
+                    )
+                    .on_hover_ui(|ui_left: &mut egui::Ui| {
+                        map_tooltip(ui_left, name, map);
+                    })
+                    .changed()
+                {
+                    self.tile_manager.set_visible(name, map.visible);
+                }
+            },
+            |ui_right| {
+                if ui_right.button("🗑").on_hover_text("Delete Map").clicked() {
+                    to_delete.push(name.to_string());
+                }
+                if warn_origin_rotation {
+                    ui_right
+                        .label(
                             egui::RichText::new("⚠")
                                 .strong()
                                 .color(egui::Color32::ORANGE),
                         )
                         .on_hover_text(
                             "This map has a non-zero origin rotation component in its metadata.\n\
-                            maps uses it, but it's not supported by most ROS tools.\n\n\
-                            It's recommended to save alignment transformations separately,\n\
-                            e.g. using the Pose editor here.",
+                        maps uses it, but it's not supported by most ROS tools.\n\n\
+                        It's recommended to save alignment transformations separately,\n\
+                        e.g. using the Pose editor here.",
                         );
-                    }
+                }
+            },
+        );
+    }
+
+    fn maps_list(&mut self, ui: &mut egui::Ui) {
+        let mut to_delete: Vec<String> = Vec::new();
+        let draw_order_keys = self.data.draw_order.keys().clone();
+        egui::Grid::new("maps_list")
+            .num_columns(1)
+            .striped(true)
+            .show(ui, |ui| {
+                for name in &draw_order_keys {
+                    self.map_entry(ui, name, &mut to_delete);
                     ui.end_row();
                 }
             });
@@ -189,10 +203,7 @@ impl AppState {
         if !self.options.pose_edit.selected_map.is_empty() && self.data.maps.len() > 1 {
             ui.separator();
             ui.add_space(SPACE);
-            egui::ScrollArea::horizontal().show(ui, |ui| {
-                // In scroll area to not take too much space for long paths.
-                self.apply_pose_to_other_maps(ui);
-            });
+            self.apply_pose_to_other_maps(ui);
         }
     }
 }
