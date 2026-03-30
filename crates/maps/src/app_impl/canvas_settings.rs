@@ -7,6 +7,9 @@ use crate::app_impl::ui_helpers::section_heading;
 const MIN_STACK_SCALE: f32 = 1.0;
 const MAX_STACK_SCALE: f32 = 10.0;
 
+const DEFAULT_BG_COLOR_LIGHT: egui::Color32 = egui::Color32::from_rgb(240, 240, 240);
+const DEFAULT_BG_COLOR_DARK: egui::Color32 = egui::Color32::from_rgb(30, 30, 30);
+
 const fn default_stack_scale_factor() -> f32 {
     MIN_STACK_SCALE
 }
@@ -33,7 +36,10 @@ impl Default for CanvasOptions {
 impl CanvasOptions {
     pub fn background_color_or_default(&self, ctx: &egui::Context) -> egui::Color32 {
         self.background_color
-            .unwrap_or_else(|| ctx.global_style().visuals.window_fill)
+            .unwrap_or_else(|| match ctx.global_style().visuals.dark_mode {
+                true => DEFAULT_BG_COLOR_DARK,
+                false => DEFAULT_BG_COLOR_LIGHT,
+            })
     }
 }
 
