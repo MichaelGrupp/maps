@@ -8,7 +8,7 @@ const MIN_STACK_SCALE: f32 = 1.0;
 const MAX_STACK_SCALE: f32 = 10.0;
 
 const DEFAULT_BG_COLOR_LIGHT: egui::Color32 = egui::Color32::from_rgb(240, 240, 240);
-const DEFAULT_BG_COLOR_DARK: egui::Color32 = egui::Color32::from_rgb(30, 30, 30);
+const DEFAULT_BG_COLOR_DARK: egui::Color32 = egui::Color32::from_rgb(32, 32, 32);
 
 const fn default_stack_scale_factor() -> f32 {
     MIN_STACK_SCALE
