@@ -47,11 +47,7 @@ impl AppState {
     }
 
     pub(crate) fn pose_edit(&mut self, ui: &mut egui::Ui) {
-        // ComboBox is in a horizontal scroll to not take too much space for long paths.
-        // Waiting for: https://github.com/emilk/egui/discussions/1829
-        egui::ScrollArea::horizontal().show(ui, |ui| {
-            self.pose_edit_combo_box(ui);
-        });
+        self.pose_edit_combo_box(ui);
 
         let map_name = self.options.pose_edit.selected_map.clone();
         let Some(map_pose) = self.data.maps.get_mut(&map_name).map(|m| &mut m.pose) else {

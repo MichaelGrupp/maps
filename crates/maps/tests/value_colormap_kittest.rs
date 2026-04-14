@@ -10,12 +10,13 @@ use maps::app::{AppOptions, AppState, ColorMap, ViewMode};
 const SESSION: &str = "tests/sessions/value_interpretations_map_server.toml";
 
 #[test]
-fn main() {
-    env_logger::init();
-
+fn rviz_map_colormap() {
     // Snapshot with ROS map_server value interpretation + RViz "Map" colormap.
     run("value_colormap_rviz_map", ColorMap::RvizMap);
+}
 
+#[test]
+fn rviz_costmap_colormap() {
     // Snapshot with map_server value interpretation + RViz "Costmap" colormap.
     run("value_colormap_rviz_costmap", ColorMap::RvizCostmap);
 }

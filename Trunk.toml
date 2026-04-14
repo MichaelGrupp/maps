@@ -1,2 +1,13 @@
 [build]
 target = "crates/maps/index.html"
+filehash = true
+
+# Replace __CACHE_VERSION__ in sw.js with the current git short hash,
+# so the service worker cache is automatically busted on each new WASM build.
+[[hooks]]
+stage = "post_build"
+command = "sh"
+command_arguments = [
+    "-c",
+    "sed -i'' -e \"s/__CACHE_VERSION__/$(git rev-parse --short HEAD)/\" dist/sw.js",
+]

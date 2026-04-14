@@ -13,7 +13,7 @@ fn main() {
         vec![_load_meta_with_fake_path(TEST_META_0)],
         AppOptions {
             canvas_settings: CanvasOptions {
-                background_color: egui::Color32::from_rgba_premultiplied(0, 50, 60, 100),
+                background_color: Some(egui::Color32::from_rgba_premultiplied(0, 50, 60, 100)),
                 ..Default::default()
             },
             tint_settings: TintOptions {

@@ -305,10 +305,17 @@ impl AppState {
         } else {
             "💾 Save Session"
         };
+
+        let disabled_hover_text = if cfg!(target_arch = "wasm32") {
+            "Only supported in native builds."
+        } else {
+            "No maps to save."
+        };
+
         if ui
             .button(text.to_owned())
             .on_hover_text("Save the current session to a file.")
-            .on_disabled_hover_text("Only supported in native builds.")
+            .on_disabled_hover_text(disabled_hover_text)
             .clicked()
         {
             self.save_session_file_dialog.save_file();

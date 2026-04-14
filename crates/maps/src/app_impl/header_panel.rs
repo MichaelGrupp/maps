@@ -67,31 +67,32 @@ impl AppState {
 
         let fullscreen = ui.ctx().input(|i| i.viewport().fullscreen.unwrap_or(false));
 
-        egui::TopBottomPanel::new(egui::containers::panel::TopBottomSide::Top, "header").show(
-            ui.ctx(),
-            |ui| {
-                ui.horizontal(|ui| {
-                    ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                        if !fullscreen && self.options.custom_titlebar() {
-                            ui.add_space(HEADER_PANEL_INDENT);
-                        }
-                        add_toggle_button(ui, "☰", "Show Menu", &mut self.options.menu_visible);
-                        ui.add_space(ICON_SIZE);
+        egui::Panel::top("header").show_inside(ui, |ui| {
+            ui.horizontal(|ui| {
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+                    if !fullscreen && self.options.custom_titlebar() {
+                        ui.add_space(HEADER_PANEL_INDENT);
+                    }
+                    add_toggle_button(ui, "☰", "Show Menu", &mut self.options.menu_visible);
+                    ui.add_space(ICON_SIZE);
+                    ui.add_enabled_ui(!self.data.maps.is_empty(), |ui| {
                         self.tool_buttons(ui);
                     });
+                });
 
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
-                        add_toggle_button(
-                            ui,
-                            "⚙",
-                            "Show app options.",
-                            &mut self.options.settings_visible,
-                        );
-                        ui.add_space(ICON_SIZE);
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+                    add_toggle_button(
+                        ui,
+                        "⚙",
+                        "Show app options.",
+                        &mut self.options.settings_visible,
+                    );
+                    ui.add_space(ICON_SIZE);
+                    ui.add_enabled_ui(!self.data.maps.is_empty(), |ui| {
                         self.view_buttons(ui);
                     });
                 });
-            },
-        );
+            });
+        });
     }
 }

@@ -109,7 +109,7 @@ impl AppState {
             egui::Window::new("Info")
                 .open(&mut self.options.help_visible)
                 .pivot(egui::Align2::CENTER_CENTER)
-                .default_pos(ui.ctx().used_rect().center())
+                .default_pos(ui.ctx().content_rect().center())
                 .fixed_size(egui::Vec2::splat(INFO_WINDOW_WIDTH))
                 .collapsible(false)
                 .show(ui.ctx(), |ui| {

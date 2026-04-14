@@ -265,14 +265,15 @@ impl AppState {
 }
 
 impl eframe::App for AppState {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.tracing.start();
+
+        ui.ctx()
+            .set_theme(self.options.canvas_settings.theme_preference);
 
         let mut central_rect = egui::Rect::ZERO;
 
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ctx.set_theme(self.options.canvas_settings.theme_preference);
-
+        egui::CentralPanel::no_frame().show_inside(ui, |ui| {
             self.error_modal(ui);
             self.quit_modal(ui);
             self.handle_key_shortcuts(ui);
@@ -284,26 +285,27 @@ impl eframe::App for AppState {
             central_rect = self.central_panel(ui);
 
             self.info_window(ui);
-            self.debug_window(ctx, ui);
+            self.debug_window(ui);
         });
 
-        self.handle_new_screenshot(ctx, &central_rect);
+        self.handle_new_screenshot(ui.ctx(), &central_rect);
 
         #[cfg(target_arch = "wasm32")]
         self.consume_wasm_io();
 
-        if ctx.input(|i| i.viewport().close_requested())
+        if ui.ctx().input(|i| i.viewport().close_requested())
             && self.status.unsaved_changes
             && !self.data.maps.is_empty()
         {
-            ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+            ui.ctx()
+                .send_viewport_cmd(egui::ViewportCommand::CancelClose);
             self.status.quit_modal_active = true;
         }
 
         self.tracing.measure();
     }
 
-    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+    fn on_exit(&mut self) {
         if !self.options.persistence.autosave {
             return;
         }

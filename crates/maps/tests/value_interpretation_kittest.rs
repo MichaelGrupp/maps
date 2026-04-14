@@ -11,12 +11,13 @@ const WIKI_SESSION: &str = "tests/sessions/value_interpretations_ros1_wiki.toml"
 const MAP_SERVER_SESSION: &str = "tests/sessions/value_interpretations_map_server.toml";
 
 #[test]
-fn main() {
-    env_logger::init();
-
+fn wiki_value_interpretation() {
     // Snapshot with ROS Wiki value interpretation.
     run("value_interpretations_wiki", WIKI_SESSION);
+}
 
+#[test]
+fn map_server_value_interpretation() {
     // Snapshot with map_server implementation quirks.
     run("value_interpretations_map_server", MAP_SERVER_SESSION);
 }
