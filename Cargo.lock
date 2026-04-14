@@ -2390,7 +2390,7 @@ dependencies = [
 
 [[package]]
 name = "maps"
-version = "1.9.4"
+version = "1.10.0"
 dependencies = [
  "built",
  "cfg-if",
@@ -2421,7 +2421,7 @@ dependencies = [
 
 [[package]]
 name = "maps_io_ros"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "emath",
  "image",
@@ -2436,7 +2436,7 @@ dependencies = [
 
 [[package]]
 name = "maps_rendering"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "eframe",
  "fast_image_resize",
