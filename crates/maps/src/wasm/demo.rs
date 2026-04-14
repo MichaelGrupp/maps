@@ -30,6 +30,7 @@ pub(crate) fn demo_button(
         egui::Button::image(
             egui::Image::new(button_handle.as_ref().expect("missing demo image"))
                 .max_height(200.)
+                .max_width(300.)
                 .alt_text(alt_text),
         )
         .corner_radius(5.),
