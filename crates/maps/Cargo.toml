@@ -33,7 +33,7 @@ maps_rendering = { workspace = true }
 confy = "0.6.1"
 eframe = {version = "0.34.0", features = ["wgpu"]}
 egui_dnd = "0.15.0"
-egui-file-dialog = "0.13.0"
+rfd = "0.17.2"
 egui_plot = "0.35.0"
 egui_tiles = "0.15.0"
 image = { workspace = true }
@@ -57,7 +57,6 @@ env_logger = "0.11.5"
 wasm-bindgen-futures = "0.4"
 web-sys = "0.3.70"
 console_error_panic_hook = "0.1.7"  # wasm error messages in the browser console
-rfd = "0.15.2"
 
 # Enable selected pedantic lints.
 # To check all pedantic lints, alternatively add pedantic = "warn" here.
