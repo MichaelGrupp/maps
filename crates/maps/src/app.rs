@@ -1,11 +1,10 @@
 //! Main application state and options.
 
 use std::collections::{BTreeMap, HashMap};
-use std::path::absolute;
+use std::path::{PathBuf, absolute};
 use std::vec::Vec;
 
 use eframe::egui;
-use egui_file_dialog::FileDialog;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString, VariantNames};
 
@@ -30,11 +29,6 @@ use maps_rendering::render_options::default_crop_threshold;
 use crate::wasm::async_data::AsyncData;
 #[cfg(target_arch = "wasm32")]
 use std::sync::{Arc, Mutex};
-
-#[cfg(not(target_arch = "wasm32"))]
-use crate::app_impl::file_dialog_builder;
-#[cfg(not(target_arch = "wasm32"))]
-use image::DynamicImage;
 
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
@@ -160,10 +154,6 @@ pub struct SessionData {
     pub draw_order: DrawOrder,
     pub grid_lenses: HashMap<String, egui::Pos2>,
 
-    #[cfg(not(target_arch = "wasm32"))]
-    #[serde(skip)]
-    pub screenshot: Option<DynamicImage>,
-
     #[cfg(target_arch = "wasm32")]
     #[serde(skip)]
     pub(crate) wasm_io: Arc<Mutex<AsyncData>>,
@@ -205,12 +195,7 @@ pub struct AppState {
     pub data: SessionData,
     pub status: StatusInfo,
     pub tracing: Tracing,
-    pub load_meta_file_dialog: FileDialog,
-    pub load_map_pose_file_dialog: FileDialog,
-    pub save_map_pose_file_dialog: FileDialog,
-    pub load_session_file_dialog: FileDialog,
-    pub save_session_file_dialog: FileDialog,
-    pub save_screenshot_dialog: FileDialog,
+    pub last_file_dir: Option<PathBuf>,
     pub tile_manager: Tiles,
 }
 
@@ -237,20 +222,7 @@ impl AppState {
             }
         }
 
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            state.load_meta_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref());
-            state.load_map_pose_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref());
-            state.save_map_pose_file_dialog = file_dialog_builder::yaml(_default_dir.as_ref())
-                .allow_file_overwrite(true)
-                .default_file_name("map_pose.yaml");
-            state.load_session_file_dialog = file_dialog_builder::toml(_default_dir.as_ref());
-            state.save_session_file_dialog = file_dialog_builder::toml(_default_dir.as_ref())
-                .allow_file_overwrite(true)
-                .default_file_name("maps_session.toml");
-            state.save_screenshot_dialog = file_dialog_builder::png(_default_dir.as_ref())
-                .default_file_name("maps_screenshot.png");
-        }
+        state.last_file_dir = _default_dir;
 
         const TRACING_BUFFER_SIZE: usize = 600;
         state.tracing = Tracing::new("frame update", TRACING_BUFFER_SIZE);

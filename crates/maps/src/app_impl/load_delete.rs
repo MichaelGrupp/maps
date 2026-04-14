@@ -28,21 +28,21 @@ impl AppState {
     #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn load_meta_button(&mut self, ui: &mut egui::Ui) {
         if ui.button("📂 Load Maps").clicked() {
-            self.load_meta_file_dialog.pick_multiple();
-        }
-        self.load_meta_file_dialog.update(ui.ctx());
-
-        if let Some(paths) = self.load_meta_file_dialog.take_picked_multiple() {
-            for path in paths {
-                ui.ctx().request_repaint();
-                match self.load_meta(&path) {
-                    Ok(_) => {
-                        // Start from the same path the next time.
-                        self.load_meta_file_dialog.config_mut().initial_directory = path;
-                    }
-                    Err(e) => {
-                        self.status.error = e.to_string();
-                        error!("{e}");
+            let mut dialog = rfd::FileDialog::new().add_filter("YAML", &["yaml", "yml"]);
+            if let Some(dir) = &self.last_file_dir {
+                dialog = dialog.set_directory(dir);
+            }
+            if let Some(paths) = dialog.pick_files() {
+                for path in paths {
+                    ui.ctx().request_repaint();
+                    match self.load_meta(&path) {
+                        Ok(_) => {
+                            self.last_file_dir = path.parent().map(std::path::Path::to_path_buf);
+                        }
+                        Err(e) => {
+                            self.status.error = e.to_string();
+                            error!("{e}");
+                        }
                     }
                 }
             }
@@ -154,27 +154,22 @@ impl AppState {
             .on_hover_text("Load a map pose from a YAML file.")
             .clicked()
         {
-            self.load_map_pose_file_dialog.pick_file();
-        }
-        self.load_map_pose_file_dialog.update(ui.ctx());
-
-        if let Some(path) = self.load_map_pose_file_dialog.take_picked() {
-            debug!("Loading pose file: {path:?}");
-            match MapPose::from_yaml_file(&path) {
-                Ok(map_pose) => {
-                    self.add_map_pose(map_name, map_pose);
-                    // Start from the same path the next time, also for saving.
-                    self.load_map_pose_file_dialog
-                        .config_mut()
-                        .initial_directory = path.clone();
-                    self.save_map_pose_file_dialog
-                        .config_mut()
-                        .initial_directory = path;
-                    self.status.unsaved_changes = true;
-                }
-                Err(e) => {
-                    self.status.error = e.to_string();
-                    error!("{e}");
+            let mut dialog = rfd::FileDialog::new().add_filter("YAML", &["yaml", "yml"]);
+            if let Some(dir) = &self.last_file_dir {
+                dialog = dialog.set_directory(dir);
+            }
+            if let Some(path) = dialog.pick_file() {
+                debug!("Loading pose file: {path:?}");
+                match MapPose::from_yaml_file(&path) {
+                    Ok(map_pose) => {
+                        self.add_map_pose(map_name, map_pose);
+                        self.last_file_dir = path.parent().map(std::path::Path::to_path_buf);
+                        self.status.unsaved_changes = true;
+                    }
+                    Err(e) => {
+                        self.status.error = e.to_string();
+                        error!("{e}");
+                    }
                 }
             }
         }
@@ -187,32 +182,29 @@ impl AppState {
             .on_hover_text("Save the map pose to a YAML file.")
             .clicked()
         {
-            self.save_map_pose_file_dialog.save_file();
-        }
-        self.save_map_pose_file_dialog.update(ui.ctx());
-
-        if let Some(path) = self.save_map_pose_file_dialog.take_picked() {
-            ui.ctx().request_repaint();
-            debug!("Saving pose file: {path:?}");
-            let Some(map) = self.data.maps.get(map_name) else {
-                self.status.error = format!("Can't save pose, map doesn't exist: {map_name}");
-                error!("{}", self.status.error);
-                return;
-            };
-            match map.pose.to_yaml_file(&path) {
-                Ok(_) => {
-                    info!("Saved pose file: {path:?}");
-                    // Start from the same path the next time, also for loading.
-                    self.save_map_pose_file_dialog
-                        .config_mut()
-                        .initial_directory = path.clone();
-                    self.load_map_pose_file_dialog
-                        .config_mut()
-                        .initial_directory = path;
-                }
-                Err(e) => {
-                    self.status.error = e.to_string();
-                    error!("{e}");
+            let mut dialog = rfd::FileDialog::new()
+                .add_filter("YAML", &["yaml", "yml"])
+                .set_file_name("map_pose.yaml");
+            if let Some(dir) = &self.last_file_dir {
+                dialog = dialog.set_directory(dir);
+            }
+            if let Some(path) = dialog.save_file() {
+                ui.ctx().request_repaint();
+                debug!("Saving pose file: {path:?}");
+                let Some(map) = self.data.maps.get(map_name) else {
+                    self.status.error = format!("Can't save pose, map doesn't exist: {map_name}");
+                    error!("{}", self.status.error);
+                    return;
+                };
+                match map.pose.to_yaml_file(&path) {
+                    Ok(_) => {
+                        info!("Saved pose file: {path:?}");
+                        self.last_file_dir = path.parent().map(std::path::Path::to_path_buf);
+                    }
+                    Err(e) => {
+                        self.status.error = e.to_string();
+                        error!("{e}");
+                    }
                 }
             }
         }
@@ -222,8 +214,7 @@ impl AppState {
         let deserialized_session = persistence::load_session(path)?;
 
         // Start from the same path the next time.
-        self.load_session_file_dialog.config_mut().initial_directory = path.clone();
-        self.save_session_file_dialog.config_mut().initial_directory = path.clone();
+        self.last_file_dir = path.parent().map(std::path::Path::to_path_buf);
 
         // Keep the draw order of the session, if it was saved.
         // If it was not saved (older versions), add_map() will take care of it.
@@ -287,15 +278,19 @@ impl AppState {
             .on_disabled_hover_text("Only supported in native builds.")
             .clicked()
         {
-            self.load_session_file_dialog.pick_file();
-        }
-        self.load_session_file_dialog.update(ui.ctx());
-
-        if let Some(path) = self.load_session_file_dialog.take_picked() {
-            self.load_session(&path).unwrap_or_else(|e| {
-                self.status.error = e.to_string();
-                error!("{e}");
-            });
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let mut dialog = rfd::FileDialog::new().add_filter("TOML", &["toml"]);
+                if let Some(dir) = &self.last_file_dir {
+                    dialog = dialog.set_directory(dir);
+                }
+                if let Some(path) = dialog.pick_file() {
+                    self.load_session(&path).unwrap_or_else(|e| {
+                        self.status.error = e.to_string();
+                        error!("{e}");
+                    });
+                }
+            }
         }
     }
 
@@ -318,30 +313,30 @@ impl AppState {
             .on_disabled_hover_text(disabled_hover_text)
             .clicked()
         {
-            self.save_session_file_dialog.save_file();
-            self.status.quit_after_save = quit_after_save;
-            self.status.quit_modal_active = false;
-            // TODO: Why is the dialog not visible when no button is visible?
-            // Make sure the menu is visible from the menu panel.
-            self.options.menu_visible = true;
-        }
-        self.save_session_file_dialog.update(ui.ctx());
-
-        if let Some(path) = self.save_session_file_dialog.take_picked() {
-            match persistence::save_session(&path, &self.data) {
-                Ok(_) => {
-                    // Start from the same path the next time.
-                    self.save_session_file_dialog.config_mut().initial_directory = path.clone();
-                    self.load_session_file_dialog.config_mut().initial_directory = path;
-                    self.status.unsaved_changes = false;
-                    if self.status.quit_after_save {
-                        ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let mut dialog = rfd::FileDialog::new()
+                    .add_filter("TOML", &["toml"])
+                    .set_file_name("maps_session.toml");
+                if let Some(dir) = &self.last_file_dir {
+                    dialog = dialog.set_directory(dir);
+                }
+                if let Some(path) = dialog.save_file() {
+                    match persistence::save_session(&path, &self.data) {
+                        Ok(_) => {
+                            self.last_file_dir = path.parent().map(std::path::Path::to_path_buf);
+                            self.status.unsaved_changes = false;
+                            if quit_after_save {
+                                ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                            }
+                        }
+                        Err(e) => {
+                            self.status.error = e.to_string();
+                            error!("{e}");
+                        }
                     }
                 }
-                Err(e) => {
-                    self.status.error = e.to_string();
-                    error!("{e}");
-                }
+                self.status.quit_modal_active = false;
             }
         }
     }

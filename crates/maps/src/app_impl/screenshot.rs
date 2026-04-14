@@ -70,8 +70,25 @@ impl AppState {
 
             #[cfg(not(target_arch = "wasm32"))]
             {
-                self.data.screenshot = Some(image);
-                self.save_screenshot_dialog.save_file();
+                let mut dialog = rfd::FileDialog::new()
+                    .add_filter("PNG", &["png"])
+                    .set_file_name("maps_screenshot.png");
+                if let Some(dir) = &self.last_file_dir {
+                    dialog = dialog.set_directory(dir);
+                }
+                if let Some(file_path) = dialog.save_file() {
+                    match save_image(&file_path, &image) {
+                        Ok(_) => {
+                            info!("Saved screenshot to {file_path:?}");
+                            self.last_file_dir =
+                                file_path.parent().map(std::path::Path::to_path_buf);
+                        }
+                        Err(e) => {
+                            self.status.error = format!("Failed to save screenshot: {e}");
+                            error!("{e}");
+                        }
+                    }
+                }
             }
             #[cfg(target_arch = "wasm32")]
             {
@@ -80,25 +97,6 @@ impl AppState {
                     "maps_screenshot.png".to_string(),
                     image,
                 );
-            }
-        }
-
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            self.save_screenshot_dialog.update(ctx);
-
-            if let Some(file_path) = self.save_screenshot_dialog.take_picked()
-                && let Some(image) = self.data.screenshot.take()
-            {
-                match save_image(&file_path, &image) {
-                    Ok(_) => {
-                        info!("Saved screenshot to {file_path:?}");
-                    }
-                    Err(e) => {
-                        self.status.error = format!("Failed to save screenshot: {e}");
-                        error!("{e}");
-                    }
-                }
             }
         }
     }
