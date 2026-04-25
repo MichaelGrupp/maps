@@ -129,7 +129,7 @@ impl AppState {
             include_bytes!("../../data/doc/demo_scaled.png"),
             "Demo showcasing very large map images, with maps of the Cartographer Deutsches Museum dataset.",
         ) {
-            self.data.maps.clear();
+            self.delete(&self.data.maps.keys().cloned().collect());
             load_cartographer_demo(self);
         }
     }
@@ -142,7 +142,7 @@ impl AppState {
             include_bytes!("../../data/doc/demo_nav2_scaled.png"),
             "Demo showcasing a typical mobile robot warehouse scenario, with maps from the Nav2 demo.",
         ) {
-            self.data.maps.clear();
+            self.delete(&self.data.maps.keys().cloned().collect());
             load_nav2_demo(self);
         }
     }
