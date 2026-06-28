@@ -88,6 +88,11 @@ impl Grid {
         let ui_offset = painter.clip_rect().min.to_vec2();
         let paint_rect_size = painter.clip_rect().size();
 
+        // egui 0.35 reworked window clip regions to span the whole window (https://github.com/emilk/egui/pull/7725).
+        // Since we place textures manually, we have to shrink the clip rect to match our paint area
+        // to avoid overdrawing window decorations when placing textures in a window (e.g. lens window).
+        ui.set_clip_rect(painter.clip_rect());
+
         Grid {
             name: name.to_string(),
             ui_offset,
