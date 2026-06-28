@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use eframe::egui;
+use eframe::egui_wgpu;
 use egui_kittest::HarnessBuilder;
 
 use maps::app::AppState;
@@ -19,9 +20,18 @@ const PIXELS_PER_POINT: f32 = 1.;
 /// To create/update baseline snapshots, run: UPDATE_SNAPSHOTS=1 cargo test
 pub fn snapshot_full_app(app_state: AppState, test_name: &str, size: egui::Vec2) {
     if cfg!(feature = "kittest_snapshots") {
+        // Turn off "predictable" texture filtering of kittest harness.
+        // We want to snapshot with the actual texture filtering used by the app (e.g. Nearest for grid maps).
+        let render_options = egui_wgpu::RendererOptions {
+            predictable_texture_filtering: false,
+            ..Default::default()
+        };
+
         let mut harness = HarnessBuilder::default()
             .with_size(size)
             .with_pixels_per_point(PIXELS_PER_POINT)
+            .with_render_options(render_options)
+            .wgpu()
             .build_eframe(|_cc: &mut eframe::CreationContext| app_state);
 
         harness.snapshot(test_name);
