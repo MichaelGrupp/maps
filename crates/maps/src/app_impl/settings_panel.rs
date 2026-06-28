@@ -4,12 +4,11 @@ use crate::app::{AppState, ViewMode};
 
 impl AppState {
     pub(crate) fn settings_panel(&mut self, ui: &mut egui::Ui) {
-        if !self.options.settings_visible {
-            return;
-        }
+        // Use `egui::Panel::show_collapsible()` instead of `show()` - it has a nice slide animation.
+        let mut panel_expanded = self.options.settings_visible; // satisfy borrow checker
         egui::Panel::right("settings")
             .resizable(false)
-            .show(ui, |ui| {
+            .show_collapsible(ui, &mut panel_expanded, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     egui::Grid::new("settings_grid")
                         .num_columns(2)
@@ -47,5 +46,6 @@ impl AppState {
                         });
                 });
             });
+        self.options.settings_visible = panel_expanded;
     }
 }
