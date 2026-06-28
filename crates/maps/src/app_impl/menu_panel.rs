@@ -3,7 +3,7 @@ use log::error;
 
 use crate::app::{AppState, ViewMode};
 use crate::app_impl::constants::SPACE;
-use crate::app_impl::ui_helpers::display_path;
+use crate::app_impl::ui_helpers::{display_path, monospace};
 use crate::map_state::MapState;
 use maps_rendering::TextureRequest;
 
@@ -21,19 +21,21 @@ fn map_tooltip(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
             .num_columns(2)
             .show(ui, |ui| {
                 ui.label("YAML file path");
-                ui.label(name);
+                ui.label(monospace(name));
                 ui.end_row();
                 ui.label("Image file path");
-                ui.label(map.meta.image_path.to_str().expect("invalid path?"));
-                ui.end_row();
-                ui.label("Image file size");
-                ui.label(format!(
-                    "{} x {} pixels",
-                    map.image_pyramid.original_size.x, map.image_pyramid.original_size.y
+                ui.label(monospace(
+                    map.meta.image_path.to_str().expect("invalid path?"),
                 ));
                 ui.end_row();
+                ui.label("Image size");
+                ui.label(monospace(format!(
+                    "{} x {} pixels",
+                    map.image_pyramid.original_size.x, map.image_pyramid.original_size.y
+                )));
+                ui.end_row();
                 ui.label("Resolution");
-                ui.label(format!("{} m/pixel", map.meta.resolution));
+                ui.label(monospace(format!("{} m/pixel", map.meta.resolution)));
             });
     });
 }
@@ -151,19 +153,24 @@ impl AppState {
         );
 
         ui.add_space(SPACE);
-        ui.horizontal(|ui| {
-            self.load_meta_button(ui);
-            ui.separator();
-            ui.add_enabled_ui(cfg!(not(target_arch = "wasm32")), |ui| {
-                self.load_session_button(ui);
-            });
-            ui.add_enabled_ui(
-                cfg!(not(target_arch = "wasm32")) && !self.data.maps.is_empty(),
-                |ui| {
-                    self.save_session_button(ui, false);
-                },
-            );
-        });
+        // Width of this button row is reused to cap the pose editor width below.
+        let controls_width = ui
+            .horizontal(|ui| {
+                self.load_meta_button(ui);
+                ui.separator();
+                ui.add_enabled_ui(cfg!(not(target_arch = "wasm32")), |ui| {
+                    self.load_session_button(ui);
+                });
+                ui.add_enabled_ui(
+                    cfg!(not(target_arch = "wasm32")) && !self.data.maps.is_empty(),
+                    |ui| {
+                        self.save_session_button(ui, false);
+                    },
+                );
+            })
+            .response
+            .rect
+            .width();
         ui.separator();
 
         if self.data.maps.is_empty() {
@@ -199,11 +206,17 @@ impl AppState {
         ui.add_space(SPACE);
         ui.heading("Pose");
         ui.add_space(SPACE);
-        self.pose_edit(ui);
-        if !self.options.pose_edit.selected_map.is_empty() && self.data.maps.len() > 1 {
-            ui.separator();
-            ui.add_space(SPACE);
-            self.apply_pose_to_other_maps(ui);
-        }
+
+        // Match pose edit UI width to the upper map load/save buttons,
+        // preventing it from going too wide when the panel is resized.
+        ui.scope(|ui| {
+            ui.set_max_width(ui.available_width().min(controls_width));
+            self.pose_edit(ui);
+            if !self.options.pose_edit.selected_map.is_empty() && self.data.maps.len() > 1 {
+                ui.separator();
+                ui.add_space(SPACE);
+                self.apply_pose_to_other_maps(ui);
+            }
+        });
     }
 }
