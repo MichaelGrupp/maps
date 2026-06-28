@@ -12,6 +12,10 @@ use maps_rendering::TextureRequest;
 
 const STACKED_TEXTURE_ID: &str = "stack";
 
+pub(crate) fn default_lens_window_size() -> egui::Vec2 {
+    egui::Vec2::splat(275.)
+}
+
 impl AppState {
     fn show_tiles(&mut self, ui: &mut egui::Ui) {
         let hovered_id = {
@@ -192,7 +196,7 @@ impl AppState {
             .auto_sized()
             .resizable(true)
             .collapsible(true)
-            .default_size(egui::vec2(250., 250.))
+            .default_size(self.options.advanced.lens_window_size)
             .default_pos(ui.clip_rect().min + default_offset.unwrap_or(egui::vec2(0., 0.)));
         if closable {
             window = window.open(&mut open);

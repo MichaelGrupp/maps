@@ -17,6 +17,7 @@ pub use crate::lens::LensOptions;
 pub use maps_io_ros::ColorMap;
 
 use crate::app_impl::CUSTOM_TITLEBAR_SUPPORTED;
+use crate::app_impl::central_panel::default_lens_window_size;
 use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::persistence::{PersistenceOptions, save_app_options};
@@ -176,6 +177,9 @@ pub struct AdvancedOptions {
     /// Dry run mode. E.g. to not actually load images (e.g. in --init-only mode of CLI).
     #[serde(skip)]
     pub dry_run: bool,
+    // How large is a new (unresized) lens window by default?
+    #[serde(default = "default_lens_window_size")]
+    pub lens_window_size: egui::Vec2,
 }
 
 impl Default for AdvancedOptions {
@@ -183,6 +187,7 @@ impl Default for AdvancedOptions {
         Self {
             grid_crop_threshold: default_crop_threshold(),
             dry_run: false,
+            lens_window_size: default_lens_window_size(),
         }
     }
 }

@@ -4,7 +4,7 @@ use crate::app::AppState;
 use crate::app_impl::constants::SPACE;
 
 const INFO_WINDOW_WIDTH: f32 = 500.0;
-const KEYBINDING_TABLE_WIDTH: f32 = 400.0;
+const MAX_COL_WIDTH: f32 = 375.0;
 
 impl AppState {
     fn keybinding_table(ui: &mut egui::Ui) {
@@ -14,7 +14,7 @@ impl AppState {
             .show(ui, |ui| {
                 egui::Grid::new("keybindings")
                     .striped(true)
-                    .max_col_width(KEYBINDING_TABLE_WIDTH)
+                    .max_col_width(MAX_COL_WIDTH)
                     .show(ui, |ui| {
                         ui.label(egui::RichText::new("Key").strong());
                         ui.label(egui::RichText::new("Action").strong());
@@ -111,7 +111,6 @@ impl AppState {
                 .pivot(egui::Align2::CENTER_CENTER)
                 .default_pos(ui.ctx().content_rect().center())
                 .fixed_size(egui::Vec2::splat(INFO_WINDOW_WIDTH))
-                .collapsible(false)
                 .show(ui.ctx(), |ui| {
                     ui.vertical_centered(|ui| {
                         ui.heading("maps");
