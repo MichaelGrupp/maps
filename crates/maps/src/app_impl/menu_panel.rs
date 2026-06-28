@@ -40,14 +40,14 @@ fn map_tooltip(ui: &mut egui::Ui, name: &str, map: &mut MapState) {
 
 impl AppState {
     pub(crate) fn menu_panel(&mut self, ui: &mut egui::Ui) {
-        if !self.options.menu_visible {
-            return;
-        }
-        egui::Panel::left("menu").show(ui, |ui| {
+        // Use `egui::Panel::show_collapsible()` instead of `show()` - it has a nice slide animation.
+        let mut panel_expanded = self.options.menu_visible; // satisfy borrow checker
+        egui::Panel::left("menu").show_collapsible(ui, &mut panel_expanded, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 self.menu_content(ui);
             });
         });
+        self.options.menu_visible = panel_expanded;
     }
 
     fn deselect_toggle(&mut self, ui: &mut egui::Ui) {
