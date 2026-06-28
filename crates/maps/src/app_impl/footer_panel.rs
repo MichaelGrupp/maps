@@ -87,7 +87,7 @@ impl AppState {
     }
 
     pub(crate) fn footer_panel(&mut self, ui: &mut egui::Ui) {
-        egui::Panel::bottom("footer").show_inside(ui, |ui| {
+        egui::Panel::bottom("footer").show(ui, |ui| {
             ui.horizontal(|ui| {
                 // Hide non-essential things if the available width is too narrow.
                 let narrow = ui.available_width() < 750.;

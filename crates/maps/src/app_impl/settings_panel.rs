@@ -9,7 +9,7 @@ impl AppState {
         }
         egui::Panel::right("settings")
             .resizable(false)
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     egui::Grid::new("settings_grid")
                         .num_columns(2)
