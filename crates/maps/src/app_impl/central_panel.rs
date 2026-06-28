@@ -319,7 +319,7 @@ impl AppState {
                         .background_color_or_default(ui.ctx()),
                 ),
             )
-            .show_inside(ui, |ui| {
+            .show(ui, |ui| {
                 viewport_rect = ui.clip_rect();
 
                 if self.data.maps.is_empty() {

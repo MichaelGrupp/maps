@@ -245,7 +245,7 @@ impl eframe::App for AppState {
 
         let mut central_rect = egui::Rect::ZERO;
 
-        egui::CentralPanel::no_frame().show_inside(ui, |ui| {
+        egui::CentralPanel::no_frame().show(ui, |ui| {
             self.error_modal(ui);
             self.quit_modal(ui);
             self.handle_key_shortcuts(ui);

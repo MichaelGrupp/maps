@@ -43,7 +43,7 @@ impl AppState {
         if !self.options.menu_visible {
             return;
         }
-        egui::Panel::left("menu").show_inside(ui, |ui| {
+        egui::Panel::left("menu").show(ui, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 self.menu_content(ui);
             });

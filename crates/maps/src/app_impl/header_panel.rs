@@ -67,7 +67,7 @@ impl AppState {
 
         let fullscreen = ui.ctx().input(|i| i.viewport().fullscreen.unwrap_or(false));
 
-        egui::Panel::top("header").show_inside(ui, |ui| {
+        egui::Panel::top("header").show(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
                     if !fullscreen && self.options.custom_titlebar() {
