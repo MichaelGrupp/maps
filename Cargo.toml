@@ -4,6 +4,9 @@ members = ["crates/maps", "crates/maps_io_ros", "crates/maps_rendering"]
 default-members = ["crates/maps", "crates/maps_io_ros", "crates/maps_rendering"]
 resolver = "2"
 
+[workspace.package]
+rust-version = "1.95" 
+
 [profile.kittest]
 # kittests would be a bit too slow without optimizations.
 inherits = "release"
