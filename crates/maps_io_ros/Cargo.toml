@@ -8,11 +8,11 @@ categories = ["science::robotics", "data-structures", "filesystem", "multimedia:
 keywords = ["map", "navigation", "SLAM", "ROS", "robotics"]
 version = "0.4.0"
 edition = "2024"
-rust-version = "1.92.0"
+rust-version.workspace = true
 readme = "README.md"
 
 [dependencies]
-emath = { version = "0.35.0", features = ["serde"] }
+emath = { version = "0.36.1", features = ["serde"] }
 image = { workspace = true }
 imageproc = { workspace = true }
 lazy_static = { workspace = true }
