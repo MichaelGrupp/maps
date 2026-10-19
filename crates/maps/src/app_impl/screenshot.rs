@@ -1,5 +1,5 @@
 use eframe::egui;
-use log::{debug, error, info};
+use log::{debug, info};
 use strum::Display;
 
 use crate::app::{AppState, ScreenshotResult};
@@ -7,6 +7,8 @@ use maps_rendering::image::from_egui_image;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_image_io;
+#[cfg(not(target_arch = "wasm32"))]
+use log::error;
 #[cfg(not(target_arch = "wasm32"))]
 use maps_io_ros::save_image;
 
