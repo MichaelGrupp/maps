@@ -187,6 +187,10 @@ impl AppState {
         closable: bool,
         default_offset: Option<egui::Vec2>,
     ) {
+        if self.clipped_screenshot_requested() {
+            return;
+        }
+
         let options = &self.options.grid;
         let grid_lens_scale = options.scale * options.lens_magnification;
         let mut open = true;
@@ -240,6 +244,9 @@ impl AppState {
     }
 
     fn show_lens(&mut self, ui: &mut egui::Ui, map_id: &str, texture_id: &str) {
+        if self.clipped_screenshot_requested() {
+            return;
+        }
         if self.options.view_mode == ViewMode::Aligned {
             // The "classic" lens is not shown in aligned mode, we add grids there.
             return;

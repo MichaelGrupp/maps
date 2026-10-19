@@ -196,6 +196,31 @@ pub(crate) struct ScreenshotResult {
     pub(crate) viewport: Viewport,
 }
 
+pub(crate) enum PendingScreenshot {
+    Requested(Viewport),
+    Captured(ScreenshotResult),
+}
+
+impl PendingScreenshot {
+    pub(crate) fn viewport(&self) -> Viewport {
+        match self {
+            Self::Requested(viewport) => *viewport,
+            Self::Captured(screenshot) => screenshot.viewport,
+        }
+    }
+
+    pub(crate) fn is_captured(&self) -> bool {
+        matches!(self, Self::Captured(_))
+    }
+
+    pub(crate) fn into_captured(self) -> ScreenshotResult {
+        let Self::Captured(screenshot) = self else {
+            unreachable!("Screenshot must be captured before it is saved")
+        };
+        screenshot
+    }
+}
+
 /// Main application state, implements the `eframe::App` trait.
 #[derive(Default)]
 pub struct AppState {
@@ -206,7 +231,7 @@ pub struct AppState {
     pub tracing: Tracing,
     pub last_file_dir: Option<PathBuf>,
     pub tile_manager: Tiles,
-    pub(crate) pending_screenshot: Arc<Mutex<Option<ScreenshotResult>>>,
+    pub(crate) pending_screenshot: Arc<Mutex<Option<PendingScreenshot>>>,
 }
 
 impl AppState {

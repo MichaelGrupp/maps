@@ -47,9 +47,9 @@ impl AppState {
 
             // Screenshot shortcuts.
             if i.modifiers.shift && i.key_released(egui::Key::P) {
-                screenshot_request = Some(screenshot::Viewport::Clipped);
-            } else if i.key_released(egui::Key::P) {
                 screenshot_request = Some(screenshot::Viewport::Full);
+            } else if i.key_released(egui::Key::P) {
+                screenshot_request = Some(screenshot::Viewport::Clipped);
             }
 
             // Get the obects that can be currently dragged.
