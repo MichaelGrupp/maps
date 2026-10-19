@@ -2,6 +2,7 @@
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::{PathBuf, absolute};
+use std::sync::{Arc, Mutex};
 use std::vec::Vec;
 
 use eframe::egui;
@@ -18,6 +19,7 @@ pub use maps_io_ros::ColorMap;
 
 use crate::app_impl::CUSTOM_TITLEBAR_SUPPORTED;
 use crate::app_impl::central_panel::default_lens_window_size;
+use crate::app_impl::screenshot::Viewport;
 use crate::draw_order::DrawOrder;
 use crate::map_state::MapState;
 use crate::persistence::{PersistenceOptions, save_app_options};
@@ -28,9 +30,6 @@ use maps_rendering::render_options::default_crop_threshold;
 
 #[cfg(target_arch = "wasm32")]
 use crate::wasm::async_data::AsyncData;
-#[cfg(target_arch = "wasm32")]
-use std::sync::{Arc, Mutex};
-
 #[derive(
     Clone, Debug, Default, PartialEq, Display, EnumString, VariantNames, Serialize, Deserialize,
 )]
@@ -192,6 +191,11 @@ impl Default for AdvancedOptions {
     }
 }
 
+pub(crate) struct ScreenshotResult {
+    pub(crate) image: Arc<egui::ColorImage>,
+    pub(crate) viewport: Viewport,
+}
+
 /// Main application state, implements the `eframe::App` trait.
 #[derive(Default)]
 pub struct AppState {
@@ -202,6 +206,7 @@ pub struct AppState {
     pub tracing: Tracing,
     pub last_file_dir: Option<PathBuf>,
     pub tile_manager: Tiles,
+    pub(crate) pending_screenshot: Arc<Mutex<Option<ScreenshotResult>>>,
 }
 
 impl AppState {

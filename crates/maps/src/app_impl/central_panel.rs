@@ -192,7 +192,7 @@ impl AppState {
         let mut open = true;
         let mut window = egui::Window::new(egui::RichText::new("🔍").strong())
             .title_bar(true)
-            .id(egui::Id::new(id))
+            .id(egui::Id::unique(id))
             .auto_sized()
             .resizable(true)
             .collapsible(true)

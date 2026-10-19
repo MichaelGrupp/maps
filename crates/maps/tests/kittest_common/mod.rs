@@ -31,6 +31,8 @@ pub fn snapshot_full_app(app_state: AppState, test_name: &str, size: egui::Vec2)
             .with_size(size)
             .with_pixels_per_point(PIXELS_PER_POINT)
             .with_render_options(render_options)
+            // These snapshot tests compare rendered output rather than accessibility.
+            .with_accessibility_check(false)
             .wgpu()
             .build_eframe(|_cc: &mut eframe::CreationContext| app_state);
 

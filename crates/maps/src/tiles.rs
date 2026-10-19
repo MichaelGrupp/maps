@@ -28,7 +28,7 @@ impl default::Default for Tiles {
         let root = tiles.insert_tab_tile(vec![root_pane_id]);
         Tiles {
             // ID must be globally unique, see Tree:new().
-            tree: egui_tiles::Tree::new(Uuid::new_v4().to_string(), root, tiles),
+            tree: egui_tiles::Tree::new(eframe::egui::Id::unique(Uuid::new_v4()), root, tiles),
             tile_ids_by_pane_id: HashMap::new(),
         }
     }

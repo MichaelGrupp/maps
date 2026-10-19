@@ -44,13 +44,16 @@ impl DrawOrder {
     }
 
     pub fn ui(&mut self, ui: &mut egui::Ui, show_full_paths: bool) {
-        dnd(ui, "draw_order").show_vec(&mut self.keys, |ui, item, handle, state| {
-            ui.horizontal(|ui| {
-                handle.ui(ui, |ui| {
-                    ui.label(egui::RichText::new(state.index.to_string()).strong());
-                    ui.label(display_path(item, show_full_paths));
+        dnd(ui, egui::Id::unique("draw_order")).show_vec(
+            &mut self.keys,
+            |ui, item, handle, state| {
+                ui.horizontal(|ui| {
+                    handle.ui(ui, |ui| {
+                        ui.label(egui::RichText::new(state.index.to_string()).strong());
+                        ui.label(display_path(item, show_full_paths));
+                    });
                 });
-            });
-        });
+            },
+        );
     }
 }

@@ -35,7 +35,7 @@ impl AppState {
             self.pose_edit_combo_box(ui);
         }
         // Show combo box to select the active movable.
-        egui::ComboBox::from_label("Movable:")
+        let response = egui::ComboBox::from_id_salt("movable")
             .width(0.) // Fit as small as possible.
             .selected_text(self.options.active_movable.to_string())
             .show_ui(ui, |ui| {
@@ -50,7 +50,10 @@ impl AppState {
                     "Grid",
                 );
             })
-            .response
+            .response;
+        let label = ui.label("Movable:");
+        response
+            .labelled_by(label.id)
             .on_hover_text("Select what can be moved by the WASD/QE keys.");
     }
 
