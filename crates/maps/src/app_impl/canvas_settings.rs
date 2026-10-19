@@ -55,10 +55,7 @@ impl AppState {
         ui.end_row();
         ui.label("Dark / Light mode");
         // Theme is applied in main update(), to ensure it's also applied when this ui is hidden.
-        self.options
-            .canvas_settings
-            .theme_preference
-            .radio_buttons(ui);
+        self.options.canvas_settings.theme_preference.buttons(ui);
         ui.end_row();
         ui.label("Background color");
         if let Some(color) = &mut self.options.canvas_settings.background_color {

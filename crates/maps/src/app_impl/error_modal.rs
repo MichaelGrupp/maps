@@ -10,7 +10,7 @@ impl AppState {
         }
 
         let bloodbath = egui::Color32::from_rgba_unmultiplied(255, 0, 0, 50);
-        egui::Modal::new(egui::Id::new("Error"))
+        egui::Modal::new(egui::Id::unique("Error"))
             .backdrop_color(bloodbath)
             .show(ui.ctx(), |ui| {
                 ui.vertical_centered(|ui| {

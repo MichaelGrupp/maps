@@ -9,7 +9,7 @@ impl AppState {
             return;
         }
 
-        egui::Modal::new(egui::Id::new("Confirm Exit")).show(ui.ctx(), |ui| {
+        egui::Modal::new(egui::Id::unique("Confirm Exit")).show(ui.ctx(), |ui| {
             ui.vertical_centered(|ui| {
                 ui.label(egui::RichText::new("⚠").size(50.));
                 ui.label("There seem to be unsaved changes. Are you sure you want to quit?");
