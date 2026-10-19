@@ -67,10 +67,10 @@ impl AppState {
 
                         // Screenshots, picking etc
                         ui.label("p");
-                        ui.label("Take a picture of the full UI and save the screenshot.");
+                        ui.label("Take a screenshot containing only the central maps panel.");
                         ui.end_row();
                         ui.label("shift + p");
-                        ui.label("Take a screenshot containing only the central maps panel.");
+                        ui.label("Take a picture of the full UI and save the screenshot.");
                         ui.end_row();
                         ui.label("Ctrl c (Cmd c)");
                         ui.label(
@@ -105,7 +105,7 @@ impl AppState {
     }
 
     pub(crate) fn info_window(&mut self, ui: &mut egui::Ui) {
-        if self.options.help_visible {
+        if self.options.help_visible && !self.clipped_screenshot_requested() {
             egui::Window::new("Info")
                 .open(&mut self.options.help_visible)
                 .pivot(egui::Align2::CENTER_CENTER)

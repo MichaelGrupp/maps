@@ -4,7 +4,7 @@ use crate::app::AppState;
 
 impl AppState {
     pub(crate) fn debug_window(&mut self, ui: &mut egui::Ui) {
-        if !self.status.debug_window_active {
+        if !self.status.debug_window_active || self.clipped_screenshot_requested() {
             return;
         }
         egui::Window::new("Debug")
