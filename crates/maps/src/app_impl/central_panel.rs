@@ -2,7 +2,7 @@ use eframe::egui;
 use log::{debug, error};
 use uuid::Uuid;
 
-use crate::app::{ActiveTool, AppState, ViewMode};
+use crate::app::{ActiveTool, AppState, CanvasOptions, ViewMode};
 use crate::app_impl::constants::SPACE;
 use crate::grid::Grid;
 use crate::grid_options::{LineType, SubLineVisibility};
@@ -322,20 +322,22 @@ impl AppState {
     pub(crate) fn central_panel(&mut self, ui: &mut egui::Ui) -> egui::Rect {
         let mut viewport_rect = egui::Rect::ZERO;
 
+        if self.data.maps.is_empty() {
+            self.options.view_mode = ViewMode::LoadScreen;
+        }
+
+        let bg_fill = match self.options.view_mode {
+            ViewMode::LoadScreen => CanvasOptions::background_default(ui.ctx()),
+            _ => self
+                .options
+                .canvas_settings
+                .background_color_or_default(ui.ctx()),
+        };
+
         egui::CentralPanel::default()
-            .frame(
-                egui::Frame::default().fill(
-                    self.options
-                        .canvas_settings
-                        .background_color_or_default(ui.ctx()),
-                ),
-            )
+            .frame(egui::Frame::default().fill(bg_fill))
             .show(ui, |ui| {
                 viewport_rect = ui.clip_rect();
-
-                if self.data.maps.is_empty() {
-                    self.options.view_mode = ViewMode::LoadScreen;
-                }
 
                 match self.options.view_mode {
                     ViewMode::Tiles => {

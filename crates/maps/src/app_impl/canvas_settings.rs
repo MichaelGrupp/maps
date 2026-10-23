@@ -36,10 +36,14 @@ impl Default for CanvasOptions {
 impl CanvasOptions {
     pub fn background_color_or_default(&self, ctx: &egui::Context) -> egui::Color32 {
         self.background_color
-            .unwrap_or_else(|| match ctx.global_style().visuals.dark_mode {
-                true => DEFAULT_BG_COLOR_DARK,
-                false => DEFAULT_BG_COLOR_LIGHT,
-            })
+            .unwrap_or_else(|| CanvasOptions::background_default(ctx))
+    }
+
+    pub fn background_default(ctx: &egui::Context) -> egui::Color32 {
+        match ctx.global_style().visuals.dark_mode {
+            true => DEFAULT_BG_COLOR_DARK,
+            false => DEFAULT_BG_COLOR_LIGHT,
+        }
     }
 }
 
